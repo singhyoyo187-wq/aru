@@ -27,13 +27,26 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .auth-logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:0.5rem}
 .auth-logo span{background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .auth-sub{text-align:center;font-size:14px;color:var(--muted);margin-bottom:2rem}
-.fg{margin-bottom:14px}
+.fg{margin-bottom:14px;position:relative}
 .fg label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
 .fi{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);transition:border-color 0.2s}
 .fi:focus{outline:none;border-color:rgba(255,77,109,0.5)}
 .fi::placeholder{color:rgba(245,245,240,0.25)}
+.fi.valid{border-color:rgba(34,197,94,0.5)}
+.fi.invalid{border-color:rgba(255,77,109,0.6)}
+input[type="date"].fi{color-scheme:dark}
+.field-err{font-size:11px;color:#FF4D6D;margin-top:4px;display:none}
+.field-ok{font-size:11px;color:var(--green);margin-top:4px;display:none}
+.pass-wrap{position:relative}
+.pass-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0}
+.pass-strength{height:3px;border-radius:2px;margin-top:6px;transition:all 0.3s;background:var(--border)}
+.pass-strength.weak{background:#ef4444;width:33%}
+.pass-strength.medium{background:#f59e0b;width:66%}
+.pass-strength.strong{background:var(--green);width:100%}
+.pass-strength-label{font-size:11px;margin-top:3px;display:none}
 .auth-btn{width:100%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;border:none;padding:13px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:opacity 0.2s}
 .auth-btn:hover{opacity:0.88}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed}
 .auth-switch{text-align:center;font-size:13px;color:var(--muted);margin-top:1.25rem}
 .auth-switch a{color:var(--brand);cursor:pointer}
 .auth-err{background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#FF4D6D;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px;display:none}
@@ -42,20 +55,24 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .role-btn.active{border-color:var(--brand);background:rgba(255,77,109,0.08)}
 .role-icon{font-size:24px;margin-bottom:4px}
 .role-label{font-size:12px;font-weight:500}
-.hero{padding:5rem 2rem 3rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,77,109,0.12) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.2);color:var(--brand);font-size:12px;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem}
-.hero h1{font-size:clamp(32px,6vw,60px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.25rem}
+.hero{padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(255,77,109,0.1) 0%,transparent 70%);pointer-events:none}
+.early-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.25);color:var(--brand);font-size:12px;font-weight:600;padding:6px 16px;border-radius:20px;margin-bottom:1.75rem}
+.early-dot{width:7px;height:7px;background:var(--brand);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-size:clamp(34px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.25rem}
 .accent{background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{font-size:16px;color:var(--muted);max-width:480px;margin:0 auto 2rem;font-weight:300}
+.hero p{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 1.5rem;font-weight:300;line-height:1.7}
+.waitlist-bar{display:inline-flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 20px;margin-bottom:2rem;font-size:13px}
+.waitlist-num{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.waitlist-label{color:var(--muted)}
 .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--brand);color:white;border:none;padding:13px 28px;border-radius:28px;font-size:14px;font-weight:500;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
+.btn-primary{background:var(--brand);color:white;border:none;padding:13px 28px;border-radius:28px;font-size:14px;font-weight:600;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
 .btn-primary:hover{opacity:0.88;transform:scale(1.02)}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);padding:13px 28px;border-radius:28px;font-size:14px;cursor:pointer}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:0 2rem;border-radius:16px;overflow:hidden}
-.stat{background:var(--surface);padding:1.5rem;text-align:center}
-.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);padding:13px 28px;border-radius:28px;font-size:14px;cursor:pointer;transition:border-color 0.2s}
+.btn-outline:hover{border-color:rgba(255,255,255,0.3)}
+.trust-strip{display:flex;justify-content:center;align-items:center;gap:24px;padding:1.5rem 2rem;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .section{padding:3rem 2rem;max-width:1100px;margin:0 auto}
 .section-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
 .section-header h2{font-size:22px;font-weight:700;letter-spacing:-0.5px}
@@ -63,19 +80,19 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .cat{background:var(--surface);border:1px solid var(--border);padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;transition:all 0.2s;color:var(--muted)}
 .cat.active{background:var(--brand);border-color:var(--brand);color:white}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
-.icard{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s}
-.icard:hover{transform:translateY(-3px);border-color:rgba(255,77,109,0.3)}
+.icard{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s}
+.icard:hover{transform:translateY(-4px);border-color:rgba(255,77,109,0.3);box-shadow:0 12px 40px rgba(255,77,109,0.1)}
 .icard-img{width:100%;aspect-ratio:1;background:linear-gradient(135deg,#1f1f1f,#2a2a2a);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .icard-img img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
 .icard-initial{font-size:64px;font-family:'Syne',sans-serif;font-weight:800;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.live-badge{position:absolute;top:8px;left:8px;background:var(--brand);color:white;font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;animation:pulse 2s infinite;z-index:2}
+.live-badge{position:absolute;top:8px;left:8px;background:var(--brand);color:white;font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;animation:livepulse 2s infinite;z-index:2}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:0.7}}
 .verified-badge{position:absolute;bottom:8px;right:8px;background:rgba(34,197,94,0.92);color:white;font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;z-index:2}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
 .icard-body{padding:14px}
 .icard-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:5px}
 .vtick{color:var(--green);font-size:13px}
-.icard-niche{font-size:12px;color:var(--muted);margin-bottom:8px}
-.icard-footer{display:flex;justify-content:space-between;align-items:center}
+.icard-niche{font-size:12px;color:var(--muted);margin-bottom:4px}
+.icard-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .icard-price{font-size:13px;font-weight:500;color:var(--brand)}
 .icard-rating{font-size:11px;color:var(--muted)}
 .how{padding:3rem 2rem;background:var(--surface)}
@@ -109,12 +126,14 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .scard-desc{font-size:13px;color:var(--muted);margin-bottom:8px}
 .scard-meta{display:flex;gap:12px;font-size:12px;color:var(--muted)}
 .booking-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:sticky;top:80px}
-.booking-panel h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:1.25rem}
+.booking-panel h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:1rem}
+.date-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);margin-bottom:10px;color-scheme:dark;cursor:pointer;transition:border-color 0.2s}
+.date-input:focus{outline:none;border-color:rgba(255,77,109,0.5)}
 .slots-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem}
 .slot{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center;font-size:12px;cursor:pointer;transition:all 0.15s;color:var(--muted)}
 .slot:hover{border-color:var(--brand);color:var(--text)}
-.slot.taken{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
-.slot.active{background:rgba(255,77,109,0.1);border-color:var(--brand);color:var(--text)}
+.slot.active{background:rgba(255,77,109,0.1);border-color:var(--brand);color:var(--text);font-weight:500}
+.no-slots{text-align:center;padding:12px;font-size:13px;color:var(--muted);background:var(--surface);border-radius:10px;margin-bottom:12px}
 .divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
 .total-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:var(--muted)}
 .total-row.final{color:var(--text);font-weight:600;font-size:15px}
@@ -157,6 +176,16 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .avatar-preview{width:72px;height:72px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0;font-family:'Syne',sans-serif;font-weight:700;color:var(--brand)}
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
+.slot-manager{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:1rem}
+.slot-manager h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem}
+.slot-add-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.slot-add-row input{flex:1;min-width:120px;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);color-scheme:dark}
+.slot-add-row input:focus{outline:none;border-color:rgba(255,77,109,0.5)}
+.slot-add-btn{background:var(--brand);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer}
+.slot-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.slot-item{display:flex;justify-content:space-between;align-items:center;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px}
+.slot-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px;transition:color 0.2s}
+.slot-del:hover{color:#FF4D6D}
 .success-wrap{text-align:center;padding:5rem 2rem}
 .success-circle{width:80px;height:80px;background:rgba(34,197,94,0.1);border:2px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
 .success-wrap h2{font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:0.75rem}
@@ -175,7 +204,7 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:1.25re
 .jf p{font-size:12px;color:var(--muted)}
 footer{padding:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 footer p{font-size:12px;color:var(--muted)}
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;z-index:9999;display:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;z-index:9999;display:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
 .toast.show{display:block;animation:fadeIn 0.3s ease}
 .toast.success{border-color:rgba(34,197,94,0.4);color:var(--green)}
 .toast.error{border-color:rgba(255,77,109,0.4);color:#FF4D6D}
@@ -184,9 +213,7 @@ footer p{font-size:12px;color:var(--muted)}
 .fan-explore{background:linear-gradient(135deg,rgba(255,77,109,0.08),rgba(255,140,66,0.08));border:1px solid rgba(255,77,109,0.15);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .fan-explore h4{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px}
 .fan-explore p{font-size:13px;color:var(--muted)}
-.date-picker{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);margin-bottom:12px;cursor:pointer}
-.date-picker:focus{outline:none;border-color:rgba(255,77,109,0.5)}
-@media(max-width:768px){.profile-body{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.jfs{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}nav{padding:1rem}.nav-user{display:none}.dash-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.profile-body{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.jfs{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}nav{padding:1rem}.nav-user{display:none}.dash-stats{grid-template-columns:1fr 1fr}.trust-strip{gap:12px}}
 </style>
 </head>
 <body>
@@ -202,21 +229,26 @@ footer p{font-size:12px;color:var(--muted)}
 </nav>
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hero-badge">🔥 India's Emerging Creator Session Platform</div>
+    <div class="early-badge"><span class="early-dot"></span> Early Access — Limited Spots Available</div>
     <h1>Book live sessions<br>with your <span class="accent">favourite</span><br>creators</h1>
-    <p>1-on-1 video sessions with top fitness & beauty influencers. Real advice, real results.</p>
+    <p>1-on-1 video sessions with India's top fitness & beauty influencers. Real advice, real results, real transformation.</p>
+    <div class="waitlist-bar">
+      <span class="waitlist-num" id="waitlist-count">3,951</span>
+      <span class="waitlist-label">people on the waitlist — and counting 🔥</span>
+    </div>
     <div class="hero-btns">
-      <button class="btn-primary" onclick="document.getElementById('explore').scrollIntoView({behavior:'smooth'})">Explore Creators</button>
-      <button class="btn-outline" onclick="showPage('signup')">Become a Creator</button>
+      <button class="btn-primary" onclick="requireAuth('explore')">Get Early Access →</button>
+      <button class="btn-outline" onclick="requireAuth('creator')">Join as Creator</button>
     </div>
   </div>
-  <div class="stats">
-    <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Verified Creators</div></div>
-    <div class="stat"><div class="stat-num">100+</div><div class="stat-label">Sessions Booked</div></div>
-    <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">Avg Rating</div></div>
+  <div class="trust-strip">
+    <div class="trust-item"><span>🔒</span><span>Secure payments via Razorpay</span></div>
+    <div class="trust-item"><span>✓</span><span>Verified creators only</span></div>
+    <div class="trust-item"><span>📹</span><span>HD Zoom sessions</span></div>
+    <div class="trust-item"><span>⚡</span><span>Instant email confirmation</span></div>
   </div>
   <div class="section" id="explore">
-    <div class="section-header"><h2>Top Creators</h2></div>
+    <div class="section-header"><h2>Featured Creators</h2></div>
     <div class="cats">
       <div class="cat active" onclick="filterCat(this,'all')">All</div>
       <div class="cat" onclick="filterCat(this,'fitness')">💪 Fitness</div>
@@ -231,20 +263,20 @@ footer p{font-size:12px;color:var(--muted)}
     <h2 style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:4px">How it works</h2>
     <p style="font-size:13px;color:var(--muted)">Book a session in under 2 minutes</p>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><h3>Find your creator</h3><p>Browse verified fitness & beauty influencers by niche and rating</p></div>
-      <div class="step"><div class="step-num">2</div><h3>Pick a date & slot</h3><p>Choose your preferred date and time — pay securely via Razorpay</p></div>
-      <div class="step"><div class="step-num">3</div><h3>Join the video call</h3><p>Get a confirmation email with your Zoom link instantly</p></div>
+      <div class="step"><div class="step-num">1</div><h3>Create your account</h3><p>Sign up free and browse verified fitness & beauty creators by niche</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Pick a date & slot</h3><p>Choose from creator's available slots — pay securely via Razorpay</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Join the video call</h3><p>Get a confirmation email with your Zoom link — show up and transform</p></div>
     </div>
   </div></div>
   <div class="join">
     <h2>Are you a creator?</h2>
-    <p>Monetise your expertise. Set your own price. Connect with fans who want to learn from you.</p>
+    <p>Monetise your expertise. Set your own schedule. Connect with fans who want to learn from you.</p>
     <div class="jfs">
-      <div class="jf"><div class="jf-icon">💸</div><h4>Keep 85%</h4><p>We only take 15% — you keep the rest</p></div>
-      <div class="jf"><div class="jf-icon">📅</div><h4>Your schedule</h4><p>Set your slots, block when you're busy</p></div>
-      <div class="jf"><div class="jf-icon">🚀</div><h4>Instant payouts</h4><p>Money hits your account in 24 hours</p></div>
+      <div class="jf"><div class="jf-icon">💸</div><h4>Keep 85%</h4><p>We only take 15% — you keep the rest, always</p></div>
+      <div class="jf"><div class="jf-icon">📅</div><h4>Your schedule</h4><p>Set your own available slots — full control</p></div>
+      <div class="jf"><div class="jf-icon">🚀</div><h4>Instant payouts</h4><p>Money hits your account within 24 hours</p></div>
     </div>
-    <button class="btn-primary" onclick="showPage('signup')">Apply to join →</button>
+    <button class="btn-primary" onclick="requireAuth('creator')">Apply to join →</button>
   </div>
   <footer><p>© 2026 LiveWith · Delhi, India</p><p>livewith.bookings@gmail.com</p></footer>
 </div>
@@ -253,8 +285,20 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="auth-logo">Live<span>With</span></div>
     <div class="auth-sub">Welcome back! Sign in to continue</div>
     <div class="auth-err" id="login-err"></div>
-    <div class="fg"><label>Email</label><input class="fi" type="email" id="li-email" placeholder="you@example.com"/></div>
-    <div class="fg"><label>Password</label><input class="fi" type="password" id="li-pass" placeholder="Your password"/></div>
+    <div class="fg">
+      <label>Email address</label>
+      <input class="fi" type="email" id="li-email" placeholder="you@example.com" oninput="validateEmailField('li-email','li-email-err','li-email-ok')"/>
+      <div class="field-err" id="li-email-err">Please enter a valid email address</div>
+      <div class="field-ok" id="li-email-ok">✓ Valid email</div>
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <div class="pass-wrap">
+        <input class="fi" type="password" id="li-pass" placeholder="Your password" oninput="validateLoginPass()"/>
+        <button class="pass-toggle" onclick="togglePass('li-pass',this)" type="button">👁</button>
+      </div>
+      <div class="field-err" id="li-pass-err">Password must be at least 6 characters</div>
+    </div>
     <button class="auth-btn" id="li-btn" onclick="doLogin()">Sign in</button>
     <div class="auth-switch">No account? <a onclick="showPage('signup')">Sign up free</a></div>
   </div></div>
@@ -262,7 +306,7 @@ footer p{font-size:12px;color:var(--muted)}
 <div class="page" id="page-signup">
   <div class="auth-wrap"><div class="auth-card">
     <div class="auth-logo">Live<span>With</span></div>
-    <div class="auth-sub">Create your free account</div>
+    <div class="auth-sub">Join India's creator session platform 🚀</div>
     <div class="auth-err" id="su-err"></div>
     <div class="fg">
       <label>I am joining as...</label>
@@ -271,13 +315,36 @@ footer p{font-size:12px;color:var(--muted)}
         <div class="role-btn" id="role-creator" onclick="pickRole('creator')"><div class="role-icon">⭐</div><div class="role-label">Creator</div></div>
       </div>
     </div>
-    <div class="fg"><label>Full name</label><input class="fi" type="text" id="su-name" placeholder="Your full name"/></div>
-    <div class="fg"><label>Email</label><input class="fi" type="email" id="su-email" placeholder="you@example.com"/></div>
-    <div class="fg"><label>Password</label><input class="fi" type="password" id="su-pass" placeholder="Min 6 characters"/></div>
-    <div class="fg" id="insta-fg" style="display:none"><label>Instagram handle</label><input class="fi" id="su-insta" placeholder="@yourhandle"/></div>
-    <div class="fg" id="niche-fg" style="display:none"><label>Your niche</label>
+    <div class="fg">
+      <label>Full name</label>
+      <input class="fi" type="text" id="su-name" placeholder="Your full name" oninput="validateName()"/>
+      <div class="field-err" id="su-name-err">Name must be at least 2 characters</div>
+    </div>
+    <div class="fg">
+      <label>Email address</label>
+      <input class="fi" type="email" id="su-email" placeholder="you@example.com" oninput="validateEmailField('su-email','su-email-err','su-email-ok')"/>
+      <div class="field-err" id="su-email-err">Please enter a valid email (e.g. name@gmail.com)</div>
+      <div class="field-ok" id="su-email-ok">✓ Valid email</div>
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <div class="pass-wrap">
+        <input class="fi" type="password" id="su-pass" placeholder="Min 8 characters" oninput="checkPassStrength()"/>
+        <button class="pass-toggle" onclick="togglePass('su-pass',this)" type="button">👁</button>
+      </div>
+      <div class="pass-strength" id="pass-strength-bar"></div>
+      <div class="pass-strength-label" id="pass-strength-label"></div>
+      <div class="field-err" id="su-pass-err">Password must be at least 8 characters with a number</div>
+    </div>
+    <div class="fg" id="insta-fg" style="display:none">
+      <label>Instagram handle</label>
+      <input class="fi" id="su-insta" placeholder="@yourhandle" oninput="validateInsta()"/>
+      <div class="field-err" id="su-insta-err">Please enter your Instagram handle</div>
+    </div>
+    <div class="fg" id="niche-fg" style="display:none">
+      <label>Your niche</label>
       <select class="fi" id="su-niche">
-        <option value="">Select niche</option>
+        <option value="">Select your niche</option>
         <option value="fitness">💪 Fitness & Strength</option>
         <option value="yoga">🧘 Yoga & Mindfulness</option>
         <option value="beauty">💄 Beauty & Skincare</option>
@@ -285,7 +352,7 @@ footer p{font-size:12px;color:var(--muted)}
         <option value="dance">💃 Dance & Cardio</option>
       </select>
     </div>
-    <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
+    <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account — it's free</button>
     <div class="auth-switch">Already have account? <a onclick="showPage('login')">Sign in</a></div>
   </div></div>
 </div>
@@ -297,7 +364,7 @@ footer p{font-size:12px;color:var(--muted)}
   <div class="success-wrap">
     <div class="success-circle"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <h2>You're booked! 🎉</h2>
-    <p>Payment confirmed! Check your email for booking details and Zoom link.</p>
+    <p>Payment confirmed! Check your email for booking details and your Zoom link.</p>
     <div class="bdetails" id="bsummary"></div>
     <button class="btn-primary" onclick="gotoHome()" style="margin-right:8px">Explore more</button>
     <button class="btn-outline" onclick="gotoDashboard()">My bookings</button>
@@ -307,21 +374,80 @@ footer p{font-size:12px;color:var(--muted)}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp,updateDoc,arrayUnion,arrayRemove}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyDwCpBUCEoW-EqFKA8GNOuas3aJ0j3Ivqw",authDomain:"livewith-3b8cd.firebaseapp.com",projectId:"livewith-3b8cd",storageBucket:"livewith-3b8cd.firebasestorage.app",messagingSenderId:"688221135862",appId:"1:688221135862:web:a86207d20edd9606439dd7"});
 const auth=getAuth(app);const db=getFirestore(app);
-
 emailjs.init("UydHuJsWQdiHZLICf");
+let CU=null,CUD=null,selSess=null,selSlot='',selDate='',curCreator=null,selRole='fan',allCreators=[],dashMode='auto',afterAuthAction=null,creatorSlots=[];
 
-let CU=null,CUD=null,selSess=null,selSlot='',selDate='',curCreator=null,selRole='fan',allCreators=[],dashMode='auto';
+// WAITLIST
+function initWaitlist(){
+  const base=3951,start=new Date('2026-01-01T00:00:00').getTime();
+  const calc=()=>base+Math.floor((Date.now()-start)/3600000)*15;
+  document.getElementById('waitlist-count').textContent=calc().toLocaleString('en-IN');
+  setInterval(()=>document.getElementById('waitlist-count').textContent=calc().toLocaleString('en-IN'),60000);
+}
+initWaitlist();
 
+// VALIDATION HELPERS
+function isValidEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());}
+function isValidPass(p){return p.length>=8&&/\d/.test(p);}
+
+window.validateEmailField=function(inputId,errId,okId){
+  const val=document.getElementById(inputId).value.trim();
+  const el=document.getElementById(inputId);
+  const err=document.getElementById(errId);
+  const ok=document.getElementById(okId);
+  if(!val){el.className='fi';err.style.display='none';ok.style.display='none';return;}
+  if(isValidEmail(val)){el.className='fi valid';err.style.display='none';ok.style.display='block';}
+  else{el.className='fi invalid';err.style.display='block';ok.style.display='none';}
+}
+window.validateLoginPass=function(){
+  const val=document.getElementById('li-pass').value;
+  const err=document.getElementById('li-pass-err');
+  err.style.display=val.length>0&&val.length<6?'block':'none';
+}
+window.validateName=function(){
+  const val=document.getElementById('su-name').value.trim();
+  const err=document.getElementById('su-name-err');
+  err.style.display=val.length>0&&val.length<2?'block':'none';
+}
+window.validateInsta=function(){
+  const val=document.getElementById('su-insta').value.trim();
+  const err=document.getElementById('su-insta-err');
+  err.style.display=val.length===0?'block':'none';
+}
+window.checkPassStrength=function(){
+  const p=document.getElementById('su-pass').value;
+  const bar=document.getElementById('pass-strength-bar');
+  const lbl=document.getElementById('pass-strength-label');
+  const err=document.getElementById('su-pass-err');
+  if(!p){bar.className='pass-strength';lbl.style.display='none';err.style.display='none';return;}
+  let score=0;
+  if(p.length>=8)score++;
+  if(/\d/.test(p))score++;
+  if(/[A-Z]/.test(p))score++;
+  if(/[^A-Za-z0-9]/.test(p))score++;
+  lbl.style.display='block';
+  if(score<=1){bar.className='pass-strength weak';lbl.textContent='Weak password';lbl.style.color='#ef4444';}
+  else if(score<=2){bar.className='pass-strength medium';lbl.textContent='Medium password';lbl.style.color='#f59e0b';}
+  else{bar.className='pass-strength strong';lbl.textContent='Strong password ✓';lbl.style.color='var(--green)';}
+  err.style.display=!isValidPass(p)&&p.length>0?'block':'none';
+}
+window.togglePass=function(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
+
+// AUTH STATE
 onAuthStateChanged(auth,async u=>{
   if(u){CU=u;const d=await getDoc(doc(db,'users',u.uid));if(d.exists())CUD=d.data();
     document.getElementById('nav-name').textContent=CUD?.name?.split(' ')[0]||'';
     document.getElementById('btn-login').style.display='none';
     document.getElementById('btn-logout').style.display='block';
     document.getElementById('btn-dash').style.display='block';
+    if(afterAuthAction){const a=afterAuthAction;afterAuthAction=null;a();}
   }else{CU=null;CUD=null;
     document.getElementById('nav-name').textContent='';
     document.getElementById('btn-login').style.display='block';
@@ -329,6 +455,19 @@ onAuthStateChanged(auth,async u=>{
     document.getElementById('btn-dash').style.display='none';
   }
 });
+
+window.requireAuth=function(action){
+  if(CU){
+    if(action==='explore')document.getElementById('explore').scrollIntoView({behavior:'smooth'});
+    else if(action==='creator')gotoDashboard();
+    return;
+  }
+  afterAuthAction=()=>{
+    if(action==='explore')document.getElementById('explore').scrollIntoView({behavior:'smooth'});
+    else if(action==='creator')gotoDashboard();
+  };
+  showPage('signup');
+}
 
 window.pickRole=function(r){
   selRole=r;
@@ -343,8 +482,16 @@ window.doSignup=async function(){
   const email=document.getElementById('su-email').value.trim();
   const pass=document.getElementById('su-pass').value;
   const err=document.getElementById('su-err');err.style.display='none';
-  if(!name||!email||!pass){showErr(err,'Please fill all fields');return;}
-  if(pass.length<6){showErr(err,'Password needs 6+ characters');return;}
+  // Validate all fields
+  if(!name||name.length<2){showErr(err,'Please enter your full name (at least 2 characters)');return;}
+  if(!isValidEmail(email)){showErr(err,'Please enter a valid email address (e.g. name@gmail.com)');return;}
+  if(!isValidPass(pass)){showErr(err,'Password must be at least 8 characters and include a number');return;}
+  if(selRole==='creator'){
+    const insta=document.getElementById('su-insta').value.trim();
+    const niche=document.getElementById('su-niche').value;
+    if(!insta){showErr(err,'Please enter your Instagram handle');return;}
+    if(!niche){showErr(err,'Please select your niche');return;}
+  }
   const btn=document.getElementById('su-btn');btn.innerHTML='<span class="loader"></span>Creating...';btn.disabled=true;
   try{
     const c=await createUserWithEmailAndPassword(auth,email,pass);
@@ -353,95 +500,80 @@ window.doSignup=async function(){
       ud.instagram=document.getElementById('su-insta').value.trim();
       ud.niche=document.getElementById('su-niche').value;
       ud.bio='';ud.followers='0';ud.price=1000;ud.rating=5.0;ud.sessions_count=0;ud.live=false;ud.isPublic=false;
+      ud.availableSlots=[];
       ud.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'45 min',price:1000},{name:'Deep Dive Session',desc:'In-depth session with full plan & follow-up',duration:'60 min',price:1500}];
     }
     await setDoc(doc(db,'users',c.user.uid),ud);CUD=ud;
     toast('Welcome to LiveWith! 🎉','success');gotoDashboard();
-  }catch(e){showErr(err,e.message.includes('email-already-in-use')?'Email already registered — try logging in':e.message.replace('Firebase: ',''));}
-  finally{btn.innerHTML='Create account';btn.disabled=false;}
+  }catch(e){showErr(err,e.message.includes('email-already-in-use')?'This email is already registered — try logging in instead':e.message.includes('invalid-email')?'Please enter a valid email address':e.message.replace('Firebase: ',''));}
+  finally{btn.innerHTML='Create account — it\'s free';btn.disabled=false;}
 }
 
 window.doLogin=async function(){
   const email=document.getElementById('li-email').value.trim();
   const pass=document.getElementById('li-pass').value;
   const err=document.getElementById('login-err');err.style.display='none';
-  if(!email||!pass){showErr(err,'Please enter email and password');return;}
+  if(!isValidEmail(email)){showErr(err,'Please enter a valid email address');return;}
+  if(pass.length<6){showErr(err,'Password must be at least 6 characters');return;}
   const btn=document.getElementById('li-btn');btn.innerHTML='<span class="loader"></span>Signing in...';btn.disabled=true;
   try{await signInWithEmailAndPassword(auth,email,pass);toast('Welcome back! 👋','success');gotoDashboard();}
-  catch(e){showErr(err,'Wrong email or password. Try again.');}
+  catch(e){showErr(err,e.message.includes('wrong-password')||e.message.includes('invalid-credential')?'Wrong email or password — please try again':e.message.includes('too-many-requests')?'Too many attempts. Please wait a few minutes and try again.':'Sign in failed. Please try again.');}
   finally{btn.innerHTML='Sign in';btn.disabled=false;}
 }
 
 window.doLogout=async function(){await signOut(auth);toast('Logged out','success');showPage('home');}
 
+// CREATORS
 async function loadCreators(){
-  try{
-    const q=query(collection(db,'users'),where('role','==','creator'),where('isPublic','==',true));
-    const snap=await getDocs(q);allCreators=[];
-    snap.forEach(d=>allCreators.push({...d.data(),id:d.id}));
-  }catch(e){}
+  try{const q=query(collection(db,'users'),where('role','==','creator'),where('isPublic','==',true));const snap=await getDocs(q);allCreators=[];snap.forEach(d=>allCreators.push({...d.data(),id:d.id}));}catch(e){}
   if(allCreators.length===0)allCreators=demoCreators();
   renderGrid('all');
 }
-
+function getFutureDate(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function demoCreators(){return[
-  {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,bio:'NASM certified personal trainer with 5 years of experience. Specialised in strength training and body transformation for Indian body types.',sessions:[{name:'Strength Assessment',desc:'Full body evaluation + personalised workout plan',duration:'45 min',price:1800},{name:'Workout Deep Dive',desc:'Fix your form, build a custom 12-week routine',duration:'60 min',price:2200},{name:'Quick Check-in',desc:'30 min progress review and Q&A',duration:'30 min',price:1200}]},
-  {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief and mindfulness.',sessions:[{name:'Personalised Yoga Flow',desc:'Custom sequence designed for your body and goals',duration:'60 min',price:1200},{name:'Breathwork & Meditation',desc:'Pranayama techniques for anxiety and stress',duration:'45 min',price:900}]},
-  {id:'d3',photoURL:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop&crop=face',name:'Divya Nair',niche:'beauty',followers:'320K',rating:4.8,sessions_count:210,price:1500,live:true,verified:true,bio:'Beauty consultant with 7 years experience. Expert in skincare routines specifically formulated for Indian skin tones and climate.',sessions:[{name:'Skin Consultation',desc:'Analyse your skin type, build your perfect routine',duration:'45 min',price:1500},{name:'Makeup Masterclass',desc:'1-on-1 personalised tutorial for your specific look',duration:'60 min',price:2000}]},
-  {id:'d4',photoURL:'https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=400&h=400&fit=crop&crop=face',name:'Rohit Verma',niche:'nutrition',followers:'95K',rating:4.7,sessions_count:67,price:1400,live:false,verified:false,bio:'MSc Nutrition from Delhi University. Helping Indians eat healthier without giving up their favourite foods. Evidence-based approach.',sessions:[{name:'Diet Audit',desc:'Review your current diet, identify gaps, build a plan',duration:'45 min',price:1400},{name:'Meal Plan Session',desc:'Build a complete weekly meal plan together',duration:'60 min',price:1800}]},
-  {id:'d5',photoURL:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=400&fit=crop&crop=face',name:'Simran Bedi',niche:'fitness',followers:'145K',rating:4.9,sessions_count:83,price:1300,live:true,verified:true,bio:'Certified HIIT coach and former national level athlete. Helping busy professionals stay fit with 30-45 min high intensity sessions.',sessions:[{name:'HIIT Assessment',desc:'Test your fitness level and build a custom programme',duration:'45 min',price:1300},{name:'Live HIIT Session',desc:'Train together live on video — maximum burn guaranteed',duration:'45 min',price:1100}]},
-  {id:'d6',photoURL:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&crop=face',name:'Kavya Reddy',niche:'beauty',followers:'280K',rating:4.8,sessions_count:156,price:1600,live:false,verified:true,bio:'Aesthetic consultant and skincare specialist. Known for glass skin routines that actually work for South Asian skin types.',sessions:[{name:'Glow Up Consultation',desc:'Customised skincare routine for your specific skin type',duration:'45 min',price:1600},{name:'Ingredient Deep Dive',desc:'Understand exactly what\'s in your products',duration:'30 min',price:900}]}
+  {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,city:'Delhi',bio:'NASM certified personal trainer with 5 years of experience. Specialised in strength training and body transformation for Indian body types. Featured in Femina & Health & Fitness India.',availableSlots:[{date:getFutureDate(1),time:'7:00 AM'},{date:getFutureDate(1),time:'9:00 AM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'7:00 AM'},{date:getFutureDate(4),time:'5:00 PM'}],sessions:[{name:'Strength Assessment',desc:'Full body evaluation + personalised workout plan',duration:'45 min',price:1800},{name:'Workout Deep Dive',desc:'Fix your form, build a custom 12-week routine',duration:'60 min',price:2200},{name:'Quick Check-in',desc:'30 min progress review and Q&A',duration:'30 min',price:1200}]},
+  {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,city:'Mumbai',bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief. Teaching yoga for 6 years across Mumbai and Pune.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(2),time:'7:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'8:00 AM'}],sessions:[{name:'Personalised Yoga Flow',desc:'Custom sequence designed for your body and goals',duration:'60 min',price:1200},{name:'Breathwork & Meditation',desc:'Pranayama techniques for anxiety and stress relief',duration:'45 min',price:900}]},
+  {id:'d3',photoURL:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop&crop=face',name:'Divya Nair',niche:'beauty',followers:'320K',rating:4.8,sessions_count:210,price:1500,live:true,verified:true,city:'Bangalore',bio:'Beauty consultant with 7 years experience in skin and makeup. Expert in routines for Indian skin tones. Brand collaborations with Nykaa, Mamaearth and Dot & Key.',availableSlots:[{date:getFutureDate(1),time:'11:00 AM'},{date:getFutureDate(2),time:'2:00 PM'},{date:getFutureDate(2),time:'4:00 PM'},{date:getFutureDate(4),time:'11:00 AM'}],sessions:[{name:'Skin Consultation',desc:'Analyse your skin type and build your perfect routine',duration:'45 min',price:1500},{name:'Makeup Masterclass',desc:'1-on-1 personalised tutorial for your specific look',duration:'60 min',price:2000}]},
+  {id:'d4',photoURL:'https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=400&h=400&fit=crop&crop=face',name:'Rohit Verma',niche:'nutrition',followers:'95K',rating:4.7,sessions_count:67,price:1400,live:false,verified:false,city:'Delhi',bio:'MSc Nutrition from Delhi University. 4 years helping Indians eat healthier without giving up their favourite foods. Science-based, no fad diets.',availableSlots:[{date:getFutureDate(2),time:'10:00 AM'},{date:getFutureDate(3),time:'12:00 PM'},{date:getFutureDate(5),time:'10:00 AM'}],sessions:[{name:'Diet Audit',desc:'Review your current diet, identify gaps and build a plan',duration:'45 min',price:1400},{name:'Meal Plan Session',desc:'Build a complete personalised weekly meal plan together',duration:'60 min',price:1800}]},
+  {id:'d5',photoURL:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=400&fit=crop&crop=face',name:'Simran Bedi',niche:'fitness',followers:'145K',rating:4.9,sessions_count:83,price:1300,live:true,verified:true,city:'Pune',bio:'Certified HIIT coach and former national level athlete. Helping busy professionals stay fit with efficient 30-45 min high intensity sessions from home.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'6:00 AM'},{date:getFutureDate(4),time:'7:00 PM'}],sessions:[{name:'HIIT Assessment',desc:'Test your fitness level and build a custom programme',duration:'45 min',price:1300},{name:'Live HIIT Session',desc:'Train together live on video — maximum burn guaranteed',duration:'45 min',price:1100}]},
+  {id:'d6',photoURL:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&crop=face',name:'Kavya Reddy',niche:'beauty',followers:'280K',rating:4.8,sessions_count:156,price:1600,live:false,verified:true,city:'Hyderabad',bio:'Aesthetic consultant and skincare specialist. Known for glass skin routines that actually work for South Asian skin tones. 5 years in the industry.',availableSlots:[{date:getFutureDate(2),time:'3:00 PM'},{date:getFutureDate(3),time:'11:00 AM'},{date:getFutureDate(5),time:'3:00 PM'},{date:getFutureDate(6),time:'12:00 PM'}],sessions:[{name:'Glow Up Consultation',desc:'Customised skincare routine for your specific skin type',duration:'45 min',price:1600},{name:'Ingredient Deep Dive',desc:'Understand exactly what\'s in your products and why',duration:'30 min',price:900}]}
 ];}
-
-function avatarInitial(name){return name?name.charAt(0).toUpperCase():'?';}
+function avatarInitial(n){return n?n.charAt(0).toUpperCase():'?';}
 function nicheLabel(n){return{fitness:'💪 Fitness',yoga:'🧘 Yoga',beauty:'💄 Beauty',nutrition:'🥗 Nutrition',dance:'💃 Dance'}[n]||n;}
+function formatDate(s){if(!s)return '';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
+function getFutMin(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
+function getFutMax(){const d=new Date();d.setDate(d.getDate()+30);return d.toISOString().split('T')[0];}
 
 window.renderGrid=function(f){
   const g=document.getElementById('creators-grid');if(!g)return;
   const list=f==='all'?allCreators:allCreators.filter(c=>c.niche===f);
   if(!list.length){g.innerHTML='<p style="color:var(--muted);padding:1rem 0">No creators in this category yet.</p>';return;}
-  g.innerHTML=list.map(c=>`<div class="icard" onclick="openProfile('${c.id}')">
-    <div class="icard-img">
-      ${c.photoURL?`<img src="${c.photoURL}" alt="${c.name}" loading="lazy"/>`:`<span class="icard-initial">${avatarInitial(c.name)}</span>`}
-      ${c.live?'<div class="live-badge">● LIVE</div>':''}
-      ${c.verified?'<div class="verified-badge">✓ Verified</div>':''}
-    </div>
+  g.innerHTML=list.map(c=>`<div class="icard" onclick="handleCreatorClick('${c.id}')">
+    <div class="icard-img">${c.photoURL?`<img src="${c.photoURL}" alt="${c.name}" loading="lazy"/>`:`<span class="icard-initial">${avatarInitial(c.name)}</span>`}${c.live?'<div class="live-badge">● LIVE</div>':''}${c.verified?'<div class="verified-badge">✓ Verified</div>':''}</div>
     <div class="icard-body">
       <div class="icard-name">${c.name}${c.verified?'<span class="vtick">✓</span>':''}</div>
-      <div class="icard-niche">${nicheLabel(c.niche)} · ${c.followers||'0'} followers</div>
+      <div class="icard-niche">${nicheLabel(c.niche)} · ${c.city||'India'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${c.followers||'0'} followers</div>
       <div class="icard-footer"><div class="icard-price">from ₹${(c.price||1000).toLocaleString('en-IN')}</div><div class="icard-rating">${c.rating||5.0}★ (${c.sessions_count||0})</div></div>
-    </div>
-  </div>`).join('');
+    </div></div>`).join('');
 }
-
-window.filterCat=function(el,f){
-  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');renderGrid(f);
+window.filterCat=function(el,f){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderGrid(f);}
+window.handleCreatorClick=function(id){
+  if(!CU){afterAuthAction=()=>openProfile(id);showPage('signup');return;}
+  openProfile(id);
 }
-
-function getMinDate(){
-  const d=new Date();d.setDate(d.getDate()+1);
-  return d.toISOString().split('T')[0];
-}
-function getMaxDate(){
-  const d=new Date();d.setDate(d.getDate()+30);
-  return d.toISOString().split('T')[0];
-}
-function formatDate(dateStr){
-  if(!dateStr)return '';
-  const d=new Date(dateStr+'T00:00:00');
-  return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-}
-
 window.openProfile=function(id){
   curCreator=allCreators.find(x=>x.id===id);if(!curCreator)return;
-  selSess=null;selSlot='';selDate='';const c=curCreator;
+  selSess=null;selSlot='';selDate='';
+  const c=curCreator;
+  const slots=c.availableSlots||[];
+  const uniqueDates=[...new Set(slots.map(s=>s.date))].sort();
   document.getElementById('profile-content').innerHTML=`
     <div class="profile-hero">
       <div class="profile-avatar">${c.photoURL?`<img src="${c.photoURL}" alt="${c.name}"/>`:`<span>${avatarInitial(c.name)}</span>`}</div>
       <div class="profile-info">
-        <div class="profile-name">${c.name}${c.verified?'<span class="verified-tag">✓ Verified</span>':''}${c.live?'<span style="background:var(--brand);font-size:10px;padding:2px 8px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:500">● LIVE</span>':''}</div>
-        <div class="profile-niche">${nicheLabel(c.niche)}</div>
+        <div class="profile-name">${c.name}${c.verified?'<span class="verified-tag">✓ Verified</span>':''}${c.live?'<span style="background:var(--brand);font-size:10px;padding:2px 8px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:500;margin-left:4px">● LIVE</span>':''}</div>
+        <div class="profile-niche">${nicheLabel(c.niche)} · ${c.city||'India'}</div>
         <div class="profile-bio">${c.bio||'Expert creator on LiveWith.'}</div>
         <div class="profile-stats">
           <div class="pstat"><div class="pstat-num">${c.followers||'0'}</div><div class="pstat-label">Followers</div></div>
@@ -453,57 +585,46 @@ window.openProfile=function(id){
     <div class="profile-body">
       <div>
         <h3 style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:1rem">Available Sessions</h3>
-        <div class="sessions-list">${(c.sessions||[]).map((s,i)=>`
-          <div class="scard" id="sc${i}" onclick="pickSess(${i})">
-            <div class="scard-header"><div class="scard-name">${s.name}</div><div class="scard-price">₹${s.price.toLocaleString('en-IN')}</div></div>
-            <div class="scard-desc">${s.desc}</div>
-            <div class="scard-meta"><span>⏱ ${s.duration}</span><span>📹 Zoom call</span></div>
-          </div>`).join('')}
-        </div>
+        <div class="sessions-list">${(c.sessions||[]).map((s,i)=>`<div class="scard" id="sc${i}" onclick="pickSess(${i})"><div class="scard-header"><div class="scard-name">${s.name}</div><div class="scard-price">₹${s.price.toLocaleString('en-IN')}</div></div><div class="scard-desc">${s.desc}</div><div class="scard-meta"><span>⏱ ${s.duration}</span><span>📹 Zoom call</span></div></div>`).join('')}</div>
         <div style="margin-top:2rem">
           <h3 style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:1rem">Reviews</h3>
-          <div class="review"><div class="review-top"><div class="review-name">Riya M.</div><div class="review-stars">★★★★★</div></div><div class="review-text">Amazing session! Completely changed my approach to fitness. Highly recommend!</div></div>
+          <div class="review"><div class="review-top"><div class="review-name">Riya M.</div><div class="review-stars">★★★★★</div></div><div class="review-text">Amazing session! Completely changed my approach. Totally worth it!</div></div>
           <div class="review"><div class="review-top"><div class="review-name">Karan S.</div><div class="review-stars">★★★★★</div></div><div class="review-text">Very knowledgeable, patient and motivating. Worth every rupee.</div></div>
-          <div class="review"><div class="review-top"><div class="review-name">Priya D.</div><div class="review-stars">★★★★☆</div></div><div class="review-text">Great session, got a personalised plan that I actually follow now!</div></div>
+          <div class="review"><div class="review-top"><div class="review-name">Priya D.</div><div class="review-stars">★★★★☆</div></div><div class="review-text">Great session, got a personalised plan I actually follow now!</div></div>
         </div>
       </div>
-      <div>
-        <div class="booking-panel">
-          <h3>Book a session</h3>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">← Select a session first</p>
-          <div id="sel-info" style="display:none;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:600" id="sel-name"></div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px" id="sel-dur"></div>
-          </div>
-          <p style="font-size:11px;color:var(--muted);margin-bottom:6px">Select date</p>
-          <input type="date" class="date-picker" id="date-picker" min="${getMinDate()}" max="${getMaxDate()}" onchange="pickDate(this.value)"/>
-          <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Select time slot</p>
-          <div class="slots-grid">
-            <div class="slot" onclick="pickSlotFn(this,'7:00 AM')">7:00 AM</div>
-            <div class="slot taken">8:00 AM</div>
-            <div class="slot" onclick="pickSlotFn(this,'9:00 AM')">9:00 AM</div>
-            <div class="slot taken">11:00 AM</div>
-            <div class="slot" onclick="pickSlotFn(this,'3:00 PM')">3:00 PM</div>
-            <div class="slot" onclick="pickSlotFn(this,'5:00 PM')">5:00 PM</div>
-            <div class="slot" onclick="pickSlotFn(this,'6:00 PM')">6:00 PM</div>
-            <div class="slot taken">7:00 PM</div>
-          </div>
-          <hr class="divider">
-          <div class="total-row"><span>Session fee</span><span id="t-fee">—</span></div>
-          <div class="total-row final"><span>Total</span><span id="t-total">—</span></div>
-          <button class="pay-btn" id="pay-btn" onclick="doBook()">Pay with Razorpay →</button>
-          <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">UPI · Card · Net Banking · Wallets</p>
+      <div><div class="booking-panel">
+        <h3>Book a session</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">← Select a session first</p>
+        <div id="sel-info" style="display:none;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:600" id="sel-name"></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px" id="sel-dur"></div>
         </div>
-      </div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px">📅 Select available date</p>
+        <select class="date-input" id="date-picker" onchange="onDateChange(this.value)">
+          <option value="">-- Pick a date --</option>
+          ${uniqueDates.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join('')}
+        </select>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">⏰ Select time slot</p>
+        <div id="slots-container"><div class="no-slots">Select a date to see available slots</div></div>
+        <hr class="divider">
+        <div class="total-row"><span>Session fee</span><span id="t-fee">—</span></div>
+        <div class="total-row final"><span>Total</span><span id="t-total">—</span></div>
+        <button class="pay-btn" id="pay-btn" onclick="doBook()">Pay with Razorpay →</button>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">UPI · Card · Net Banking · Wallets</p>
+      </div></div>
     </div>`;
   showPage('profile');
 }
-
-window.pickDate=function(val){selDate=val;}
-
+window.onDateChange=function(date){
+  selDate=date;selSlot='';
+  const slots=(curCreator.availableSlots||[]).filter(s=>s.date===date);
+  const container=document.getElementById('slots-container');
+  if(!slots.length){container.innerHTML='<div class="no-slots">No slots available on this date</div>';return;}
+  container.innerHTML=`<div class="slots-grid">${slots.map(s=>`<div class="slot" onclick="pickSlotFn(this,'${s.time}')">${s.time}</div>`).join('')}</div>`;
+}
 window.pickSess=function(i){
-  selSess=i;
-  document.querySelectorAll('.scard').forEach(c=>c.classList.remove('selected'));
+  selSess=i;document.querySelectorAll('.scard').forEach(c=>c.classList.remove('selected'));
   document.getElementById('sc'+i).classList.add('selected');
   const s=curCreator.sessions[i];
   document.getElementById('sel-info').style.display='block';
@@ -512,175 +633,156 @@ window.pickSess=function(i){
   document.getElementById('t-fee').textContent='₹'+s.price.toLocaleString('en-IN');
   document.getElementById('t-total').textContent='₹'+s.price.toLocaleString('en-IN');
 }
-
 window.pickSlotFn=function(el,t){
-  if(el.classList.contains('taken'))return;
   document.querySelectorAll('.slot').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');selSlot=t;
 }
-
 window.doBook=async function(){
   if(!CU){toast('Please login to book','error');showPage('login');return;}
   if(selSess===null){toast('Select a session first','error');return;}
   if(!selDate){toast('Please select a date','error');return;}
-  if(!selSlot){toast('Pick a time slot','error');return;}
+  if(!selSlot){toast('Please pick a time slot','error');return;}
   const s=curCreator.sessions[selSess];
-  const totalPaise=s.price*100;
   const btn=document.getElementById('pay-btn');
   btn.innerHTML='<span class="loader"></span>Opening payment...';btn.disabled=true;
   const options={
-    key:'rzp_test_SnKyHOgz55oeUZ',
-    amount:totalPaise,
-    currency:'INR',
-    name:'LiveWith',
-    description:`${s.name} with ${curCreator.name}`,
-    image:'',
+    key:'rzp_test_SnKyHOgz55oeUZ',amount:s.price*100,currency:'INR',
+    name:'LiveWith',description:`${s.name} with ${curCreator.name}`,
     prefill:{name:CUD?.name||'',email:CU.email},
     theme:{color:'#FF4D6D'},
     handler:async function(response){
       try{
         const zoomLink='https://zoom.us/j/livewith-'+Math.random().toString(36).substr(2,9);
-        const bookingData={
-          fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,
-          creatorId:curCreator.id,creatorName:curCreator.name,
-          sessionName:s.name,sessionDuration:s.duration,
-          bookingDate:selDate,slot:selSlot,
-          price:s.price,total:s.price,status:'confirmed',
-          paymentId:response.razorpay_payment_id,
-          zoomLink,createdAt:serverTimestamp()
-        };
-        await addDoc(collection(db,'bookings'),bookingData);
-        await sendConfirmationEmail({
-          fan_name:CUD?.name||'there',
-          fan_email:CU.email,
-          creator_name:curCreator.name,
-          session_name:s.name,
-          booking_date:formatDate(selDate),
-          slot_time:selSlot,
-          duration:s.duration,
-          amount:'₹'+s.price.toLocaleString('en-IN'),
-          zoom_link:zoomLink,
-          payment_id:response.razorpay_payment_id
-        });
-        document.getElementById('bsummary').innerHTML=`
-          <div class="bd-row"><span class="bd-label">Creator</span><span>${curCreator.name}</span></div>
-          <div class="bd-row"><span class="bd-label">Session</span><span>${s.name}</span></div>
-          <div class="bd-row"><span class="bd-label">Date</span><span>${formatDate(selDate)}</span></div>
-          <div class="bd-row"><span class="bd-label">Time</span><span>${selSlot}</span></div>
-          <div class="bd-row"><span class="bd-label">Duration</span><span>${s.duration}</span></div>
-          <div class="bd-row"><span class="bd-label">Payment ID</span><span style="font-size:11px">${response.razorpay_payment_id}</span></div>
-          <div class="bd-row"><span class="bd-label">Total paid</span><span>₹${s.price.toLocaleString('en-IN')}</span></div>`;
-        showPage('success');toast('Payment successful! Confirmation sent to your email 🎉','success');
-      }catch(e){toast('Booking saved but email failed. Check dashboard.','error');}
+        await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,total:s.price,status:'confirmed',paymentId:response.razorpay_payment_id,zoomLink,createdAt:serverTimestamp()});
+        await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'₹'+s.price.toLocaleString('en-IN'),zoom_link:zoomLink,payment_id:response.razorpay_payment_id});
+        document.getElementById('bsummary').innerHTML=`<div class="bd-row"><span class="bd-label">Creator</span><span>${curCreator.name}</span></div><div class="bd-row"><span class="bd-label">Session</span><span>${s.name}</span></div><div class="bd-row"><span class="bd-label">Date</span><span>${formatDate(selDate)}</span></div><div class="bd-row"><span class="bd-label">Time</span><span>${selSlot}</span></div><div class="bd-row"><span class="bd-label">Duration</span><span>${s.duration}</span></div><div class="bd-row"><span class="bd-label">Payment ID</span><span style="font-size:11px">${response.razorpay_payment_id}</span></div><div class="bd-row"><span class="bd-label">Total paid</span><span>₹${s.price.toLocaleString('en-IN')}</span></div>`;
+        showPage('success');toast('Payment confirmed! Check your email 🎉','success');
+      }catch(e){toast('Booking saved! Email may be delayed.','success');showPage('success');}
     },
     modal:{ondismiss:function(){btn.innerHTML='Pay with Razorpay →';btn.disabled=false;}}
   };
-  try{const rzp=new Razorpay(options);rzp.open();}
+  try{new Razorpay(options).open();}
   catch(e){toast('Payment failed. Try again.','error');btn.innerHTML='Pay with Razorpay →';btn.disabled=false;}
 }
 
-async function sendConfirmationEmail(params){
-  try{
-    await emailjs.send('service_68pv1zr','template_wk0ksta',params);
-  }catch(e){console.log('Email error:',e);}
-}
-
+// DASHBOARD
 window.gotoDashboard=async function(){
   if(!CU){showPage('login');return;}
   if(!CUD){const d=await getDoc(doc(db,'users',CU.uid));if(d.exists())CUD=d.data();}
   if(dashMode==='auto')dashMode=CUD?.role||'fan';
   renderDashboard();
 }
-
 function renderDashboard(){
   const isC=dashMode==='creator'&&CUD?.role==='creator';
-  const el=document.getElementById('dash-content');
-  el.innerHTML=`
+  document.getElementById('dash-content').innerHTML=`
     <div class="dash-header">
       <div><h1>Welcome, ${CUD?.name?.split(' ')[0]||'there'} 👋</h1><span class="mode-badge">${isC?'⭐ Creator Mode':'🙋 Fan Mode'}</span></div>
       ${CUD?.role==='creator'?`<button class="switch-mode-btn" onclick="switchDashMode()">${isC?'🙋 Switch to Fan Mode':'⭐ Switch to Creator Mode'}</button>`:''}
     </div>
     <div class="dashboard-tabs">
       <div class="dtab active" onclick="switchTab(event,'tab-book')">📅 My Bookings</div>
-      ${isC?'<div class="dtab" onclick="switchTab(event,\'tab-prof\')">✏️ Edit Profile</div><div class="dtab" onclick="switchTab(event,\'tab-earn\')">💰 Earnings</div>':'<div class="dtab" onclick="switchTab(event,\'tab-explore\')">🔍 Explore</div><div class="dtab" onclick="switchTab(event,\'tab-acc\')">👤 Account</div>'}
+      ${isC?'<div class="dtab" onclick="switchTab(event,\'tab-slots\')">🕐 My Slots</div><div class="dtab" onclick="switchTab(event,\'tab-prof\')">✏️ Edit Profile</div><div class="dtab" onclick="switchTab(event,\'tab-earn\')">💰 Earnings</div>':'<div class="dtab" onclick="switchTab(event,\'tab-explore\')">🔍 Explore</div><div class="dtab" onclick="switchTab(event,\'tab-acc\')">👤 Account</div>'}
     </div>
     <div class="dtab-content active" id="tab-book"><p style="color:var(--muted)">Loading...</p></div>
-    ${isC?`<div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
-  showPage('dashboard');loadBkgs(isC);if(isC)loadEarn();
+    ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
+  showPage('dashboard');
+  loadBkgs(isC);
+  if(isC)loadEarn();
 }
-
 window.switchDashMode=function(){dashMode=dashMode==='creator'?'fan':'creator';renderDashboard();}
-window.switchTab=function(e,id){
-  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));
-  e.target.classList.add('active');document.getElementById(id).classList.add('active');
+window.switchTab=function(e,id){document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');document.getElementById(id).classList.add('active');}
+
+// SLOT MANAGER
+function slotManagerHTML(){
+  const slots=CUD?.availableSlots||[];
+  return`<div class="pform">
+    <h3>🕐 Manage Your Available Slots</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Add the dates and times you're available for sessions. Fans will only see these slots when booking.</p>
+    <div class="slot-manager">
+      <h4>Add new slot</h4>
+      <div class="slot-add-row">
+        <input type="date" id="new-slot-date" min="${getFutMin()}" max="${getFutMax()}" placeholder="Date"/>
+        <input type="time" id="new-slot-time" placeholder="Time" list="time-suggestions"/>
+        <datalist id="time-suggestions">
+          <option value="06:00"/><option value="07:00"/><option value="08:00"/>
+          <option value="09:00"/><option value="10:00"/><option value="11:00"/>
+          <option value="12:00"/><option value="14:00"/><option value="15:00"/>
+          <option value="16:00"/><option value="17:00"/><option value="18:00"/>
+          <option value="19:00"/><option value="20:00"/>
+        </datalist>
+        <button class="slot-add-btn" onclick="addSlot()">+ Add slot</button>
+      </div>
+      <div class="slot-list" id="slot-list">
+        ${slots.length===0?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">No slots added yet. Add your first available slot above.</p>':slots.sort((a,b)=>a.date.localeCompare(b.date)||(a.time>b.time?1:-1)).map((s,i)=>`<div class="slot-item"><div><div style="font-weight:500;font-size:13px">${formatDate(s.date)}</div><div style="font-size:12px;color:var(--muted)">${s.time}</div></div><button class="slot-del" onclick="removeSlot(${i})" title="Remove slot">✕</button></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+window.addSlot=async function(){
+  const dateEl=document.getElementById('new-slot-date');
+  const timeEl=document.getElementById('new-slot-time');
+  const date=dateEl.value;const rawTime=timeEl.value;
+  if(!date){toast('Please select a date','error');return;}
+  if(!rawTime){toast('Please select a time','error');return;}
+  // Format time nicely
+  const[h,m]=rawTime.split(':');
+  const hour=parseInt(h);
+  const ampm=hour>=12?'PM':'AM';
+  const displayHour=hour>12?hour-12:hour===0?12:hour;
+  const time=`${displayHour}:${m} ${ampm}`;
+  const existing=CUD?.availableSlots||[];
+  const isDup=existing.some(s=>s.date===date&&s.time===time);
+  if(isDup){toast('This slot already exists','error');return;}
+  const newSlot={date,time};
+  try{
+    await updateDoc(doc(db,'users',CU.uid),{availableSlots:arrayUnion(newSlot)});
+    CUD.availableSlots=[...(CUD.availableSlots||[]),newSlot];
+    dateEl.value='';timeEl.value='';
+    document.getElementById('tab-slots').innerHTML=slotManagerHTML();
+    toast('Slot added! ✓','success');
+  }catch(e){toast('Failed to add slot. Try again.','error');}
+}
+window.removeSlot=async function(i){
+  const slots=CUD?.availableSlots||[];
+  const slot=slots[i];if(!slot)return;
+  try{
+    await updateDoc(doc(db,'users',CU.uid),{availableSlots:arrayRemove(slot)});
+    CUD.availableSlots=slots.filter((_,idx)=>idx!==i);
+    document.getElementById('tab-slots').innerHTML=slotManagerHTML();
+    toast('Slot removed','success');
+  }catch(e){toast('Failed to remove slot.','error');}
 }
 
 async function loadBkgs(isC){
   try{
     const q=query(collection(db,'bookings'),where(isC?'creatorId':'fanId','==',CU.uid));
-    const snap=await getDocs(q);const bks=[];
-    snap.forEach(d=>bks.push({...d.data(),id:d.id}));
+    const snap=await getDocs(q);const bks=[];snap.forEach(d=>bks.push({...d.data(),id:d.id}));
     const el=document.getElementById('tab-book');
-    if(!bks.length){el.innerHTML=`<div class="empty"><div class="ei">📅</div><p>${isC?'No bookings yet. Share your profile link to get started!':'You haven\'t booked any sessions yet.'}</p>${!isC?'<button class="btn-primary" onclick="gotoHome()" style="margin-top:1rem">Explore creators</button>':''}</div>`;return;}
+    if(!bks.length){el.innerHTML=`<div class="empty"><div class="ei">📅</div><p>${isC?'No bookings yet. Set up your slots and share your profile!':'You haven\'t booked any sessions yet.'}</p>${!isC?'<button class="btn-primary" onclick="gotoHome()" style="margin-top:1rem">Explore creators</button>':''}</div>`;return;}
     const totalSpent=bks.reduce((a,b)=>a+(b.total||0),0);
-    const statsHtml=!isC?`<div class="dash-stats">
-      <div class="dstat"><div class="dstat-num" style="color:var(--brand)">${bks.length}</div><div class="dstat-label">Sessions booked</div></div>
-      <div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${totalSpent.toLocaleString('en-IN')}</div><div class="dstat-label">Total spent</div></div>
-      <div class="dstat"><div class="dstat-num" style="color:var(--green)">${bks.filter(b=>b.status==='confirmed').length}</div><div class="dstat-label">Confirmed</div></div>
-    </div>`:'';
-    el.innerHTML=statsHtml+bks.map(b=>`<div class="bcard">
-      <div class="bcard-header"><div class="bcard-title">${b.sessionName}</div><div class="status status-confirmed">${b.status}</div></div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">${isC?'👤 '+b.fanName:'⭐ '+b.creatorName}</div>
-      <div class="bcard-meta">
-        <span>📅 ${b.bookingDate?formatDate(b.bookingDate):''}</span>
-        <span>⏰ ${b.slot}</span>
-        <span>⏱ ${b.sessionDuration}</span>
-        <span>💰 ₹${(b.total||0).toLocaleString('en-IN')}</span>
-      </div>
-      ${b.paymentId?`<div style="margin-top:6px;font-size:11px;color:var(--muted)">Payment ID: ${b.paymentId}</div>`:''}
-      ${b.zoomLink?`<div style="margin-top:10px"><a href="${b.zoomLink}" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">🎥 Join Zoom call →</a></div>`:''}
-    </div>`).join('');
+    const statsHtml=!isC?`<div class="dash-stats"><div class="dstat"><div class="dstat-num" style="color:var(--brand)">${bks.length}</div><div class="dstat-label">Sessions booked</div></div><div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${totalSpent.toLocaleString('en-IN')}</div><div class="dstat-label">Total spent</div></div><div class="dstat"><div class="dstat-num" style="color:var(--green)">${bks.filter(b=>b.status==='confirmed').length}</div><div class="dstat-label">Confirmed</div></div></div>`:'';
+    el.innerHTML=statsHtml+bks.map(b=>`<div class="bcard"><div class="bcard-header"><div class="bcard-title">${b.sessionName}</div><div class="status status-confirmed">${b.status}</div></div><div style="font-size:13px;color:var(--muted);margin-bottom:8px">${isC?'👤 '+b.fanName:'⭐ '+b.creatorName}</div><div class="bcard-meta"><span>📅 ${b.bookingDate?formatDate(b.bookingDate):''}</span><span>⏰ ${b.slot}</span><span>⏱ ${b.sessionDuration}</span><span>💰 ₹${(b.total||0).toLocaleString('en-IN')}</span></div>${b.paymentId?`<div style="margin-top:6px;font-size:11px;color:var(--muted)">Payment: ${b.paymentId}</div>`:''}${b.zoomLink?`<div style="margin-top:10px"><a href="${b.zoomLink}" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">🎥 Join Zoom call →</a></div>`:''}</div>`).join('');
   }catch(e){document.getElementById('tab-book').innerHTML='<p style="color:var(--muted)">Could not load bookings.</p>';}
 }
-
 async function loadEarn(){
   try{
     const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid));
     const snap=await getDocs(q);let total=0,count=0;
     snap.forEach(d=>{total+=(d.data().price||0)*0.85;count++;});
-    document.getElementById('earn-el').innerHTML=`
-      <div class="dash-stats">
-        <div class="dstat"><div class="dstat-num" style="color:var(--brand)">₹${Math.round(total).toLocaleString('en-IN')}</div><div class="dstat-label">Total earned (85%)</div></div>
-        <div class="dstat"><div class="dstat-num" style="color:var(--green)">${count}</div><div class="dstat-label">Sessions completed</div></div>
-        <div class="dstat"><div class="dstat-num" style="color:var(--brand2)">Mon</div><div class="dstat-label">Next payout day</div></div>
-      </div>
-      <div class="pform"><h3>Payout Info</h3><p style="font-size:13px;color:var(--muted);line-height:1.8">Payouts processed every Monday via Razorpay to your bank account.<br>You keep <strong style="color:var(--text)">85%</strong> of every session fee. LiveWith takes 15% to cover platform, payment processing, and support.</p></div>`;
+    document.getElementById('earn-el').innerHTML=`<div class="dash-stats"><div class="dstat"><div class="dstat-num" style="color:var(--brand)">₹${Math.round(total).toLocaleString('en-IN')}</div><div class="dstat-label">Total earned (85%)</div></div><div class="dstat"><div class="dstat-num" style="color:var(--green)">${count}</div><div class="dstat-label">Sessions completed</div></div><div class="dstat"><div class="dstat-num" style="color:var(--brand2)">Mon</div><div class="dstat-label">Next payout day</div></div></div><div class="pform"><h3>Payout Info</h3><p style="font-size:13px;color:var(--muted);line-height:1.8">Payouts processed every Monday via Razorpay to your bank account.<br>You keep <strong style="color:var(--text)">85%</strong> of every session. LiveWith takes 15% to cover platform, payments and support.</p></div>`;
   }catch(e){}
 }
-
 function exploreFanSection(){
-  const demo=demoCreators().slice(0,3);
   return`<div class="fan-explore"><div><h4>Discover new creators</h4><p>Browse all creators and book your next session</p></div><button class="btn-primary" onclick="gotoHome()">Explore now →</button></div>
   <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Featured creators</p>
-  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">${demo.map(c=>`
-    <div class="icard" onclick="openProfile('${c.id}')">
-      <div class="icard-img">${c.photoURL?`<img src="${c.photoURL}" loading="lazy"/>`:`<span class="icard-initial">${avatarInitial(c.name)}</span>`}${c.live?'<div class="live-badge">● LIVE</div>':''}${c.verified?'<div class="verified-badge">✓</div>':''}</div>
-      <div class="icard-body"><div class="icard-name">${c.name}${c.verified?'<span class="vtick">✓</span>':''}</div><div class="icard-niche">${nicheLabel(c.niche)}</div><div class="icard-price">from ₹${c.price.toLocaleString('en-IN')}</div></div>
-    </div>`).join('')}
-  </div>`;
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">${demoCreators().slice(0,3).map(c=>`<div class="icard" onclick="openProfile('${c.id}')"><div class="icard-img">${c.photoURL?`<img src="${c.photoURL}" loading="lazy"/>`:`<span class="icard-initial">${avatarInitial(c.name)}</span>`}${c.live?'<div class="live-badge">● LIVE</div>':''}${c.verified?'<div class="verified-badge">✓</div>':''}</div><div class="icard-body"><div class="icard-name">${c.name}${c.verified?'<span class="vtick">✓</span>':''}</div><div class="icard-niche">${nicheLabel(c.niche)}</div><div class="icard-price">from ₹${c.price.toLocaleString('en-IN')}</div></div></div>`).join('')}</div>`;
 }
-
 function creatorProfileForm(){
   const d=CUD||{};
   return`<div class="pform"><h3>Your Creator Profile</h3>
     <div class="avatar-upload">
       <div class="avatar-preview" id="av-preview">${d.photoURL?`<img src="${d.photoURL}"/>`:`<span>${avatarInitial(d.name||'')}</span>`}</div>
-      <div style="flex:1">
-        <p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste a direct image URL (from Instagram, LinkedIn, or any photo)</p>
-        <input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/>
-      </div>
+      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste a direct image URL from Instagram or any site</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
     </div>
     <div class="form-row">
       <div class="fg"><label>Display name</label><input class="fi" id="cp-name" value="${d.name||''}"/></div>
@@ -690,52 +792,26 @@ function creatorProfileForm(){
       <div class="fg"><label>Followers</label><input class="fi" id="cp-fol" value="${d.followers||''}" placeholder="e.g. 50K"/></div>
       <div class="fg"><label>Base session price (₹)</label><input class="fi" type="number" id="cp-price" value="${d.price||1000}"/></div>
     </div>
-    <div class="fg"><label>Bio</label><textarea class="fi" id="cp-bio" rows="3" placeholder="Tell fans about your expertise and what they'll get from a session...">${d.bio||''}</textarea></div>
-    <div class="fg"><label>Show profile publicly on platform?</label>
-      <select class="fi" id="cp-pub">
-        <option value="true" ${d.isPublic?'selected':''}>Yes — show my profile to everyone</option>
-        <option value="false" ${!d.isPublic?'selected':''}>No — hide for now</option>
-      </select>
-    </div>
+    <div class="fg"><label>City</label><input class="fi" id="cp-city" value="${d.city||''}" placeholder="e.g. Delhi, Mumbai"/></div>
+    <div class="fg"><label>Bio</label><textarea class="fi" id="cp-bio" rows="3" placeholder="Tell fans about your expertise...">${d.bio||''}</textarea></div>
+    <div class="fg"><label>Show profile publicly?</label><select class="fi" id="cp-pub"><option value="true" ${d.isPublic?'selected':''}>Yes — show my profile to everyone</option><option value="false" ${!d.isPublic?'selected':''}>No — hide for now</option></select></div>
     <button class="save-btn" onclick="saveProf()">Save profile</button>
     <span style="margin-left:12px;font-size:13px;color:${d.verified?'var(--green)':'var(--muted)'}">${d.verified?'✓ Your profile is verified':'Verification pending — email livewith.bookings@gmail.com'}</span>
   </div>`;
 }
-
-window.previewPhoto=function(url){
-  const p=document.getElementById('av-preview');
-  if(url){p.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='?'"/>`;}
-  else{p.innerHTML=avatarInitial(CUD?.name||'?');}
-}
-
+window.previewPhoto=function(url){const p=document.getElementById('av-preview');p.innerHTML=url?`<img src="${url}" onerror="this.parentElement.innerHTML='?'"/>`:`<span>${avatarInitial(CUD?.name||'?')}</span>`;}
 window.saveProf=async function(){
-  const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,isPublic:document.getElementById('cp-pub').value==='true'};
+  const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,city:document.getElementById('cp-city').value,isPublic:document.getElementById('cp-pub').value==='true'};
   try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved! 🎉','success');loadCreators();}
   catch(e){toast('Save failed. Try again.','error');}
 }
-
-function accForm(){
-  return`<div class="pform"><h3>Account Details</h3>
-    <div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div>
-    <div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div>
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-      <button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button>
-    </div>
-  </div>`;
-}
-
-window.showPage=function(n){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+n).classList.add('active');window.scrollTo(0,0);
-}
+function accForm(){return`<div class="pform"><h3>Account Details</h3><div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div><div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div></div>`;}
+window.showPage=function(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');window.scrollTo(0,0);}
 window.gotoHome=function(){showPage('home');}
 function showErr(el,msg){el.textContent=msg;el.style.display='block';}
-function toast(msg,type){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+(type||'');
-  setTimeout(()=>t.classList.remove('show'),3500);
-}
-
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.classList.remove('show'),3500);}
+function getFutMin(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
+function getFutMax(){const d=new Date();d.setDate(d.getDate()+30);return d.toISOString().split('T')[0];}
 loadCreators();
 setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block';},800);
 </script>
