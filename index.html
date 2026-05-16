@@ -699,10 +699,17 @@ window.doLogout=async function(){await signOut(auth);toast('Logged out','success
 
 async function loadCreators(){
   try{
-    const q=query(collection(db,'users'),where('role','==','creator'),where('isPublic','==',true),where('status','==','approved'));
+    // Only filter by role to avoid composite index requirement
+    const q=query(collection(db,'users'),where('role','==','creator'));
     const snap=await getDocs(q);allCreators=[];
-    snap.forEach(d=>allCreators.push({...d.data(),id:d.id}));
-  }catch(e){}
+    snap.forEach(d=>{
+      const data={...d.data(),id:d.id};
+      // Show if isPublic AND (status is approved OR status not set but verified)
+      if(data.isPublic && (data.status==='approved' || data.verified===true)){
+        allCreators.push(data);
+      }
+    });
+  }catch(e){console.error('loadCreators error:',e);}
   if(allCreators.length===0)allCreators=demoCreators();
   renderGrid('all');
 }
@@ -1210,7 +1217,7 @@ window.loadAdminData=async function(){
 
 window.approveCreator=async function(uid,name,email){
   try{
-    await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true});
+    await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true,live:false});
     try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'LiveWith Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'—',duration:'—',amount:'First month free',zoom_link:'https://aru-lime.vercel.app',payment_id:'—'});}catch(e){}
     toast(name+' approved and notified','success');loadAdminData();
   }catch(e){toast('Failed','error');}
