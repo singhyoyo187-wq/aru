@@ -678,21 +678,21 @@ window.doForgotPassword=async function(){
   const email=document.getElementById('forgot-email').value.trim();
   const err=document.getElementById('forgot-err'),ok=document.getElementById('forgot-ok');
   err.style.display='none';ok.style.display='none';
-  if(!isValidEmail(email)){showErr(err,'Please enter a valid email address');return;}
+  if(!email){showErr(err,'Please enter your email address');return;}
+  if(!isValidEmail(email)){showErr(err,'Please enter a valid email (e.g. name@gmail.com)');return;}
   const btn=document.getElementById('forgot-btn');btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
-    try{
-      const actionSettings={url:window.location.origin+window.location.pathname,handleCodeInApp:false};
-      await sendPasswordResetEmail(auth,email,actionSettings);
-      ok.style.display='block';
-      ok.textContent='Reset email sent to '+email+'. Check inbox and spam folder.';
-    }catch(e){
-      console.error(e.code);
-      if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){showErr(err,'No account found with this email.');}
-      else if(e.code==='auth/too-many-requests'){showErr(err,'Too many attempts. Please wait a few minutes.');}
-      else{showErr(err,'Could not send reset email. Check the email is registered.');}
-    }
-
-  finally{btn.innerHTML='Send reset email';btn.disabled=false;}
+  try{
+    await sendPasswordResetEmail(auth,email);
+    ok.style.display='block';
+    ok.textContent='Reset link sent to '+email+'. Check your inbox and spam folder.';
+  }catch(e){
+    console.error('Reset error:',e.code,e.message);
+    if(e.code==='auth/user-not-found'){showErr(err,'No account found with this email address.');}
+    else if(e.code==='auth/invalid-email'){showErr(err,'Please enter a valid email address.');}
+    else if(e.code==='auth/too-many-requests'){showErr(err,'Too many attempts. Please wait a few minutes and try again.');}
+    else if(e.code==='auth/unauthorized-domain'){showErr(err,'Domain not authorized. Please contact support.');}
+    else{showErr(err,'Error: '+e.code+'. Please try again or contact support.');}
+  }finally{btn.innerHTML='Send reset email';btn.disabled=false;}
 };
 
 window.doLogout=async function(){await signOut(auth);toast('Logged out','success');showPage('home');};
@@ -1065,9 +1065,23 @@ async function loadEarn(){
 }
 
 function exploreFanSection(){
-  return`<div class="fan-explore"><div><h4>Discover new creators</h4><p>Browse all creators and book your next session</p></div><button class="btn-primary" onclick="gotoHome()">Explore now</button></div>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Featured creators</p>
-  '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">'+demoCreators().slice(0,4).map(c=>'<div class="icard" onclick="openProfile(\''+c.id+'\')"><div class="icard-img">'+cardImg(c)+(c.live?'<div class="live-badge">LIVE</div>':'')+(c.verified?'<div class="verified-badge">✓</div>':'')+'</div><div class="icard-body"><div class="icard-name">'+c.name+(c.verified?'<span class="vtick">✓</span>':'')+'</div><div class="icard-niche">'+nicheLabel(c.niche)+'</div><div class="icard-price">from ₹'+c.price.toLocaleString('en-IN')+'</div></div></div>').join('')+'</div>`;
+  var h="";
+  h+='<div class="fan-explore"><div><h4>Discover new creators</h4><p>Browse all creators and book your next session</p></div><button class="btn-primary" onclick="gotoHome()">Explore now</button></div>';
+  h+='<p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Featured creators</p>';
+  h+='<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">';
+  demoCreators().slice(0,4).forEach(function(c){
+    var onclick="openProfile('"+c.id+"')";
+    h+='<div class="icard" onclick="'+onclick+'"><div class="icard-img">'+cardImg(c);
+    h+=(c.live?'<div class="live-badge">LIVE</div>':'');
+    h+=(c.verified?'<div class="verified-badge">&#10003;</div>':'');
+    h+='</div><div class="icard-body">';
+    h+='<div class="icard-name">'+c.name+(c.verified?'<span class="vtick">&#10003;</span>':'')+'</div>';
+    h+='<div class="icard-niche">'+nicheLabel(c.niche)+'</div>';
+    h+='<div class="icard-price">from ₹'+c.price.toLocaleString("en-IN")+'</div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  return h;
 }
 
 function creatorProfileForm(){
