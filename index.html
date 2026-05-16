@@ -525,19 +525,19 @@ footer p{font-size:12px;color:var(--muted)}
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp,updateDoc,arrayUnion,arrayRemove,deleteDoc,increment}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
- 
+
 const ADMIN_EMAIL='lazyc5240@gmail.com';
 const BASE_URL=window.location.origin+window.location.pathname;
 const app=initializeApp({apiKey:"AIzaSyDwCpBUCEoW-EqFKA8GNOuas3aJ0j3Ivqw",authDomain:"livewith-3b8cd.firebaseapp.com",projectId:"livewith-3b8cd",storageBucket:"livewith-3b8cd.firebasestorage.app",messagingSenderId:"688221135862",appId:"1:688221135862:web:a86207d20edd9606439dd7"});
 const auth=getAuth(app);
 const db=getFirestore(app);
 emailjs.init("UydHuJsWQdiHZLICf");
- 
+
 let CU=null,CUD=null,selSess=null,selSlot='',selDate='',curCreator=null,selRole='fan',allCreators=[],dashMode='auto',afterAuthAction=null,reviewRating=0;
- 
+
 const urlRef=new URLSearchParams(window.location.search).get('ref');
 if(urlRef)document.getElementById('su-ref').value=urlRef;
- 
+
 document.getElementById('hero-explore-btn').onclick=()=>{
   if(!CU){afterAuthAction=()=>{showPage('home');setTimeout(()=>document.getElementById('section-explore').scrollIntoView({behavior:'smooth'}),200);};showPage('signup');return;}
   document.getElementById('section-explore').scrollIntoView({behavior:'smooth'});
@@ -550,17 +550,17 @@ document.getElementById('join-creator-btn').onclick=()=>{
   if(!CU){selRole='creator';afterAuthAction=()=>gotoDashboard();showPage('signup');pickRole('creator');return;}
   gotoDashboard();
 };
- 
+
 (function(){
   const base=3951,start=new Date('2026-01-01T00:00:00').getTime();
   const calc=()=>base+Math.floor((Date.now()-start)/3600000)*15;
   const el=document.getElementById('waitlist-count');
   if(el){el.textContent=calc().toLocaleString('en-IN');setInterval(()=>{el.textContent=calc().toLocaleString('en-IN');},60000);}
 })();
- 
+
 function isValidEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());}
 function isValidPass(p){return p.length>=8&&/\d/.test(p);}
- 
+
 window.validateEmailField=function(iid,eid,oid){
   const val=document.getElementById(iid).value.trim();
   const el=document.getElementById(iid),err=document.getElementById(eid),ok=document.getElementById(oid);
@@ -582,18 +582,19 @@ window.checkPassStrength=function(){
   document.getElementById('su-pass-err').style.display=!isValidPass(p)&&p.length>0?'block':'none';
 };
 window.togglePass=function(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';};
- 
+
 onAuthStateChanged(auth,async u=>{
   if(u){
     CU=u;
     const d=await getDoc(doc(db,'users',u.uid));
     if(d.exists())CUD=d.data();
     const isAdmin=CU.email===ADMIN_EMAIL;
-    document.getElementById('nav-name').textContent=CUD?.name?.split(' ')[0]||'';
+    const isAdmin2=CU.email===ADMIN_EMAIL;document.getElementById('nav-name').textContent=isAdmin2?'':(CUD?.name?.split(' ')[0]||'');
     document.getElementById('btn-login').style.display='none';
     document.getElementById('btn-logout').style.display='block';
-    document.getElementById('btn-dash').style.display='block';
+    document.getElementById('btn-dash').style.display=CU.email===ADMIN_EMAIL?'none':'block';
     document.getElementById('btn-admin').style.display=isAdmin?'block':'none';
+    if(CU.email===ADMIN_EMAIL&&document.getElementById('page-home').classList.contains('active')){showPage('admin');loadAdminData();}
     if(afterAuthAction){const a=afterAuthAction;afterAuthAction=null;a();}
   }else{
     CU=null;CUD=null;
@@ -604,7 +605,7 @@ onAuthStateChanged(auth,async u=>{
     document.getElementById('btn-admin').style.display='none';
   }
 });
- 
+
 window.pickRole=function(r){
   selRole=r;
   document.getElementById('role-fan').classList.toggle('active',r==='fan');
@@ -612,7 +613,7 @@ window.pickRole=function(r){
   document.getElementById('insta-fg').style.display=r==='creator'?'block':'none';
   document.getElementById('niche-fg').style.display=r==='creator'?'block':'none';
 };
- 
+
 window.doSignup=async function(){
   const name=document.getElementById('su-name').value.trim();
   const email=document.getElementById('su-email').value.trim();
@@ -650,7 +651,7 @@ window.doSignup=async function(){
   }catch(e){showErr(err,e.message.includes('email-already-in-use')?'This email is already registered. Try logging in.':e.message.replace('Firebase: ',''));}
   finally{btn.innerHTML="Create account — it's free";btn.disabled=false;}
 };
- 
+
 window.doLogin=async function(){
   const email=document.getElementById('li-email').value.trim();
   const pass=document.getElementById('li-pass').value;
@@ -663,26 +664,39 @@ window.doLogin=async function(){
     const d=await getDoc(doc(db,'users',auth.currentUser.uid));
     if(d.exists())CUD=d.data();
     if(CUD?.role==='creator'&&CUD?.status==='pending'){toast('Application under review','info');showPage('waitlist');return;}
+    if(email===ADMIN_EMAIL){
+      toast('Welcome back, Admin!','success');
+      showPage('admin');loadAdminData();return;
+    }
     toast('Welcome back!','success');
-    if(email===ADMIN_EMAIL){showPage('admin');loadAdminData();return;}
     gotoDashboard();
   }catch(e){showErr(err,e.message.includes('wrong-password')||e.message.includes('invalid-credential')?'Wrong email or password — please try again':e.message.includes('too-many-requests')?'Too many attempts. Wait a few minutes.':'Sign in failed. Try again.');}
   finally{btn.innerHTML='Sign in';btn.disabled=false;}
 };
- 
+
 window.doForgotPassword=async function(){
   const email=document.getElementById('forgot-email').value.trim();
   const err=document.getElementById('forgot-err'),ok=document.getElementById('forgot-ok');
   err.style.display='none';ok.style.display='none';
   if(!isValidEmail(email)){showErr(err,'Please enter a valid email address');return;}
   const btn=document.getElementById('forgot-btn');btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
-  try{await sendPasswordResetEmail(auth,email);ok.style.display='block';}
-  catch(e){showErr(err,'Could not send reset email. Please check your email address.');}
+    try{
+      const actionSettings={url:window.location.origin+window.location.pathname,handleCodeInApp:false};
+      await sendPasswordResetEmail(auth,email,actionSettings);
+      ok.style.display='block';
+      ok.textContent='Reset email sent to '+email+'. Check inbox and spam folder.';
+    }catch(e){
+      console.error(e.code);
+      if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){showErr(err,'No account found with this email.');}
+      else if(e.code==='auth/too-many-requests'){showErr(err,'Too many attempts. Please wait a few minutes.');}
+      else{showErr(err,'Could not send reset email. Check the email is registered.');}
+    }
+
   finally{btn.innerHTML='Send reset email';btn.disabled=false;}
 };
- 
+
 window.doLogout=async function(){await signOut(auth);toast('Logged out','success');showPage('home');};
- 
+
 async function loadCreators(){
   try{
     const q=query(collection(db,'users'),where('role','==','creator'),where('isPublic','==',true),where('status','==','approved'));
@@ -692,14 +706,14 @@ async function loadCreators(){
   if(allCreators.length===0)allCreators=demoCreators();
   renderGrid('all');
 }
- 
+
 function getFutureDate(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function formatDate(s){if(!s)return'';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
 function getFutMin(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
 function getFutMax(){const d=new Date();d.setDate(d.getDate()+30);return d.toISOString().split('T')[0];}
 function avatarInitial(n){return n?n.charAt(0).toUpperCase():'?';}
 function nicheLabel(n){return{fitness:'💪 Fitness',yoga:'🧘 Yoga',beauty:'💄 Beauty',nutrition:'🥗 Nutrition',dance:'💃 Dance',mental:'🧠 Wellness'}[n]||n;}
- 
+
 function demoCreators(){return[
   {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,city:'Delhi',bio:'NASM certified personal trainer with 5 years experience. Specialised in strength training and body transformation for Indian body types.',availableSlots:[{date:getFutureDate(1),time:'7:00 AM'},{date:getFutureDate(1),time:'9:00 AM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'7:00 AM'},{date:getFutureDate(4),time:'5:00 PM'}],sessions:[{name:'Strength Assessment',desc:'Full body evaluation and personalised workout plan',duration:'45 min',price:1800},{name:'Workout Deep Dive',desc:'Fix your form and build a custom 12-week routine',duration:'60 min',price:2200},{name:'Quick Check-in',desc:'30 min progress review and Q and A',duration:'30 min',price:1200}]},
   {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,city:'Mumbai',bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief and mindfulness.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(2),time:'7:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'8:00 AM'}],sessions:[{name:'Personalised Yoga Flow',desc:'Custom sequence designed for your body and goals',duration:'60 min',price:1200},{name:'Breathwork and Meditation',desc:'Pranayama techniques for anxiety and stress',duration:'45 min',price:900}]},
@@ -714,7 +728,7 @@ function demoCreators(){return[
   {id:'d11',photoURL:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face',name:'Shruti Mehta',niche:'beauty',followers:'445K',rating:4.9,sessions_count:267,price:1800,live:false,verified:true,city:'Mumbai',bio:'Celebrity makeup artist and beauty educator. Worked on Bollywood films and brand campaigns.',availableSlots:[{date:getFutureDate(2),time:'1:00 PM'},{date:getFutureDate(3),time:'2:00 PM'},{date:getFutureDate(5),time:'1:00 PM'}],sessions:[{name:'Pro Makeup Lesson',desc:'Professional techniques for everyday and special occasions',duration:'60 min',price:1800},{name:'Bridal Prep Consultation',desc:'Complete bridal look planning and tutorial',duration:'90 min',price:2500}]},
   {id:'d12',photoURL:'https://images.unsplash.com/photo-1485811661309-ab85183a729c?w=400&h=400&fit=crop&crop=face',name:'Arjun Nair',niche:'mental',followers:'88K',rating:4.7,sessions_count:63,price:1600,live:false,verified:true,city:'Kochi',bio:'Life coach and NLP practitioner. Helping young professionals break through mental blocks and build confidence.',availableSlots:[{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'8:00 PM'},{date:getFutureDate(5),time:'7:00 PM'},{date:getFutureDate(6),time:'10:00 AM'}],sessions:[{name:'Goal Setting Session',desc:'Clarity coaching to define and achieve your goals',duration:'60 min',price:1600},{name:'Confidence Building',desc:'NLP techniques to overcome self-doubt',duration:'45 min',price:1400}]}
 ];}
- 
+
 function cardImg(c){
   if(c.photoURL)return '<img src="'+c.photoURL+'" alt="'+c.name+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0"/>';
   return '<span class="icard-initial">'+avatarInitial(c.name)+'</span>';
@@ -738,7 +752,7 @@ window.handleCreatorClick=function(id){
   if(!CU){afterAuthAction=()=>openProfile(id);showPage('signup');return;}
   openProfile(id);
 };
- 
+
 window.openProfile=async function(id){
   curCreator=allCreators.find(x=>x.id===id);if(!curCreator)return;
   selSess=null;selSlot='';selDate='';reviewRating=0;
@@ -805,7 +819,7 @@ window.openProfile=async function(id){
     </div>`;
   showPage('profile');
 };
- 
+
 window.setRating=function(r){
   reviewRating=r;
   document.querySelectorAll('#star-select span').forEach((s,i)=>s.classList.toggle('active',i<r));
@@ -821,7 +835,7 @@ window.submitReview=async function(creatorId,creatorName){
     document.querySelector('.review-form').innerHTML='<p style="color:var(--green);font-size:13px;margin-top:1rem">Review submitted — pending admin approval</p>';
   }catch(e){toast('Failed to submit review. Try again.','error');}
 };
- 
+
 window.onDateChange=function(date){
   selDate=date;selSlot='';
   const slots=(curCreator.availableSlots||[]).filter(s=>s.date===date);
@@ -842,7 +856,7 @@ window.pickSess=function(i){
   document.getElementById('t-total').textContent='₹'+(s.price+sc).toLocaleString('en-IN');
 };
 window.pickSlotFn=function(el,t){document.querySelectorAll('.slot').forEach(s=>s.classList.remove('active'));el.classList.add('active');selSlot=t;};
- 
+
 window.doBook=async function(){
   if(!CU){toast('Please login to book','error');showPage('login');return;}
   if(selSess===null){toast('Select a session first','error');return;}
@@ -881,7 +895,7 @@ window.doBook=async function(){
   try{new Razorpay(options).open();}
   catch(e){toast('Payment failed. Try again.','error');btn.innerHTML='Pay with Razorpay';btn.disabled=false;}
 };
- 
+
 window.cancelBooking=async function(bookingId,bookingDate,slotTime,price){
   if(!confirm('Cancel this booking?'))return;
   function to24(time){if(!time)return'00:00:00';const[t,ap]=(time||'').split(' ');let[h,m]=(t||'0:00').split(':');h=parseInt(h)||0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+(m||'00')+':00';}
@@ -893,7 +907,7 @@ window.cancelBooking=async function(bookingId,bookingDate,slotTime,price){
   try{await updateDoc(doc(db,'bookings',bookingId),{status:newStatus,refundAmount:refundAmt,refundStatus:refundAmt>0?'pending':'none',cancelledAt:serverTimestamp()});toast(msg,'info');gotoDashboard();}
   catch(e){toast('Cancellation failed. Try again.','error');}
 };
- 
+
 window.creatorCancel=async function(bookingId,price){
   if(!confirm('Cancel this booking? The fan gets a full refund and your next session earnings go to platform as penalty.'))return;
   try{
@@ -902,7 +916,7 @@ window.creatorCancel=async function(bookingId,price){
     toast('Cancelled. Fan refund initiated. Penalty applied to next session.','info');gotoDashboard();
   }catch(e){toast('Failed. Try again.','error');}
 };
- 
+
 window.gotoDashboard=async function(){
   if(!CU){showPage('login');return;}
   if(!CUD){const d=await getDoc(doc(db,'users',CU.uid));if(d.exists())CUD=d.data();}
@@ -910,7 +924,7 @@ window.gotoDashboard=async function(){
   if(dashMode==='auto')dashMode=CUD?.role||'fan';
   renderDashboard();
 };
- 
+
 function renderDashboard(){
   const isC=dashMode==='creator'&&CUD?.role==='creator';
   const refLink=BASE_URL+'?ref='+(CUD?.referralCode||'');
@@ -928,10 +942,10 @@ function renderDashboard(){
     ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,true)}</div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,false)}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
   showPage('dashboard');loadBkgs(isC);if(isC)loadEarn();
 }
- 
+
 window.switchDashMode=function(){dashMode=dashMode==='creator'?'fan':'creator';renderDashboard();};
 window.switchTab=function(e,id){document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');document.getElementById(id).classList.add('active');};
- 
+
 function referralHTML(link,isCreator){
   return`<div class="pform"><h3>Refer and Earn</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Share your referral link and earn LiveWith Credits!</p>
@@ -955,7 +969,7 @@ function referralHTML(link,isCreator){
   </div>`;
 }
 window.copyRef=function(){const el=document.getElementById('ref-link-input');el.select();document.execCommand('copy');toast('Referral link copied!','success');};
- 
+
 function slotManagerHTML(){
   const slots=CUD?.availableSlots||[];
   return`<div class="pform"><h3>Manage Your Slots</h3>
@@ -993,7 +1007,7 @@ window.removeSlot=async function(i){
     document.getElementById('tab-slots').innerHTML=slotManagerHTML();toast('Slot removed','success');
   }catch(e){toast('Failed','error');}
 };
- 
+
 async function loadBkgs(isC){
   try{
     const q=query(collection(db,'bookings'),where(isC?'creatorId':'fanId','==',CU.uid));
@@ -1017,7 +1031,7 @@ async function loadBkgs(isC){
     </div>`).join('');
   }catch(e){document.getElementById('tab-book').innerHTML='<p style="color:var(--muted)">Could not load bookings.</p>';}
 }
- 
+
 async function loadEarn(){
   try{
     const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid));
@@ -1049,13 +1063,13 @@ async function loadEarn(){
       </div>`;
   }catch(e){}
 }
- 
+
 function exploreFanSection(){
   return`<div class="fan-explore"><div><h4>Discover new creators</h4><p>Browse all creators and book your next session</p></div><button class="btn-primary" onclick="gotoHome()">Explore now</button></div>
   <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Featured creators</p>
   '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">'+demoCreators().slice(0,4).map(c=>'<div class="icard" onclick="openProfile(\''+c.id+'\')"><div class="icard-img">'+cardImg(c)+(c.live?'<div class="live-badge">LIVE</div>':'')+(c.verified?'<div class="verified-badge">✓</div>':'')+'</div><div class="icard-body"><div class="icard-name">'+c.name+(c.verified?'<span class="vtick">✓</span>':'')+'</div><div class="icard-niche">'+nicheLabel(c.niche)+'</div><div class="icard-price">from ₹'+c.price.toLocaleString('en-IN')+'</div></div></div>').join('')+'</div>`;
 }
- 
+
 function creatorProfileForm(){
   const d=CUD||{};
   return`<div class="pform"><h3>Your Creator Profile</h3>
@@ -1079,16 +1093,18 @@ window.saveProf=async function(){
   try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');loadCreators();}
   catch(e){toast('Save failed. Try again.','error');}
 };
- 
+
 function accForm(){return`<div class="pform"><h3>Account</h3><div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div><div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div><div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith Credits balance</div></div></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div></div>`;}
- 
+
 window.showPage=function(n){
+  // Block non-admin from admin page
+  if(n==='admin'&&CU?.email!==ADMIN_EMAIL){showPage('home');return;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+n).classList.add('active');
   window.scrollTo(0,0);
   if(n==='admin'&&CU?.email===ADMIN_EMAIL)loadAdminData();
 };
- 
+
 window.loadAdminData=async function(){
   try{
     const[uSnap,bSnap,rSnap]=await Promise.all([getDocs(collection(db,'users')),getDocs(collection(db,'bookings')),getDocs(collection(db,'reviews'))]);
@@ -1177,7 +1193,7 @@ window.loadAdminData=async function(){
       </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">💰</div><p>No pending refunds</p></div>';
   }catch(e){console.error(e);toast('Failed to load admin data','error');}
 };
- 
+
 window.approveCreator=async function(uid,name,email){
   try{
     await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true});
@@ -1206,7 +1222,7 @@ window.adminFlagReview=async function(id){try{await updateDoc(doc(db,'reviews',i
 window.adminUnflagReview=async function(id){try{await updateDoc(doc(db,'reviews',id),{flagged:false});toast('Review unflagged','success');loadAdminData();}catch(e){toast('Failed','error');}};
 window.adminBanReviewer=async function(fanId,fanName){if(!confirm('Ban '+fanName+' from leaving reviews?'))return;try{await updateDoc(doc(db,'users',fanId),{reviewBanned:true,flagged:true});toast(fanName+' banned from reviewing','success');loadAdminData();}catch(e){toast('Failed','error');}};
 window.adminTab=function(e,id){document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');document.getElementById(id).classList.add('active');};
- 
+
 window.gotoHome=function(){showPage('home');};
 function showErr(el,msg){el.textContent=msg;el.style.display='block';}
 function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.classList.remove('show'),4000);}
