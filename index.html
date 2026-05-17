@@ -782,18 +782,37 @@ window.doLogout=async function(){await signOut(auth);toast('Logged out','success
 
 async function loadCreators(){
   try{
-    // Only filter by role to avoid composite index requirement
     const q=query(collection(db,'users'),where('role','==','creator'));
-    const snap=await getDocs(q);allCreators=[];
+    const snap=await getDocs(q);
+    allCreators=[];
     snap.forEach(d=>{
       const data={...d.data(),id:d.id};
-      // Show if isPublic AND (status is approved OR status not set but verified)
-      if(data.isPublic && (data.status==='approved' || data.verified===true)){
+      // Show creator if any of these conditions are true
+      const isApproved = data.status==='approved';
+      const isVerified = data.verified===true;
+      const isPublic = data.isPublic===true;
+      if(isPublic && (isApproved || isVerified)){
+        // Make sure availableSlots exists
+        if(!data.availableSlots) data.availableSlots=[];
+        // Make sure sessions exists
+        if(!data.sessions || !data.sessions.length){
+          data.sessions=[
+            {name:'1-on-1 Session',desc:'Personalised session tailored to your goals',duration:'45 min',price:data.price||1000},
+          ];
+        }
         allCreators.push(data);
       }
     });
-  }catch(e){console.error('loadCreators error:',e);}
-  if(allCreators.length===0)allCreators=demoCreators();
+    console.log('Real creators loaded:', allCreators.length);
+  }catch(e){
+    console.error('loadCreators error:',e);
+    allCreators=[];
+  }
+  // Only use demo creators if NO real creators found
+  if(allCreators.length===0){
+    console.log('No real creators found, using demo');
+    allCreators=demoCreators();
+  }
   renderGrid('all');
 }
 
