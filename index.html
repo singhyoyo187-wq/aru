@@ -307,6 +307,22 @@ footer p{font-size:12px;color:var(--muted)}
 .role-modal-btn:hover{border-color:var(--brand);background:rgba(255,77,109,0.08)}
 .role-modal-btn .role-icon{font-size:28px;margin-bottom:6px}
 .role-modal-btn .role-label{font-size:13px;font-weight:600}
+
+.pin-box{background:rgba(255,77,109,0.06);border:2px dashed var(--brand);border-radius:14px;padding:1.25rem;text-align:center;margin:1rem 0}
+.pin-digits{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:14px;color:var(--brand);margin:8px 0}
+.pin-label{font-size:12px;color:var(--muted)}
+.session-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:500;margin-left:8px}
+.status-pending-sess{background:rgba(245,158,11,0.1);color:var(--yellow)}
+.status-started{background:rgba(34,197,94,0.1);color:var(--green)}
+.status-completed{background:rgba(34,197,94,0.15);color:var(--green)}
+.pin-input-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:1rem}
+.pin-input-wrap h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:0.75rem}
+.pin-digits-input{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+.pin-digit{width:52px;height:60px;background:var(--dark);border:2px solid var(--border);border-radius:10px;font-size:24px;font-weight:700;text-align:center;color:var(--text);font-family:'Syne',sans-serif}
+.pin-digit:focus{outline:none;border-color:var(--brand)}
+.start-session-btn{background:linear-gradient(135deg,var(--green),#16a34a);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:opacity 0.2s}
+.start-session-btn:hover{opacity:0.88}
+.session-timer{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--brand);text-align:center;margin:8px 0}
 </style>
 </head>
 <body>
@@ -948,9 +964,11 @@ window.doBook=async function(){
     handler:async function(response){
       try{
         const zoomLink='https://zoom.us/j/livewith-'+Math.random().toString(36).substr(2,9);
-        await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,serviceCharge:sc,total,status:'confirmed',paymentId:response.razorpay_payment_id,zoomLink,refundStatus:'none',createdAt:serverTimestamp()});
+        // Generate unique 4-digit PIN for session verification
+const sessionPIN = String(Math.floor(1000+Math.random()*9000));
+const bookingRef = await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,serviceCharge:sc,total,status:'confirmed',sessionStatus:'pending',sessionPIN,paymentId:response.razorpay_payment_id,zoomLink,refundStatus:'none',createdAt:serverTimestamp()});
         if(CUD?.referredBy){try{await updateDoc(doc(db,'users',CUD.referredBy),{credits:increment(100)});}catch(e){}}
-        try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:zoomLink,payment_id:response.razorpay_payment_id});}catch(e){}
+        try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:zoomLink+' | Session PIN: '+sessionPIN,payment_id:response.razorpay_payment_id});}catch(e){}
         document.getElementById('bsummary').innerHTML=`
           <div class="bd-row"><span class="bd-label">Creator</span><span>${curCreator.name}</span></div>
           <div class="bd-row"><span class="bd-label">Session</span><span>${s.name}</span></div>
@@ -959,8 +977,12 @@ window.doBook=async function(){
           <div class="bd-row"><span class="bd-label">Duration</span><span>${s.duration}</span></div>
           <div class="bd-row"><span class="bd-label">Session price</span><span>Rs ${s.price.toLocaleString('en-IN')}</span></div>
           <div class="bd-row"><span class="bd-label">Service charge (5%)</span><span>Rs ${sc.toLocaleString('en-IN')}</span></div>
-          <div class="bd-row"><span class="bd-label">Payment ID</span><span style="font-size:11px">${response.razorpay_payment_id}</span></div>
-          <div class="bd-row"><span class="bd-label">Total paid</span><span>Rs ${total.toLocaleString('en-IN')}</span></div>`;
+          <div class="bd-row"><span class="bd-label">Total paid</span><span>Rs ${total.toLocaleString('en-IN')}</span></div>
+          <div style="background:rgba(255,77,109,0.08);border:2px dashed var(--brand);border-radius:12px;padding:1rem;margin-top:12px;text-align:center">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your Session PIN — share with creator to start session</div>
+            <div style="font-family:Syne,sans-serif;font-size:36px;font-weight:800;letter-spacing:12px;color:var(--brand)">${sessionPIN}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">Keep this PIN safe — do not share before session time</div>
+          </div>`;
         showPage('success');toast('Payment confirmed! Check your email','success');
       }catch(e){showPage('success');toast('Booking saved!','success');}
     },
@@ -972,8 +994,8 @@ window.doBook=async function(){
 
 window.cancelBooking=async function(bookingId,bookingDate,slotTime,price){
   if(!confirm('Cancel this booking?'))return;
-  function to24(time){if(!time)return'00:00:00';const[t,ap]=(time||'').split(' ');let[h,m]=(t||'0:00').split(':');h=parseInt(h)||0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+(m||'00')+':00';}
-  const dt=new Date(bookingDate+'T'+to24(slotTime));
+
+  const dt=new Date(bookingDate+'T'+to24h(slotTime));
   const hoursUntil=(dt-Date.now())/(1000*60*60);
   const refundAmt=hoursUntil>=24?Math.round(price*0.8):0;
   const newStatus=hoursUntil>=24?'cancelled_refund':'cancelled_no_refund';
@@ -1082,6 +1104,8 @@ window.removeSlot=async function(i){
   }catch(e){toast('Failed','error');}
 };
 
+function to24h(t){if(!t)return'00:00:00';const[tm,ap]=(t||'').split(' ');let[h,m]=(tm||'0:00').split(':');h=parseInt(h)||0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+(m||'00')+':00';}
+
 async function loadBkgs(isC){
   try{
     const q=query(collection(db,'bookings'),where(isC?'creatorId':'fanId','==',CU.uid));
@@ -1092,17 +1116,62 @@ async function loadBkgs(isC){
     const statsHtml=!isC?`<div class="dash-stats"><div class="dstat"><div class="dstat-num" style="color:var(--brand)">${bks.length}</div><div class="dstat-label">Sessions booked</div></div><div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${totalSpent.toLocaleString('en-IN')}</div><div class="dstat-label">Total spent</div></div><div class="dstat"><div class="dstat-num" style="color:var(--green)">${bks.filter(b=>b.status==='confirmed').length}</div><div class="dstat-label">Confirmed</div></div></div>`:'';
     const sClass=s=>s==='confirmed'?'status-confirmed':s&&(s.includes('refund')||s.includes('cancel'))?'status-refund':'status-cancelled';
     const sLabel=s=>({confirmed:'Confirmed',cancelled_refund:'Cancelled — Refund pending',cancelled_no_refund:'Cancelled — No refund',creator_cancelled:'Creator cancelled — Refund initiated',creator_noshow:'Creator no-show — Refund initiated',fan_noshow:'No-show — No refund'}[s]||s||'Confirmed');
-    el.innerHTML=statsHtml+bks.map(b=>`<div class="bcard">
-      <div class="bcard-header"><div class="bcard-title">${b.sessionName}</div><div class="status ${sClass(b.status)}">${sLabel(b.status)}</div></div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">${isC?'Fan: '+b.fanName:'Creator: '+b.creatorName}</div>
-      <div class="bcard-meta"><span>📅 ${b.bookingDate?formatDate(b.bookingDate):''}</span><span>⏰ ${b.slot||''}</span><span>⏱ ${b.sessionDuration||''}</span><span>₹${(b.total||0).toLocaleString('en-IN')}</span></div>
-      ${b.serviceCharge?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Includes ₹${b.serviceCharge} service charge</div>`:''}
-      ${b.refundAmount>0?`<div style="margin-top:6px;font-size:12px;color:var(--yellow)">Refund ₹${b.refundAmount.toLocaleString('en-IN')} — ${b.refundStatus==='processed'?'Processed':'Within 72 hours'}</div>`:''}
-      ${b.paymentId?`<div style="margin-top:4px;font-size:11px;color:var(--muted)">Payment: ${b.paymentId}</div>`:''}
-      ${b.zoomLink&&b.status==='confirmed'?`<div style="margin-top:10px"><a href="${b.zoomLink}" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">Join Zoom call</a></div>`:''}
-      ${b.status==='confirmed'&&!isC?`<button class="cancel-btn" onclick="cancelBooking('${b.id}','${b.bookingDate}','${b.slot}',${b.price||0})">Cancel booking</button>`:''}
-      ${b.status==='confirmed'&&isC?`<button class="cancel-btn" onclick="creatorCancel('${b.id}',${b.price||0})">I cannot make it</button>`:''}
-    </div>`).join('');
+    // Helper to convert slot time to 24hr
+
+    el.innerHTML=statsHtml+bks.map(b=>{
+      const now=Date.now();
+      const sessTime=b.bookingDate&&b.slot?new Date(b.bookingDate+'T'+to24h(b.slot)).getTime():0;
+      const isSessionTime=sessTime>0&&now>=sessTime&&now<=(sessTime+3*60*60*1000);
+      const sessStatus=b.sessionStatus||'pending';
+      const statusBadge=sessStatus==='completed'?'<span class="session-status status-completed">&#10003; Completed</span>':sessStatus==='started'?'<span class="session-status status-started">&#9679; In Progress</span>':'<span class="session-status status-pending-sess">&#9203; Upcoming</span>';
+
+      // FAN PIN box
+      var fanPinBox='';
+      if(b.status==='confirmed'&&!isC&&b.sessionPIN){
+        fanPinBox='<div class="pin-box"><div class="pin-label">Your Session PIN — Share with creator to start session</div><div class="pin-digits">'+b.sessionPIN+'</div><div class="pin-label">Only share at session start time</div></div>';
+      }
+
+      // CREATOR PIN entry
+      var creatorPinEntry='';
+      if(b.status==='confirmed'&&isC&&sessStatus==='pending'){
+        creatorPinEntry='<div class="pin-input-wrap"><h4>Enter Fan PIN to start session</h4><p style="font-size:12px;color:var(--muted);margin-bottom:10px">Ask the fan for their 4-digit session PIN</p>'
+          +'<div class="pin-digits-input">'
+          +'<input class="pin-digit" id="p1'+b.id+'" maxlength="1" oninput="pinNext(this,\'p2'+b.id+'\')" />'
+          +'<input class="pin-digit" id="p2'+b.id+'" maxlength="1" oninput="pinNext(this,\'p3'+b.id+'\')" />'
+          +'<input class="pin-digit" id="p3'+b.id+'" maxlength="1" oninput="pinNext(this,\'p4'+b.id+'\')" />'
+          +'<input class="pin-digit" id="p4'+b.id+'" maxlength="1" />'
+          +'</div>'
+          +'<button class="start-session-btn" onclick="startSession(\''+b.id+'\',\''+b.sessionPIN+'\',\''+b.id+'\')" >Start Session &#10003;</button></div>';
+      }
+
+      // CREATOR in-progress
+      var creatorProgress='';
+      if(b.status==='confirmed'&&isC&&sessStatus==='started'){
+        creatorProgress='<div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:1rem;margin-top:12px;text-align:center">'
+          +'<div style="color:var(--green);font-weight:600;margin-bottom:6px">&#9679; Session in progress</div>'
+          +'<button onclick="completeSession(\''+b.id+'\')" style="background:var(--green);color:white;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:6px">Mark Session Complete</button>'
+          +'</div>';
+      }
+
+      // Completed badge
+      var completedBadge=sessStatus==='completed'?'<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:0.75rem;margin-top:12px;text-align:center;font-size:13px;color:var(--green);font-weight:600">&#10003; Session completed — Payment released on Monday</div>':'';
+
+      return '<div class="bcard">'
+        +'<div class="bcard-header"><div class="bcard-title">'+b.sessionName+'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="status '+sClass(b.status)+'">'+sLabel(b.status)+'</span>'+(b.status==='confirmed'?statusBadge:'')+'</div></div>'
+        +'<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+(isC?'Fan: '+b.fanName:'Creator: '+b.creatorName)+'</div>'
+        +'<div class="bcard-meta"><span>&#128197; '+(b.bookingDate?formatDate(b.bookingDate):'')+'</span><span>&#8987; '+(b.slot||'')+'</span><span>'+(b.sessionDuration||'')+'</span><span>&#8377;'+(b.total||0).toLocaleString('en-IN')+'</span></div>'
+        +fanPinBox
+        +creatorPinEntry
+        +creatorProgress
+        +completedBadge
+        +(b.refundAmount>0?'<div style="margin-top:6px;font-size:12px;color:var(--yellow)">Refund &#8377;'+b.refundAmount.toLocaleString('en-IN')+' — '+(b.refundStatus==='processed'?'Processed':'Within 72 hours')+'</div>':'')
+        +(b.paymentId?'<div style="margin-top:4px;font-size:11px;color:var(--muted)">Payment: '+b.paymentId+'</div>':'')
+        +(b.zoomLink&&b.status==='confirmed'&&sessStatus!=='completed'?'<div style="margin-top:10px"><a href="'+b.zoomLink+'" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">Join Zoom call</a></div>':'')
+        +(b.status==='confirmed'&&!isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="cancelBooking(\''+b.id+'\',\''+b.bookingDate+'\',\''+b.slot+'\','+( b.price||0)+')">Cancel booking</button>':'')
+        +(b.status==='confirmed'&&isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="creatorCancel(\''+b.id+'\','+( b.price||0)+')">I cannot make it</button>':'')
+        +'</div>';
+    }).join('');
   }catch(e){document.getElementById('tab-book').innerHTML='<p style="color:var(--muted)">Could not load bookings.</p>';}
 }
 
@@ -1419,9 +1488,68 @@ window.verifySignupOTP = async function(){
   }
 };
 
-loadCreators();}
-  catch(e){toast('Save failed. Try again.','error');}
+
+// ── SESSION PIN SYSTEM ──
+
+window.pinNext = function(el, nextId){
+  el.value = el.value.replace(/[^0-9]/g,'').slice(-1);
+  if(el.value && nextId){
+    const next = document.getElementById(nextId);
+    if(next) next.focus();
+  }
 };
+
+window.startSession = async function(bookingId, correctPIN, bid){
+  // Collect PIN from 4 inputs
+  const p1 = (document.getElementById('p1'+bid)||{}).value||'';
+  const p2 = (document.getElementById('p2'+bid)||{}).value||'';
+  const p3 = (document.getElementById('p3'+bid)||{}).value||'';
+  const p4 = (document.getElementById('p4'+bid)||{}).value||'';
+  const enteredPIN = p1+p2+p3+p4;
+
+  if(enteredPIN.length < 4){
+    toast('Please enter all 4 digits of the PIN','error');
+    return;
+  }
+  if(enteredPIN !== correctPIN){
+    toast('Wrong PIN! Ask the fan to check their dashboard.','error');
+    // Shake effect on inputs
+    ['p1','p2','p3','p4'].forEach(p=>{
+      const el = document.getElementById(p+bid);
+      if(el){el.style.borderColor='var(--red)';setTimeout(()=>el.style.borderColor='',1500);}
+    });
+    return;
+  }
+  try{
+    await updateDoc(doc(db,'bookings',bookingId),{
+      sessionStatus:'started',
+      sessionStartedAt:serverTimestamp()
+    });
+    toast('Session started! Have a great session 🎉','success');
+    gotoDashboard();
+  }catch(e){
+    toast('Could not start session. Try again.','error');
+  }
+};
+
+window.completeSession = async function(bookingId){
+  if(!confirm('Mark this session as complete? Payment will be queued for Monday payout.'))return;
+  try{
+    await updateDoc(doc(db,'bookings',bookingId),{
+      sessionStatus:'completed',
+      sessionCompletedAt:serverTimestamp(),
+      status:'confirmed'
+    });
+    toast('Session marked complete! Payment queued for Monday.','success');
+    gotoDashboard();
+  }catch(e){
+    toast('Could not complete session. Try again.','error');
+  }
+};
+
+
+
+
 
 function accForm(){return`<div class="pform"><h3>Account</h3><div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div><div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div><div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith Credits balance</div></div></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div></div>`;}
 
@@ -1526,7 +1654,7 @@ window.loadAdminData=async function(){
 window.approveCreator=async function(uid,name,email){
   try{
     await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true,live:false});
-    try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'LiveWith Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'—',duration:'—',amount:'First month free',zoom_link:'https://aru-lime.vercel.app',payment_id:'—'});}catch(e){}
+    try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'LiveWith Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'Check your dashboard',duration:'N/A',amount:'First month free',zoom_link:'https://aru-lime.vercel.app',payment_id:'N/A'});}catch(eml){console.log('Email error',eml);}
     toast(name+' approved and notified','success');loadAdminData();
   }catch(e){toast('Failed','error');}
 };
@@ -1607,194 +1735,253 @@ window.sendContactForm=async function(){
 
 
 // ── GOOGLE LOGIN ──
-let socialUserTemp = null;
 
-window.doGoogleLogin = async function(){
-  try{
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({prompt:'select_account'});
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    // Check if user already exists in Firestore
-    const d = await getDoc(doc(db,'users',user.uid));
-    if(d.exists()){
-      CUD = d.data();
-      // Existing user - check if creator pending
-      if(CUD.role==='creator' && CUD.status==='pending'){toast('Application under review','info');showPage('waitlist');return;}
-      if(user.email===ADMIN_EMAIL){showPage('admin');loadAdminData();return;}
-      toast('Welcome back! 👋','success');
-      gotoDashboard();
-    } else {
-      // New user - ask for role
-      socialUserTemp = user;
-      document.getElementById('role-modal').classList.add('show');
-    }
-  }catch(e){
-    console.error('Google login error:',e.code);
-    if(e.code==='auth/popup-closed-by-user'){return;}
-    if(e.code==='auth/popup-blocked'){toast('Please allow popups for this site','error');return;}
-    toast('Google login failed. Try again.','error');
-  }
-};
 
-window.selectSocialRole = async function(role){
-  document.getElementById('role-modal').classList.remove('show');
-  if(!socialUserTemp) return;
-  const user = socialUserTemp;
-  socialUserTemp = null;
-  try{
-    const myRefCode = (user.displayName||'user').toLowerCase().replace(/\s+/g,'') + Math.floor(Math.random()*999);
-    const ud = {
-      name: user.displayName || 'User',
-      email: user.email || '',
-      role, uid: user.uid,
-      verified: false, photoURL: user.photoURL||'',
-      flagged: false, penaltyNextSession: false,
-      credits: 0, referralCode: myRefCode,
-      referredBy: null, createdAt: serverTimestamp()
-    };
-    if(role==='creator'){
-      ud.instagram=''; ud.niche=''; ud.bio=''; ud.followers='0';
-      ud.price=1000; ud.rating=5.0; ud.sessions_count=0;
-      ud.live=false; ud.isPublic=false; ud.city='';
-      ud.availableSlots=[]; ud.status='pending';
-      ud.firstMonthFree=true; ud.joinedAt=serverTimestamp();
-      ud.sessions=[
-        {name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'45 min',price:1000},
-        {name:'Deep Dive Session',desc:'In-depth session with full plan and follow-up',duration:'60 min',price:1500}
-      ];
-    }
-    await setDoc(doc(db,'users',user.uid), ud);
-    CUD = ud;
-    if(role==='creator'){showPage('waitlist');toast('Application submitted! We will email you when approved','success');}
-    else{toast('Welcome to LiveWith! 🎉','success');gotoDashboard();}
-  }catch(e){
-    console.error('Role save error:',e);
-    toast('Something went wrong. Try again.','error');
-  }
-};
 
-// ── PHONE LOGIN ──
-let confirmationResult = null;
 
-window.showPhoneLogin = function(){
-  const wrap = document.getElementById('phone-login-wrap');
-  wrap.style.display = wrap.style.display==='block'?'none':'block';
-  if(wrap.style.display==='block' && !window.recaptchaLogin){
-    window.recaptchaLogin = new RecaptchaVerifier(auth,'recaptcha-container',{
-      size:'invisible',
-      callback:()=>{}
-    });
-  }
-};
 
-window.showPhoneSignup = function(){
-  const wrap = document.getElementById('phone-signup-wrap');
-  wrap.style.display = wrap.style.display==='block'?'none':'block';
-  if(wrap.style.display==='block' && !window.recaptchaSignup){
-    window.recaptchaSignup = new RecaptchaVerifier(auth,'recaptcha-container',{
-      size:'invisible',
-      callback:()=>{}
-    });
-  }
-};
 
-window.sendLoginOTP = async function(){
-  let phone = document.getElementById('li-phone').value.trim();
-  if(!phone){toast('Please enter your phone number','error');return;}
-  if(!phone.startsWith('+'))phone='+91'+phone.replace(/\s/g,'');
-  const btn = document.getElementById('li-otp-btn');
-  btn.innerHTML='<span class="loader"></span>Sending OTP...';btn.disabled=true;
-  try{
-    if(!window.recaptchaLogin){
-      window.recaptchaLogin = new RecaptchaVerifier(auth,'recaptcha-container',{size:'invisible',callback:()=>{}});
-    }
-    confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaLogin);
-    document.getElementById('li-otp-wrap').style.display='flex';
-    document.getElementById('li-verify-btn').style.display='block';
-    btn.innerHTML='Resend OTP';btn.disabled=false;
-    toast('OTP sent to '+phone,'success');
-  }catch(e){
-    console.error('OTP error:',e.code);
-    btn.innerHTML='Send OTP';btn.disabled=false;
-    if(e.code==='auth/invalid-phone-number'){toast('Invalid phone number. Use format: +91XXXXXXXXXX','error');}
-    else if(e.code==='auth/too-many-requests'){toast('Too many attempts. Please wait a few minutes.','error');}
-    else{toast('Could not send OTP. Try again.','error');}
-  }
-};
 
-window.verifyLoginOTP = async function(){
-  const otp = document.getElementById('li-otp').value.trim();
-  if(!otp||otp.length<6){toast('Please enter the 6-digit OTP','error');return;}
-  if(!confirmationResult){toast('Please send OTP first','error');return;}
-  const btn = document.getElementById('li-verify-btn');
-  btn.innerHTML='<span class="loader"></span>Verifying...';btn.disabled=true;
-  try{
-    const result = await confirmationResult.confirm(otp);
-    const user = result.user;
-    const d = await getDoc(doc(db,'users',user.uid));
-    if(d.exists()){
-      CUD = d.data();
-      if(CUD.role==='creator'&&CUD.status==='pending'){toast('Application under review','info');showPage('waitlist');return;}
-      toast('Welcome back! 👋','success');gotoDashboard();
-    } else {
-      socialUserTemp = user;
-      document.getElementById('role-modal').classList.add('show');
-    }
-  }catch(e){
-    console.error('OTP verify error:',e.code);
-    btn.innerHTML='Verify OTP';btn.disabled=false;
-    if(e.code==='auth/invalid-verification-code'){toast('Wrong OTP. Please check and try again.','error');}
-    else if(e.code==='auth/code-expired'){toast('OTP expired. Please request a new one.','error');}
-    else{toast('Verification failed. Try again.','error');}
-  }
-};
 
-window.sendSignupOTP = async function(){
-  let phone = document.getElementById('su-phone').value.trim();
-  if(!phone){toast('Please enter your phone number','error');return;}
-  if(!phone.startsWith('+'))phone='+91'+phone.replace(/\s/g,'');
-  const btn = document.getElementById('su-otp-btn');
-  btn.innerHTML='<span class="loader"></span>Sending OTP...';btn.disabled=true;
-  try{
-    if(!window.recaptchaSignup){
-      window.recaptchaSignup = new RecaptchaVerifier(auth,'recaptcha-container',{size:'invisible',callback:()=>{}});
-    }
-    confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaSignup);
-    document.getElementById('su-otp-wrap').style.display='block';
-    btn.innerHTML='Resend OTP';btn.disabled=false;
-    toast('OTP sent to '+phone,'success');
-  }catch(e){
-    console.error('Signup OTP error:',e.code);
-    btn.innerHTML='Send OTP';btn.disabled=false;
-    if(e.code==='auth/invalid-phone-number'){toast('Invalid phone number. Use format: +91XXXXXXXXXX','error');}
-    else if(e.code==='auth/too-many-requests'){toast('Too many attempts. Please wait a few minutes.','error');}
-    else{toast('Could not send OTP. Try again.','error');}
-  }
-};
 
-window.verifySignupOTP = async function(){
-  const otp = document.getElementById('su-otp').value.trim();
-  if(!otp||otp.length<6){toast('Please enter the 6-digit OTP','error');return;}
-  if(!confirmationResult){toast('Please send OTP first','error');return;}
-  try{
-    const result = await confirmationResult.confirm(otp);
-    const user = result.user;
-    const d = await getDoc(doc(db,'users',user.uid));
-    if(d.exists()){
-      CUD = d.data();
-      toast('Welcome back! 👋','success');gotoDashboard();
-    } else {
-      socialUserTemp = user;
-      document.getElementById('role-modal').classList.add('show');
-    }
-  }catch(e){
-    console.error('Signup OTP verify error:',e.code);
-    if(e.code==='auth/invalid-verification-code'){toast('Wrong OTP. Please check and try again.','error');}
-    else if(e.code==='auth/code-expired'){toast('OTP expired. Please request a new one.','error');}
-    else{toast('Verification failed. Try again.','error');}
-  }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ── SESSION PIN SYSTEM ──
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 loadCreators();
 setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block';},800);
