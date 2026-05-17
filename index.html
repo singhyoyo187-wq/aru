@@ -1247,7 +1247,8 @@ function creatorProfileForm(){
 window.previewPhoto=function(url){const p=document.getElementById('av-preview');p.innerHTML=url?('<img src="'+url+'" onerror="this.parentElement.innerHTML=\'?\'">'): '<span>'+avatarInitial(CUD?.name||'?')+'</span>';};
 window.saveProf=async function(){
   const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,city:document.getElementById('cp-city').value,isPublic:document.getElementById('cp-pub').value==='true'};
-  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');
+  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');loadCreators();}catch(e){toast('Save failed. Try again.','error');}
+};
 window.toggleFaq=function(el){
   const ans=el.nextElementSibling;
   const icon=el.querySelector('.faq-icon');
