@@ -323,6 +323,12 @@ footer p{font-size:12px;color:var(--muted)}
 .start-session-btn{background:linear-gradient(135deg,var(--green),#16a34a);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:opacity 0.2s}
 .start-session-btn:hover{opacity:0.88}
 .session-timer{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--brand);text-align:center;margin:8px 0}
+
+.slot-quick-day{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;color:var(--muted);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.slot-quick-day:hover{border-color:var(--brand);color:var(--brand)}
+.slot-time-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.slot-time-btn:hover{border-color:var(--brand);color:var(--text)}
+.slot-time-btn.selected{background:var(--brand);border-color:var(--brand);color:white}
 </style>
 </head>
 <body>
@@ -333,6 +339,7 @@ footer p{font-size:12px;color:var(--muted)}
     <span class="nav-user" id="nav-name"></span>
     <button class="nav-btn-out" id="btn-currency" onclick="toggleCurrency()" style="font-size:12px;padding:6px 12px">🇮🇳 INR</button>
     <button class="nav-btn-out" id="btn-admin" style="display:none" onclick="showPage('admin')">Admin</button>
+    <button class="nav-btn-out" id="btn-home-admin" style="display:none" onclick="gotoHome()">Home</button>
     <button class="nav-btn-out" id="btn-dash" style="display:none" onclick="gotoDashboard()">Dashboard</button>
     <button class="nav-btn-out" id="btn-logout" style="display:none" onclick="doLogout()">Logout</button>
     <button class="nav-btn" id="btn-login" style="display:none" onclick="showPage('login')">Login</button>
@@ -654,6 +661,7 @@ onAuthStateChanged(auth,async u=>{
     document.getElementById('btn-logout').style.display='block';
     document.getElementById('btn-dash').style.display=CU.email===ADMIN_EMAIL?'none':'block';
     document.getElementById('btn-admin').style.display=isAdmin?'block':'none';
+    document.getElementById('btn-home-admin').style.display=isAdmin?'block':'none';
     if(CU.email===ADMIN_EMAIL&&document.getElementById('page-home').classList.contains('active')){showPage('admin');loadAdminData();}
     if(afterAuthAction){const a=afterAuthAction;afterAuthAction=null;a();}
   }else{
@@ -663,6 +671,7 @@ onAuthStateChanged(auth,async u=>{
     document.getElementById('btn-logout').style.display='none';
     document.getElementById('btn-dash').style.display='none';
     document.getElementById('btn-admin').style.display='none';
+    document.getElementById('btn-home-admin').style.display='none';
   }
 });
 
@@ -703,7 +712,7 @@ window.doSignup=async function(){
       ud.niche=document.getElementById('su-niche').value;
       ud.bio='';ud.followers='0';ud.price=1000;ud.rating=5.0;ud.sessions_count=0;ud.live=false;ud.isPublic=false;ud.city='';
       ud.availableSlots=[];ud.status='pending';ud.firstMonthFree=true;ud.joinedAt=serverTimestamp();
-      ud.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'45 min',price:1000},{name:'Deep Dive Session',desc:'In-depth session with full plan and follow-up',duration:'60 min',price:1500}];
+      ud.sessions=[{name:'1-on-1 Consultation',desc:'Personalised 1-on-1 session tailored to your goals',duration:'30 min',price:1000}];
     }
     await setDoc(doc(db,'users',c.user.uid),ud);CUD=ud;
     if(selRole==='creator'){showPage('waitlist');toast('Application submitted! We will email you when approved','success');}
@@ -757,6 +766,22 @@ window.doForgotPassword=async function(){
 
 window.doLogout=async function(){await signOut(auth);toast('Logged out','success');showPage('home');};
 
+
+// Auto-clean past slots from creator profile
+window.cleanPastSlots = async function(){
+  if(!CU||!CUD||CUD.role!=='creator') return;
+  const today = new Date().toISOString().split('T')[0];
+  const slots = CUD.availableSlots||[];
+  const futureSlots = slots.filter(s=>s.date>=today);
+  if(futureSlots.length < slots.length){
+    try{
+      await updateDoc(doc(db,'users',CU.uid),{availableSlots:futureSlots});
+      CUD.availableSlots = futureSlots;
+      console.log('Cleaned',slots.length-futureSlots.length,'past slots');
+    }catch(e){console.log('Could not clean past slots');}
+  }
+};
+
 async function loadCreators(){
   try{
     const q=query(collection(db,'users'),where('role','==','creator'));
@@ -801,18 +826,18 @@ function avatarInitial(n){return n?n.charAt(0).toUpperCase():'?';}
 function nicheLabel(n){return{fitness:'💪 Fitness',yoga:'🧘 Yoga',beauty:'💄 Beauty',nutrition:'🥗 Nutrition',dance:'💃 Dance',mental:'🧠 Wellness'}[n]||n;}
 
 function demoCreators(){return[
-  {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,city:'Delhi',bio:'NASM certified personal trainer with 5 years experience. Specialised in strength training and body transformation for Indian body types.',availableSlots:[{date:getFutureDate(1),time:'7:00 AM'},{date:getFutureDate(1),time:'9:00 AM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'7:00 AM'},{date:getFutureDate(4),time:'5:00 PM'}],sessions:[{name:'Strength Assessment',desc:'Full body evaluation and personalised workout plan',duration:'45 min',price:1800},{name:'Workout Deep Dive',desc:'Fix your form and build a custom 12-week routine',duration:'60 min',price:2200},{name:'Quick Check-in',desc:'30 min progress review and Q and A',duration:'30 min',price:1200}]},
-  {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,city:'Mumbai',bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief and mindfulness.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(2),time:'7:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'8:00 AM'}],sessions:[{name:'Personalised Yoga Flow',desc:'Custom sequence designed for your body and goals',duration:'60 min',price:1200},{name:'Breathwork and Meditation',desc:'Pranayama techniques for anxiety and stress',duration:'45 min',price:900}]},
-  {id:'d3',photoURL:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop&crop=face',name:'Divya Nair',niche:'beauty',followers:'320K',rating:4.8,sessions_count:210,price:1500,live:true,verified:true,city:'Bangalore',bio:'Beauty consultant with 7 years experience. Expert in skincare for Indian skin tones. Collaborations with Nykaa, Mamaearth and Dot and Key.',availableSlots:[{date:getFutureDate(1),time:'11:00 AM'},{date:getFutureDate(2),time:'2:00 PM'},{date:getFutureDate(2),time:'4:00 PM'},{date:getFutureDate(4),time:'11:00 AM'}],sessions:[{name:'Skin Consultation',desc:'Analyse your skin and build your perfect routine',duration:'45 min',price:1500},{name:'Makeup Masterclass',desc:'1-on-1 personalised tutorial for your look',duration:'60 min',price:2000}]},
-  {id:'d4',photoURL:'https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=400&h=400&fit=crop&crop=face',name:'Rohit Verma',niche:'nutrition',followers:'95K',rating:4.7,sessions_count:67,price:1400,live:false,verified:false,city:'Delhi',bio:'MSc Nutrition from Delhi University. Helping Indians eat healthier without giving up their favourite foods.',availableSlots:[{date:getFutureDate(2),time:'10:00 AM'},{date:getFutureDate(3),time:'12:00 PM'},{date:getFutureDate(5),time:'10:00 AM'}],sessions:[{name:'Diet Audit',desc:'Review your current diet and build a personalised plan',duration:'45 min',price:1400},{name:'Meal Plan Session',desc:'Build a complete weekly meal plan together',duration:'60 min',price:1800}]},
-  {id:'d5',photoURL:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=400&fit=crop&crop=face',name:'Simran Bedi',niche:'fitness',followers:'145K',rating:4.9,sessions_count:83,price:1300,live:true,verified:true,city:'Pune',bio:'Certified HIIT coach and former national level athlete. Helping busy professionals stay fit with efficient 30-45 min sessions.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'6:00 AM'},{date:getFutureDate(4),time:'7:00 PM'}],sessions:[{name:'HIIT Assessment',desc:'Test your fitness and build a custom programme',duration:'45 min',price:1300},{name:'Live HIIT Session',desc:'Train together live on video',duration:'45 min',price:1100}]},
-  {id:'d6',photoURL:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&crop=face',name:'Kavya Reddy',niche:'beauty',followers:'280K',rating:4.8,sessions_count:156,price:1600,live:false,verified:true,city:'Hyderabad',bio:'Aesthetic consultant and skincare specialist. Glass skin routines that work for South Asian skin tones.',availableSlots:[{date:getFutureDate(2),time:'3:00 PM'},{date:getFutureDate(3),time:'11:00 AM'},{date:getFutureDate(5),time:'3:00 PM'},{date:getFutureDate(6),time:'12:00 PM'}],sessions:[{name:'Glow Up Consultation',desc:'Customised skincare routine for your skin type',duration:'45 min',price:1600},{name:'Ingredient Deep Dive',desc:'Understand what is in your products',duration:'30 min',price:900}]},
-  {id:'d7',photoURL:'https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&h=400&fit=crop&crop=face',name:'Priya Sharma',niche:'dance',followers:'390K',rating:4.9,sessions_count:201,price:1100,live:true,verified:true,city:'Mumbai',bio:'Bollywood and contemporary dance choreographer with 8 years teaching experience.',availableSlots:[{date:getFutureDate(1),time:'5:00 PM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'5:00 PM'},{date:getFutureDate(5),time:'6:00 PM'}],sessions:[{name:'Beginner Dance Session',desc:'Learn basic Bollywood moves and build confidence',duration:'45 min',price:1100},{name:'Choreography Class',desc:'Learn a full choreography routine step by step',duration:'60 min',price:1500}]},
-  {id:'d8',photoURL:'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face',name:'Dr. Aisha Khan',niche:'mental',followers:'125K',rating:5.0,sessions_count:89,price:2000,live:false,verified:true,city:'Delhi',bio:'Licensed psychologist and mindfulness coach. Specialising in stress management and anxiety for urban professionals.',availableSlots:[{date:getFutureDate(2),time:'10:00 AM'},{date:getFutureDate(2),time:'4:00 PM'},{date:getFutureDate(4),time:'10:00 AM'},{date:getFutureDate(6),time:'3:00 PM'}],sessions:[{name:'Mindfulness Consultation',desc:'Personalised stress management plan and techniques',duration:'60 min',price:2000},{name:'Anxiety Management',desc:'Evidence-based tools to manage anxiety day to day',duration:'45 min',price:1700}]},
-  {id:'d9',photoURL:'https://images.unsplash.com/photo-1567632913344-d9e2a63e4c90?w=400&h=400&fit=crop&crop=face',name:'Neha Gupta',niche:'nutrition',followers:'76K',rating:4.6,sessions_count:45,price:1200,live:false,verified:true,city:'Bangalore',bio:'Certified dietitian and sports nutritionist. Expert in plant-based diets and PCOS nutrition for Indian women.',availableSlots:[{date:getFutureDate(1),time:'12:00 PM'},{date:getFutureDate(3),time:'1:00 PM'},{date:getFutureDate(5),time:'12:00 PM'}],sessions:[{name:'Nutrition Consultation',desc:'Full diet assessment and personalised plan',duration:'45 min',price:1200},{name:'PCOS Nutrition Session',desc:'Specialised plan for hormonal balance',duration:'60 min',price:1600}]},
-  {id:'d10',photoURL:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',name:'Vikram Singh',niche:'fitness',followers:'165K',rating:4.8,sessions_count:112,price:1500,live:true,verified:true,city:'Chandigarh',bio:'Ex-army fitness trainer turned wellness coach. Specialising in functional fitness and calisthenics.',availableSlots:[{date:getFutureDate(1),time:'5:00 AM'},{date:getFutureDate(2),time:'5:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'5:00 AM'}],sessions:[{name:'Functional Fitness Assessment',desc:'Military-style fitness test and custom training plan',duration:'45 min',price:1500},{name:'Calisthenics Masterclass',desc:'Master bodyweight training from beginner to advanced',duration:'60 min',price:1800}]},
-  {id:'d11',photoURL:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face',name:'Shruti Mehta',niche:'beauty',followers:'445K',rating:4.9,sessions_count:267,price:1800,live:false,verified:true,city:'Mumbai',bio:'Celebrity makeup artist and beauty educator. Worked on Bollywood films and brand campaigns.',availableSlots:[{date:getFutureDate(2),time:'1:00 PM'},{date:getFutureDate(3),time:'2:00 PM'},{date:getFutureDate(5),time:'1:00 PM'}],sessions:[{name:'Pro Makeup Lesson',desc:'Professional techniques for everyday and special occasions',duration:'60 min',price:1800},{name:'Bridal Prep Consultation',desc:'Complete bridal look planning and tutorial',duration:'90 min',price:2500}]},
-  {id:'d12',photoURL:'https://images.unsplash.com/photo-1485811661309-ab85183a729c?w=400&h=400&fit=crop&crop=face',name:'Arjun Nair',niche:'mental',followers:'88K',rating:4.7,sessions_count:63,price:1600,live:false,verified:true,city:'Kochi',bio:'Life coach and NLP practitioner. Helping young professionals break through mental blocks and build confidence.',availableSlots:[{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'8:00 PM'},{date:getFutureDate(5),time:'7:00 PM'},{date:getFutureDate(6),time:'10:00 AM'}],sessions:[{name:'Goal Setting Session',desc:'Clarity coaching to define and achieve your goals',duration:'60 min',price:1600},{name:'Confidence Building',desc:'NLP techniques to overcome self-doubt',duration:'45 min',price:1400}]}
+  {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,city:'Delhi',bio:'NASM certified personal trainer with 5 years experience. Specialised in strength training and body transformation for Indian body types.',availableSlots:[{date:getFutureDate(1),time:'7:00 AM'},{date:getFutureDate(1),time:'9:00 AM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'7:00 AM'},{date:getFutureDate(4),time:'5:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Personalised fitness session tailored to your goals',duration:'30 min',price:1800}]},
+  {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,city:'Mumbai',bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief and mindfulness.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(2),time:'7:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'8:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Custom sequence designed for your body and goals',duration:'30 min',price:1200}]},
+  {id:'d3',photoURL:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop&crop=face',name:'Divya Nair',niche:'beauty',followers:'320K',rating:4.8,sessions_count:210,price:1500,live:true,verified:true,city:'Bangalore',bio:'Beauty consultant with 7 years experience. Expert in skincare for Indian skin tones. Collaborations with Nykaa, Mamaearth and Dot and Key.',availableSlots:[{date:getFutureDate(1),time:'11:00 AM'},{date:getFutureDate(2),time:'2:00 PM'},{date:getFutureDate(2),time:'4:00 PM'},{date:getFutureDate(4),time:'11:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Analyse your skin and build your perfect routine',duration:'30 min',price:1500}]},
+  {id:'d4',photoURL:'https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=400&h=400&fit=crop&crop=face',name:'Rohit Verma',niche:'nutrition',followers:'95K',rating:4.7,sessions_count:67,price:1400,live:false,verified:false,city:'Delhi',bio:'MSc Nutrition from Delhi University. Helping Indians eat healthier without giving up their favourite foods.',availableSlots:[{date:getFutureDate(2),time:'10:00 AM'},{date:getFutureDate(3),time:'12:00 PM'},{date:getFutureDate(5),time:'10:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Review your current diet and build a personalised plan',duration:'30 min',price:1400}]},
+  {id:'d5',photoURL:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=400&fit=crop&crop=face',name:'Simran Bedi',niche:'fitness',followers:'145K',rating:4.9,sessions_count:83,price:1300,live:true,verified:true,city:'Pune',bio:'Certified HIIT coach and former national level athlete. Helping busy professionals stay fit with efficient 30-45 min sessions.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'6:00 AM'},{date:getFutureDate(4),time:'7:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Test your fitness and build a custom programme',duration:'30 min',price:1300}]},
+  {id:'d6',photoURL:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop&crop=face',name:'Kavya Reddy',niche:'beauty',followers:'280K',rating:4.8,sessions_count:156,price:1600,live:false,verified:true,city:'Hyderabad',bio:'Aesthetic consultant and skincare specialist. Glass skin routines that work for South Asian skin tones.',availableSlots:[{date:getFutureDate(2),time:'3:00 PM'},{date:getFutureDate(3),time:'11:00 AM'},{date:getFutureDate(5),time:'3:00 PM'},{date:getFutureDate(6),time:'12:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Personalised skincare and beauty session',duration:'30 min',price:1600}]},
+  {id:'d7',photoURL:'https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&h=400&fit=crop&crop=face',name:'Priya Sharma',niche:'dance',followers:'390K',rating:4.9,sessions_count:201,price:1100,live:true,verified:true,city:'Mumbai',bio:'Bollywood and contemporary dance choreographer with 8 years teaching experience.',availableSlots:[{date:getFutureDate(1),time:'5:00 PM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'5:00 PM'},{date:getFutureDate(5),time:'6:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Learn basic Bollywood moves and build confidence',duration:'30 min',price:1100}]},
+  {id:'d8',photoURL:'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face',name:'Dr. Aisha Khan',niche:'mental',followers:'125K',rating:5.0,sessions_count:89,price:2000,live:false,verified:true,city:'Delhi',bio:'Licensed psychologist and mindfulness coach. Specialising in stress management and anxiety for urban professionals.',availableSlots:[{date:getFutureDate(2),time:'10:00 AM'},{date:getFutureDate(2),time:'4:00 PM'},{date:getFutureDate(4),time:'10:00 AM'},{date:getFutureDate(6),time:'3:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Personalised stress management plan and techniques',duration:'30 min',price:2000}]},
+  {id:'d9',photoURL:'https://images.unsplash.com/photo-1567632913344-d9e2a63e4c90?w=400&h=400&fit=crop&crop=face',name:'Neha Gupta',niche:'nutrition',followers:'76K',rating:4.6,sessions_count:45,price:1200,live:false,verified:true,city:'Bangalore',bio:'Certified dietitian and sports nutritionist. Expert in plant-based diets and PCOS nutrition for Indian women.',availableSlots:[{date:getFutureDate(1),time:'12:00 PM'},{date:getFutureDate(3),time:'1:00 PM'},{date:getFutureDate(5),time:'12:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Full diet assessment and personalised plan',duration:'30 min',price:1200}]},
+  {id:'d10',photoURL:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',name:'Vikram Singh',niche:'fitness',followers:'165K',rating:4.8,sessions_count:112,price:1500,live:true,verified:true,city:'Chandigarh',bio:'Ex-army fitness trainer turned wellness coach. Specialising in functional fitness and calisthenics.',availableSlots:[{date:getFutureDate(1),time:'5:00 AM'},{date:getFutureDate(2),time:'5:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'5:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Military-style fitness test and custom training plan',duration:'30 min',price:1500}]},
+  {id:'d11',photoURL:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face',name:'Shruti Mehta',niche:'beauty',followers:'445K',rating:4.9,sessions_count:267,price:1800,live:false,verified:true,city:'Mumbai',bio:'Celebrity makeup artist and beauty educator. Worked on Bollywood films and brand campaigns.',availableSlots:[{date:getFutureDate(2),time:'1:00 PM'},{date:getFutureDate(3),time:'2:00 PM'},{date:getFutureDate(5),time:'1:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Professional techniques for everyday and special occasions',duration:'30 min',price:1800}]},
+  {id:'d12',photoURL:'https://images.unsplash.com/photo-1485811661309-ab85183a729c?w=400&h=400&fit=crop&crop=face',name:'Arjun Nair',niche:'mental',followers:'88K',rating:4.7,sessions_count:63,price:1600,live:false,verified:true,city:'Kochi',bio:'Life coach and NLP practitioner. Helping young professionals break through mental blocks and build confidence.',availableSlots:[{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'8:00 PM'},{date:getFutureDate(5),time:'7:00 PM'},{date:getFutureDate(6),time:'10:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Clarity coaching to define and achieve your goals',duration:'30 min',price:1600}]}
 ];}
 
 function cardImg(c){
@@ -865,7 +890,7 @@ window.openProfile=async function(id){
       <div class="profile-avatar">'+( c.photoURL ? '<img src="'+c.photoURL+'" alt="'+c.name+'"/>' : '<span>'+avatarInitial(c.name)+'</span>' )+'</div>
       <div class="profile-info">
         <div class="profile-name">${c.name}${c.verified?'<span class="verified-tag">Verified</span>':''}${c.live?'<span style="background:var(--brand);font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;margin-left:4px">LIVE</span>':''}</div>
-        <div class="profile-niche">${nicheLabel(c.niche)} · ${c.city||'India'}</div>
+        <div class="profile-niche">${nicheLabel(c.niche)} · ${c.city||'India'}${c.instagram?' · <a href="https://instagram.com/'+c.instagram.replace('@','')+'" target="_blank" style="color:var(--brand);text-decoration:none">'+c.instagram+' &#8599;</a>':''}</div>
         <div class="profile-bio">${c.bio||'Expert creator on LiveWith.'}</div>
         <div class="profile-stats">
           <div class="pstat"><div class="pstat-num">${c.followers||'0'}</div><div class="pstat-label">Followers</div></div>
@@ -992,7 +1017,14 @@ const bookingRef = await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:
 };
 
 window.cancelBooking=async function(bookingId,bookingDate,slotTime,price){
-  if(!confirm('Cancel this booking?'))return;
+  const btn2 = event.target;
+  if(btn2.dataset.confirmed !== 'yes'){
+    btn2.textContent = 'Confirm cancel?';
+    btn2.style.borderColor = 'var(--red)';
+    btn2.dataset.confirmed = 'yes';
+    setTimeout(()=>{ btn2.textContent='Cancel booking'; btn2.style.borderColor=''; btn2.dataset.confirmed=''; },4000);
+    return;
+  }
 
   const dt=new Date(bookingDate+'T'+to24h(slotTime));
   const hoursUntil=(dt-Date.now())/(1000*60*60);
@@ -1004,19 +1036,33 @@ window.cancelBooking=async function(bookingId,bookingDate,slotTime,price){
 };
 
 window.creatorCancel=async function(bookingId,price){
-  if(!confirm('Cancel this booking? The fan gets a full refund and your next session earnings go to platform as penalty.'))return;
+  // Show inline confirmation instead of blocking confirm()
+  const btn = event.target;
+  if(btn.dataset.confirmed !== 'yes'){
+    btn.textContent = 'Confirm cancel?';
+    btn.style.background = 'rgba(239,68,68,0.2)';
+    btn.style.borderColor = 'var(--red)';
+    btn.dataset.confirmed = 'yes';
+    setTimeout(()=>{ btn.textContent='I cannot make it'; btn.style.background=''; btn.style.borderColor=''; btn.dataset.confirmed=''; },4000);
+    return;
+  }
+  btn.innerHTML='<span class="loader"></span>Cancelling...'; btn.disabled=true;
+
   try{
     await updateDoc(doc(db,'bookings',bookingId),{status:'creator_cancelled',refundAmount:price,refundStatus:'pending',creatorPenalty:true,cancelledAt:serverTimestamp()});
     await updateDoc(doc(db,'users',CU.uid),{penaltyNextSession:true});
     toast('Cancelled. Fan refund initiated. Penalty applied to next session.','info');gotoDashboard();
-  }catch(e){toast('Failed. Try again.','error');}
-};
 
+  }catch(e){console.error(e);toast('Failed to cancel. Please try again.','error');btn.innerHTML='I cannot make it';btn.disabled=false;}
+
+};
 window.gotoDashboard=async function(){
   if(!CU){showPage('login');return;}
   if(!CUD){const d=await getDoc(doc(db,'users',CU.uid));if(d.exists())CUD=d.data();}
   if(CUD?.role==='creator'&&CUD?.status==='pending'){showPage('waitlist');return;}
   if(dashMode==='auto')dashMode=CUD?.role||'fan';
+  // Clean past slots automatically
+  if(CUD?.role==='creator') setTimeout(()=>window.cleanPastSlots&&window.cleanPastSlots(),1000);
   renderDashboard();
 };
 
@@ -1067,17 +1113,133 @@ window.copyRef=function(){const el=document.getElementById('ref-link-input');el.
 
 function slotManagerHTML(){
   const slots=CUD?.availableSlots||[];
-  return`<div class="pform"><h3>Manage Your Slots</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Add dates and times you are available. Fans can only book these slots.</p>
+  const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
+  // Filter future slots only
+  const futureSlots=slots.filter(s=>s.date>=todayStr).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+
+  // Generate next 7 days
+  const days=[];
+  for(let d=0;d<7;d++){
+    const dt=new Date();dt.setDate(dt.getDate()+d);
+    days.push({
+      label:d===0?'Today':d===1?'Tomorrow':dt.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}),
+      value:dt.toISOString().split('T')[0]
+    });
+  }
+
+  // Generate 30-min slots from 5am to 11pm
+  const timeSlots=[];
+  for(let h=5;h<=23;h++){
+    for(let m=0;m<60;m+=30){
+      const ampm=h>=12?'PM':'AM';
+      const dh=h>12?h-12:h===0?12:h;
+      timeSlots.push(dh+':'+(m===0?'00':'30')+' '+ampm);
+    }
+  }
+
+  return`<div class="pform">
+    <h3>🕐 Manage Your Slots</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem">Add your available dates and times. Fans can only book these slots.</p>
+
     <div class="slot-manager">
-      <h4>Add new slot</h4>
-      <div class="slot-add-row"><input type="date" id="new-slot-date" min="${getFutMin()}" max="${getFutMax()}"/><input type="time" id="new-slot-time"/><button class="slot-add-btn" onclick="addSlot()">Add</button></div>
+      <h4>Quick add — next 7 days</h4>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        ${days.map(d=>'<button class="slot-quick-day" onclick="quickSelectDay(\''+d.value+'\')">'+d.label+'</button>').join('')}
+      </div>
+      <div id="quick-times" style="display:none">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Select time slots for <strong id="selected-day-label"></strong></p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="time-buttons">
+          ${timeSlots.map(t=>'<button class="slot-time-btn" onclick="quickToggleTime(this,\''+t+'\')">'+t+'</button>').join('')}
+        </div>
+        <button class="slot-add-btn" onclick="quickAddSlots()" style="width:100%">Add selected slots</button>
+      </div>
+    </div>
+
+    <div class="slot-manager" style="margin-top:1rem">
+      <h4>Or add specific slot</h4>
+      <div class="slot-add-row">
+        <input type="date" id="new-slot-date" min="${getFutMin()}" max="${getFutMax()}"/>
+        <select id="new-slot-time" style="flex:1;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text)">
+          ${timeSlots.map(t=>'<option value="'+t+'">'+t+'</option>').join('')}
+        </select>
+        <button class="slot-add-btn" onclick="addSlot()">Add</button>
+      </div>
+    </div>
+
+    <div class="slot-manager" style="margin-top:1rem">
+      <h4>Your upcoming slots (${futureSlots.length})</h4>
       <div class="slot-list" id="slot-list">
-        ${!slots.length?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">No slots added yet.</p>':slots.sort((a,b)=>a.date.localeCompare(b.date)).map((s,i)=>`<div class="slot-item"><div><div style="font-weight:500">${formatDate(s.date)}</div><div style="font-size:12px;color:var(--muted)">${s.time}</div></div><button class="slot-del" onclick="removeSlot(${i})">x</button></div>`).join('')}
+        ${!futureSlots.length?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">No upcoming slots. Add some above!</p>':
+          futureSlots.map((s,i)=>'<div class="slot-item"><div><div style="font-weight:500">'+formatDate(s.date)+'</div><div style="font-size:12px;color:var(--muted)">'+s.time+'</div></div><button class="slot-del" onclick="removeSlot('+i+')">&#x2715;</button></div>').join('')}
       </div>
     </div>
   </div>`;
 }
+
+// Quick slot selection helpers
+let quickSelectedDay = '';
+let quickSelectedTimes = [];
+
+window.quickSelectDay = function(dateVal){
+  quickSelectedDay = dateVal;
+  quickSelectedTimes = [];
+  const wrap = document.getElementById('quick-times');
+  const label = document.getElementById('selected-day-label');
+  if(wrap) wrap.style.display='block';
+  // Update label
+  const dt = new Date(dateVal+'T00:00:00');
+  const today = new Date().toISOString().split('T')[0];
+  const tom = new Date(); tom.setDate(tom.getDate()+1);
+  const tomStr = tom.toISOString().split('T')[0];
+  if(label) label.textContent = dateVal===today?'Today':dateVal===tomStr?'Tomorrow':dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+  // Reset all time buttons
+  document.querySelectorAll('.slot-time-btn').forEach(b=>{b.classList.remove('selected');b.style.background='';b.style.color='';});
+  // Highlight already added slots for this day
+  const existing = CUD?.availableSlots||[];
+  existing.filter(s=>s.date===dateVal).forEach(s=>{
+    document.querySelectorAll('.slot-time-btn').forEach(b=>{
+      if(b.textContent===s.time){b.classList.add('selected');b.style.background='var(--brand)';b.style.color='white';}
+    });
+  });
+  // Scroll to times
+  document.getElementById('quick-times')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+window.quickToggleTime = function(btn, time){
+  const idx = quickSelectedTimes.indexOf(time);
+  if(idx>=0){
+    quickSelectedTimes.splice(idx,1);
+    btn.classList.remove('selected');
+    btn.style.background='';
+    btn.style.color='';
+  } else {
+    quickSelectedTimes.push(time);
+    btn.classList.add('selected');
+    btn.style.background='var(--brand)';
+    btn.style.color='white';
+  }
+};
+
+window.quickAddSlots = async function(){
+  if(!quickSelectedDay){toast('Please select a day first','error');return;}
+  if(!quickSelectedTimes.length){toast('Please select at least one time slot','error');return;}
+  const existing = CUD?.availableSlots||[];
+  const newSlots = quickSelectedTimes
+    .filter(t=>!existing.some(s=>s.date===quickSelectedDay&&s.time===t))
+    .map(t=>({date:quickSelectedDay,time:t}));
+  if(!newSlots.length){toast('These slots already exist','info');return;}
+  try{
+    const allSlots = [...existing, ...newSlots];
+    await updateDoc(doc(db,'users',CU.uid),{availableSlots:allSlots});
+    CUD.availableSlots = allSlots;
+    quickSelectedTimes=[];
+    document.querySelectorAll('.slot-time-btn').forEach(b=>{b.classList.remove('selected');b.style.background='';b.style.color='';});
+    toast(newSlots.length+' slot(s) added!','success');
+    document.getElementById('tab-slots').innerHTML=slotManagerHTML();
+  }catch(e){toast('Failed to add slots. Try again.','error');}
+};
+
 window.addSlot=async function(){
   const dateEl=document.getElementById('new-slot-date'),timeEl=document.getElementById('new-slot-time');
   const date=dateEl.value,rawTime=timeEl.value;
@@ -1117,7 +1279,7 @@ async function loadBkgs(isC){
     const sLabel=s=>({confirmed:'Confirmed',cancelled_refund:'Cancelled — Refund pending',cancelled_no_refund:'Cancelled — No refund',creator_cancelled:'Creator cancelled — Refund initiated',creator_noshow:'Creator no-show — Refund initiated',fan_noshow:'No-show — No refund'}[s]||s||'Confirmed');
     // Helper to convert slot time to 24hr
 
-    el.innerHTML=statsHtml+bks.map(b=>{
+    el.innerHTML=statsHtml+bks.map((b,bIdx)=>{
       const now=Date.now();
       const sessTime=b.bookingDate&&b.slot?new Date(b.bookingDate+'T'+to24h(b.slot)).getTime():0;
       const isSessionTime=sessTime>0&&now>=sessTime&&now<=(sessTime+3*60*60*1000);
@@ -1135,12 +1297,12 @@ async function loadBkgs(isC){
       if(b.status==='confirmed'&&isC&&sessStatus==='pending'){
         creatorPinEntry='<div class="pin-input-wrap"><h4>Enter Fan PIN to start session</h4><p style="font-size:12px;color:var(--muted);margin-bottom:10px">Ask the fan for their 4-digit session PIN</p>'
           +'<div class="pin-digits-input">'
-          +'<input class="pin-digit" id="p1'+b.id+'" maxlength="1" oninput="pinNext(this,\'p2'+b.id+'\')" />'
+          +'<input class="pin-digit" id="p1'+b.id+'" maxlength="1" oninput="pinNext(this,\'p2'+bIdx+'\')" />'
           +'<input class="pin-digit" id="p2'+b.id+'" maxlength="1" oninput="pinNext(this,\'p3'+b.id+'\')" />'
           +'<input class="pin-digit" id="p3'+b.id+'" maxlength="1" oninput="pinNext(this,\'p4'+b.id+'\')" />'
           +'<input class="pin-digit" id="p4'+b.id+'" maxlength="1" />'
           +'</div>'
-          +'<button class="start-session-btn" onclick="startSession(\''+b.id+'\',\''+b.sessionPIN+'\',\''+b.id+'\')" >Start Session &#10003;</button></div>';
+          +'<button class="start-session-btn" onclick="startSession(\''+b.id+'\',\''+b.sessionPIN+'\','+bIdx+')" >Start Session &#10003;</button></div>';
       }
 
       // CREATOR in-progress
@@ -1231,7 +1393,7 @@ function creatorProfileForm(){
   return`<div class="pform"><h3>Your Creator Profile</h3>
     <div class="avatar-upload">
       <div class="avatar-preview" id="av-preview">${d.photoURL?'<img src="'+d.photoURL+'"/>':'<span>'+avatarInitial(d.name||'')+'</span>'}</div>
-      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste a direct image URL</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
+      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste your photo URL (from Instagram, LinkedIn etc)</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
     </div>
     <div class="form-row"><div class="fg"><label>Display name</label><input class="fi" id="cp-name" value="${d.name||''}"/></div><div class="fg"><label>Instagram handle</label><input class="fi" id="cp-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div></div>
     <div class="form-row"><div class="fg"><label>Followers</label><input class="fi" id="cp-fol" value="${d.followers||''}" placeholder="e.g. 50K"/></div><div class="fg"><label>Session price (Rs incl. GST)</label><input class="fi" type="number" id="cp-price" value="${d.price||1000}"/></div></div>
@@ -1377,8 +1539,8 @@ window.selectSocialRole = async function(role){
       ud.availableSlots=[]; ud.status='pending';
       ud.firstMonthFree=true; ud.joinedAt=serverTimestamp();
       ud.sessions=[
-        {name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'45 min',price:1000},
-        {name:'Deep Dive Session',desc:'In-depth session with full plan and follow-up',duration:'60 min',price:1500}
+        {name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:1000},
+        
       ];
     }
     await setDoc(doc(db,'users',user.uid), ud);
@@ -1592,7 +1754,7 @@ window.startSession = async function(bookingId, correctPIN, bid){
 };
 
 window.completeSession = async function(bookingId){
-  if(!confirm('Mark this session as complete? Payment will be queued for Monday payout.'))return;
+
   try{
     await updateDoc(doc(db,'bookings',bookingId),{
       sessionStatus:'completed',
