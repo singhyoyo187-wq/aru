@@ -798,6 +798,9 @@ async function loadCreators(){
         if(!data.availableSlots) data.availableSlots=[];
         // Make sure sessions exists
         if(!data.sessions || !data.sessions.length){
+        // Remove Deep Dive sessions - only keep 1-on-1 Consultation
+        if(data.sessions) data.sessions = data.sessions.filter(s=>!s.name.toLowerCase().includes('deep dive'));
+        if(data.sessions && data.sessions.length===0) data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
           data.sessions=[
             {name:'1-on-1 Session',desc:'Personalised session tailored to your goals',duration:'45 min',price:data.price||1000},
           ];
@@ -866,6 +869,8 @@ window.handleCreatorClick=function(id){
 
 window.openProfile=async function(id){
   curCreator=allCreators.find(x=>x.id===id);if(!curCreator)return;
+  if(curCreator&&curCreator.sessions) curCreator.sessions=curCreator.sessions.filter(s=>!s.name.toLowerCase().includes('deep dive'));
+  if(curCreator&&(!curCreator.sessions||!curCreator.sessions.length)) curCreator.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:curCreator.price||1000}];
   selSess=null;selSlot='';selDate='';reviewRating=0;
   const c=curCreator;
   const slots=c.availableSlots||[];
@@ -1393,23 +1398,99 @@ function exploreFanSection(){
 
 function creatorProfileForm(){
   const d=CUD||{};
-  return`<div class="pform"><h3>Your Creator Profile</h3>
-    <div class="avatar-upload">
-      <div class="avatar-preview" id="av-preview">${d.photoURL?'<img src="'+d.photoURL+'"/>':'<span>'+avatarInitial(d.name||'')+'</span>'}</div>
-      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste image URL or right-click your photo on any site → Copy image address</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
+  return`<div class="pform">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <h3 style="margin:0">Your Profile</h3>
+      <button onclick="toggleProfileEdit()" id="edit-profile-btn" style="background:var(--brand);color:white;border:none;padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Edit Profile</button>
     </div>
-    <div class="form-row"><div class="fg"><label>Display name</label><input class="fi" id="cp-name" value="${d.name||''}"/></div><div class="fg"><label>Instagram handle</label><input class="fi" id="cp-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div></div>
-    <div class="form-row"><div class="fg"><label>Followers</label><input class="fi" id="cp-fol" value="${d.followers||''}" placeholder="e.g. 50K"/></div><div class="fg"><label>Session price (Rs incl. GST)</label><input class="fi" type="number" id="cp-price" value="${d.price||1000}"/></div></div>
-    <div class="fg"><label>City</label><input class="fi" id="cp-city" value="${d.city||''}" placeholder="e.g. Delhi, Mumbai"/></div>
-    <div class="fg"><label>Bio</label><textarea class="fi" id="cp-bio" rows="3" placeholder="Tell fans about your expertise...">${d.bio||''}</textarea></div>
-    <div class="fg"><label>Show profile publicly?</label><select class="fi" id="cp-pub"><option value="true" ${d.isPublic?'selected':''}>Yes — visible to everyone</option><option value="false" ${!d.isPublic?'selected':''}>No — hidden for now</option></select></div>
-    <button class="save-btn" onclick="saveProf()">Save profile</button>
-    <span style="margin-left:12px;font-size:13px;color:${d.verified?'var(--green)':'var(--muted)'}">${d.verified?'Verified profile':'Pending verification — email livewith.bookings@gmail.com'}</span>
-    <p style="font-size:12px;color:var(--muted);margin-top:10px">List your session price inclusive of GST. LiveWith adds 5% service charge to fans at checkout.</p>
+
+    <!-- VIEW MODE -->
+    <div id="profile-view-mode">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+        <div class="avatar-preview" id="av-preview-view">${d.photoURL?'<img src="'+d.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(d.name||'?').charAt(0)}</span>`}</div>
+        <div>
+          <div style="font-size:18px;font-weight:700">${d.name||'—'}</div>
+          <div style="font-size:13px;color:var(--brand);margin-top:2px">${d.instagram?'<a href="https://instagram.com/'+d.instagram.replace('@','')+'" target="_blank" style="color:var(--brand);text-decoration:none">'+d.instagram+' ↗</a>':'No Instagram added'}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${d.niche||''} · ${d.city||''} · ${d.followers||'0'} followers</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1rem">${d.bio||'No bio added yet.'}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px"><span style="color:var(--muted)">Session price</span><br><strong>₹${(d.price||1000).toLocaleString('en-IN')}</strong></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px"><span style="color:var(--muted)">Profile</span><br><strong style="color:${d.isPublic?'var(--green)':'var(--yellow)'}">${d.isPublic?'Live ✓':'Hidden'}</strong></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px"><span style="color:var(--muted)">Verified</span><br><strong style="color:${d.verified?'var(--green)':'var(--muted)'}">${d.verified?'Yes ✓':'Pending'}</strong></div>
+      </div>
+    </div>
+
+    <!-- EDIT MODE (hidden by default) -->
+    <div id="profile-edit-mode" style="display:none">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem">
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:1rem">Profile Photo</h4>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+          <div class="avatar-preview" id="av-preview">${d.photoURL?'<img src="'+d.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(d.name||'?').charAt(0)}</span>`}</div>
+          <div style="flex:1">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Option 1: Paste any image URL</p>
+            <input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px;margin-bottom:8px" oninput="previewPhoto(this.value)"/>
+          </div>
+        </div>
+        <div style="background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);border-radius:10px;padding:10px 14px">
+          <p style="font-size:12px;font-weight:600;margin-bottom:6px">Option 2: Use your Instagram profile photo</p>
+          <div style="display:flex;gap:8px">
+            <input class="fi" id="ig-fetch-handle" placeholder="@yourhandle or instagram.com/yourhandle" style="font-size:12px;flex:1"/>
+            <button onclick="fetchIgPhoto()" style="background:linear-gradient(135deg,#E1306C,#833AB4);color:white;border:none;padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap">Get Photo</button>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:6px">We'll try to fetch your Instagram profile photo automatically</p>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="fg"><label>Display name</label><input class="fi" id="cp-name" value="${d.name||''}"/></div>
+        <div class="fg"><label>Instagram handle</label><input class="fi" id="cp-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div>
+      </div>
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="fg"><label>Followers</label><input class="fi" id="cp-fol" value="${d.followers||''}" placeholder="e.g. 50K"/></div>
+        <div class="fg"><label>Session price (₹ incl. GST)</label><input class="fi" type="number" id="cp-price" value="${d.price||1000}"/></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label>City</label><input class="fi" id="cp-city" value="${d.city||''}" placeholder="e.g. Delhi"/></div>
+      <div class="fg" style="margin-bottom:12px"><label>Bio</label><textarea class="fi" id="cp-bio" rows="3" placeholder="Tell fans about your expertise...">${d.bio||''}</textarea></div>
+      <div class="fg" style="margin-bottom:1rem"><label>Show profile publicly?</label>
+        <select class="fi" id="cp-pub">
+          <option value="true" ${d.isPublic?'selected':''}>Yes — visible to everyone</option>
+          <option value="false" ${!d.isPublic?'selected':''}>No — hidden for now</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="save-btn" onclick="saveProf()">Save changes</button>
+        <button onclick="toggleProfileEdit()" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:11px 20px;border-radius:10px;font-size:14px;cursor:pointer">Cancel</button>
+      </div>
+      ${d.verified?'<span style="font-size:13px;color:var(--green);margin-left:12px">✓ Verified profile</span>':'<span style="font-size:12px;color:var(--muted);margin-left:4px">Pending verification</span>'}
+    </div>
   </div>`;
 }
+
+window.toggleProfileEdit = function(){
+  const view = document.getElementById('profile-view-mode');
+  const edit = document.getElementById('profile-edit-mode');
+  const btn = document.getElementById('edit-profile-btn');
+  if(!view||!edit) return;
+  const isEditing = edit.style.display !== 'none';
+  view.style.display = isEditing ? 'block' : 'none';
+  edit.style.display = isEditing ? 'none' : 'block';
+  btn.textContent = isEditing ? 'Edit Profile' : 'View Profile';
+};
+
+window.fetchIgPhoto = async function(){
+  const handle = document.getElementById('ig-fetch-handle').value.trim().replace('@','').replace('instagram.com/','').replace('https://','').replace('http://','').split('/')[0].split('?')[0];
+  if(!handle){ toast('Please enter your Instagram handle','error'); return; }
+  // Use unavatar.io to fetch profile photo
+  const url = 'https://unavatar.io/instagram/'+handle;
+  document.getElementById('cp-photo').value = url;
+  previewPhoto(url);
+  toast('Instagram photo loaded! Save your profile to keep it.','success');
+};
+
 window.previewPhoto=function(url){const p=document.getElementById('av-preview');p.innerHTML=url?('<img src="'+url+'" onerror="this.parentElement.innerHTML=\'?\'">'): '<span>'+avatarInitial(CUD?.name||'?')+'</span>';};
-window.saveProf=async function(){
+  const p=document.getElementById('av-preview');const p2=document.getElementById('av-preview-view');const html=url?'<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=\'?\'">':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(CUD?.name||'?').charAt(0)}</span>`;if(p)p.innerHTML=html;if(p2)p2.innerHTML=html;
   const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,city:document.getElementById('cp-city').value,isPublic:document.getElementById('cp-pub').value==='true'};
   try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');
 // ── CURRENCY SYSTEM ──
