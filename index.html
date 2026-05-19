@@ -557,7 +557,7 @@ footer p{font-size:12px;color:var(--muted)}
     <h2>4. Reviews and Comments</h2>
     <p>Only fans who have completed a paid booking may leave a review. Reviews are subject to admin approval before being published. LiveWith reserves the right to remove any review that violates community guidelines.</p>
     <h2>5. Referral Programme</h2>
-    <p>Creators earn LiveWith Credits by referring other creators or fans. Credits can be redeemed against platform fees. Credits have no cash value and cannot be transferred.</p>
+    <p>Creators earn LiveWith Credits by referring other creators or fans. Credits can be used within the LiveWith platform. Credits have no cash value and cannot be transferred.</p>
     <h2>6. Prohibited Conduct</h2>
     <ul><li>Providing false information in your profile or application</li><li>Attempting to conduct transactions outside the platform</li><li>Harassment or abuse of any user</li><li>Posting false or misleading reviews</li><li>Any illegal activity</li></ul>
     <h2>7. Governing Law</h2>
@@ -659,7 +659,7 @@ onAuthStateChanged(auth,async u=>{
     const isAdmin2=CU.email===ADMIN_EMAIL;document.getElementById('nav-name').textContent=isAdmin2?'':(CUD?.name?.split(' ')[0]||'');
     document.getElementById('btn-login').style.display='none';
     document.getElementById('btn-logout').style.display='block';
-    document.getElementById('btn-dash').style.display=CU.email===ADMIN_EMAIL?'none':'block';
+    document.getElementById('btn-dash').style.display='block';
     document.getElementById('btn-admin').style.display=isAdmin?'block':'none';
     document.getElementById('btn-home-admin').style.display=isAdmin?'block':'none';
     if(CU.email===ADMIN_EMAIL&&document.getElementById('page-home').classList.contains('active')){showPage('admin');loadAdminData();}
@@ -914,7 +914,10 @@ window.openProfile=async function(id){
           <div style="font-size:12px;color:var(--muted);margin-top:2px" id="sel-dur"></div>
         </div>
         <p style="font-size:11px;color:var(--muted);margin-bottom:6px">Select date</p>
-        <select class="date-input" id="date-picker" onchange="onDateChange(this.value)">
+        ${uniqueDates.length===0?
+          '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;margin-bottom:1rem"><div style=\"font-size:18px;margin-bottom:4px\">📅</div><div style=\"font-size:13px;font-weight:600\">Not accepting bookings</div><div style=\"font-size:12px;color:var(--muted);margin-top:4px\">Creator hasn\'t added slots yet</div></div>'
+          :'<p style=\"font-size:11px;color:var(--muted);margin-bottom:6px\">Select date</p><select class=\"date-input\" id=\"date-picker\" onchange=\"onDateChange(this.value)\"><option value=\"\">Pick a date</option>'+uniqueDates.map(d=>'<option value=\"'+d+'\">'+ formatDate(d) +'</option>').join('')+'</select>'
+        }
           <option value="">Pick a date</option>
           ${uniqueDates.length?uniqueDates.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join(''):'<option disabled>No dates available yet</option>'}
         </select>
@@ -1074,7 +1077,7 @@ function renderDashboard(){
       <div><h1>Welcome, ${CUD?.name?.split(' ')[0]||'there'} 👋</h1><span class="mode-badge">${isC?'Creator Mode':'Fan Mode'}</span></div>
       ${CUD?.role==='creator'?`<button class="switch-mode-btn" onclick="switchDashMode()">${isC?'Switch to Fan Mode':'Switch to Creator Mode'}</button>`:''}
     </div>
-    ${isC?`<div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith Credits</div></div><div style="font-size:12px;color:var(--muted);text-align:right">Redeemable against<br>platform fees</div></div>`:''}
+    ${isC?`<div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith Credits</div></div></div>`:''}
     <div class="dashboard-tabs">
       <div class="dtab active" onclick="switchTab(event,'tab-book')">My Bookings</div>
       ${isC?`<div class="dtab" onclick="switchTab(event,'tab-slots')">My Slots</div><div class="dtab" onclick="switchTab(event,'tab-prof')">Profile</div><div class="dtab" onclick="switchTab(event,'tab-earn')">Earnings</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Referrals</div>`:`<div class="dtab" onclick="switchTab(event,'tab-explore')">Explore</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Refer and Earn</div><div class="dtab" onclick="switchTab(event,'tab-acc')">Account</div>`}
@@ -1104,7 +1107,7 @@ function referralHTML(link,isCreator){
       2. New creator signs up via your link — you get <strong style="color:var(--text)">₹200 credits</strong><br>
       3. New creator gets <strong style="color:var(--text)">first month platform fee free</strong><br>
       4. Fan books via your link — you get <strong style="color:var(--text)">₹100 credits</strong><br>
-      5. Credits redeemable against platform fees
+      5. Credits balance
     </div>
     <div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">Your current credits balance</div></div></div>
   </div>`;
@@ -1393,7 +1396,7 @@ function creatorProfileForm(){
   return`<div class="pform"><h3>Your Creator Profile</h3>
     <div class="avatar-upload">
       <div class="avatar-preview" id="av-preview">${d.photoURL?'<img src="'+d.photoURL+'"/>':'<span>'+avatarInitial(d.name||'')+'</span>'}</div>
-      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste your photo URL (from Instagram, LinkedIn etc)</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
+      <div style="flex:1"><p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p><p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste image URL or right-click your photo on any site → Copy image address</p><input class="fi" id="cp-photo" placeholder="https://your-photo-url.jpg" value="${d.photoURL||''}" style="font-size:12px" oninput="previewPhoto(this.value)"/></div>
     </div>
     <div class="form-row"><div class="fg"><label>Display name</label><input class="fi" id="cp-name" value="${d.name||''}"/></div><div class="fg"><label>Instagram handle</label><input class="fi" id="cp-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div></div>
     <div class="form-row"><div class="fg"><label>Followers</label><input class="fi" id="cp-fol" value="${d.followers||''}" placeholder="e.g. 50K"/></div><div class="fg"><label>Session price (Rs incl. GST)</label><input class="fi" type="number" id="cp-price" value="${d.price||1000}"/></div></div>
@@ -1772,7 +1775,7 @@ window.completeSession = async function(bookingId){
 
 
 
-function accForm(){return`<div class="pform"><h3>Account</h3><div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div><div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div><div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith Credits balance</div></div></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div></div>`;}
+function accForm(){return`<div class="pform"><h3>Account</h3><div class="fg"><label>Name</label><input class="fi" value="${CUD?.name||''}" readonly/></div><div class="fg"><label>Email</label><input class="fi" value="${CU?.email||''}" readonly/></div><div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">LiveWith LiveWith Credits</div></div></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div></div>`;}
 
 window.showPage=function(n){
   // Block non-admin from admin page
