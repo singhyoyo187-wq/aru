@@ -1997,54 +1997,54 @@ window.gotoHome=function(){showPage('home');};
 function showErr(el,msg){el.textContent=msg;el.style.display='block';}
 function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.classList.remove('show'),4000);}
 
-window.toggleFaq=function(el){
-  const ans=el.nextElementSibling;
-  const icon=el.querySelector('.faq-icon');
-  const isOpen=ans.classList.contains('open');
-  // Close all
-  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
-  document.querySelectorAll('.faq-icon').forEach(i=>i.classList.remove('open'));
-  // Open this one if it was closed
-  if(!isOpen){ans.classList.add('open');icon.classList.add('open');}
-};
 
-window.sendContactForm=async function(){
-  const name=document.getElementById('ct-name').value.trim();
-  const email=document.getElementById('ct-email').value.trim();
-  const type=document.getElementById('ct-type').value;
-  const subject=document.getElementById('ct-subject').value;
-  const message=document.getElementById('ct-message').value.trim();
-  const err=document.getElementById('contact-err');
-  const ok=document.getElementById('contact-ok');
-  err.style.display='none';ok.style.display='none';
-  if(!name){err.textContent='Please enter your name';err.style.display='block';return;}
-  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='Please enter a valid email address';err.style.display='block';return;}
-  if(!subject){err.textContent='Please select a topic';err.style.display='block';return;}
-  if(!message||message.length<10){err.textContent='Please describe your issue (min 10 characters)';err.style.display='block';return;}
-  const btn=document.getElementById('ct-btn');btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
-  try{
-    await emailjs.send('service_68pv1zr','template_wk0ksta',{
-      fan_name:name,
-      fan_email:email,
-      creator_name:'SessionWala Support',
-      session_name:'Support: '+subject+' | Type: '+type,
-      booking_date:new Date().toLocaleDateString('en-IN'),
-      slot_time:'Contact Form',
-      duration:message,
-      amount:'N/A',
-      zoom_link:'N/A',
-      payment_id:'Reply to: '+email
-    });
-    ok.style.display='block';
-    document.getElementById('ct-name').value='';
-    document.getElementById('ct-email').value='';
-    document.getElementById('ct-message').value='';
-    document.getElementById('ct-subject').value='';
-  }catch(e){
-    err.textContent='Could not send message. Please email us directly at sessionwala.bookings@gmail.com';
-    err.style.display='block';
-  }finally{btn.innerHTML='Send message';btn.disabled=false;}
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // ── GOOGLE LOGIN ──
