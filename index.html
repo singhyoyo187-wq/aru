@@ -602,21 +602,27 @@ emailjs.init("UydHuJsWQdiHZLICf");
 
 let CU=null,CUD=null,selSess=null,selSlot='',selDate='',curCreator=null,selRole='fan',allCreators=[],dashMode='auto',afterAuthAction=null,reviewRating=0;
 
+// Init DOM-dependent code after module loads
 const urlRef=new URLSearchParams(window.location.search).get('ref');
-if(urlRef)document.getElementById('su-ref').value=urlRef;
 
-document.getElementById('hero-explore-btn').onclick=()=>{
-  if(!CU){afterAuthAction=()=>{showPage('home');setTimeout(()=>document.getElementById('section-explore').scrollIntoView({behavior:'smooth'}),200);};showPage('signup');return;}
-  document.getElementById('section-explore').scrollIntoView({behavior:'smooth'});
-};
-document.getElementById('hero-creator-btn').onclick=()=>{
-  if(!CU){selRole='creator';afterAuthAction=()=>gotoDashboard();showPage('signup');pickRole('creator');return;}
-  gotoDashboard();
-};
-document.getElementById('join-creator-btn').onclick=()=>{
-  if(!CU){selRole='creator';afterAuthAction=()=>gotoDashboard();showPage('signup');pickRole('creator');return;}
-  gotoDashboard();
-};
+document.addEventListener('DOMContentLoaded',function(){
+  if(urlRef){const refEl=document.getElementById('su-ref');if(refEl)refEl.value=urlRef;}
+  const exploreBtn=document.getElementById('hero-explore-btn');
+  const creatorBtn=document.getElementById('hero-creator-btn');
+  const joinBtn=document.getElementById('join-creator-btn');
+  if(exploreBtn)exploreBtn.onclick=function(){
+    if(!CU){afterAuthAction=function(){showPage('home');setTimeout(function(){const s=document.getElementById('section-explore');if(s)s.scrollIntoView({behavior:'smooth'});},200);};showPage('signup');return;}
+    const s=document.getElementById('section-explore');if(s)s.scrollIntoView({behavior:'smooth'});
+  };
+  if(creatorBtn)creatorBtn.onclick=function(){
+    if(!CU){selRole='creator';afterAuthAction=function(){gotoDashboard();};showPage('signup');pickRole('creator');return;}
+    gotoDashboard();
+  };
+  if(joinBtn)joinBtn.onclick=function(){
+    if(!CU){selRole='creator';afterAuthAction=function(){gotoDashboard();};showPage('signup');pickRole('creator');return;}
+    gotoDashboard();
+  };
+});
 
 (function(){
   const base=3951,start=new Date('2026-01-01T00:00:00').getTime();
@@ -796,16 +802,16 @@ async function loadCreators(){
       if(isPublic && (isApproved || isVerified)){
         // Make sure availableSlots exists
         if(!data.availableSlots) data.availableSlots=[];
-        // Make sure sessions exists
-        if(!data.sessions || !data.sessions.length){
-        // Remove Deep Dive sessions - only keep 1-on-1 Consultation
-        if(data.sessions) data.sessions = data.sessions.filter(s=>!s.name.toLowerCase().includes('deep dive'));
-        if(data.sessions && data.sessions.length===0) data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
-          data.sessions=[
-            {name:'1-on-1 Session',desc:'Personalised session tailored to your goals',duration:'45 min',price:data.price||1000},
-          ];
+        // Make sure sessions exists and filter Deep Dive
+        if(!data.sessions||!data.sessions.length){
+          data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
+        } else {
+          data.sessions=data.sessions.filter(s=>!s.name.toLowerCase().includes('deep dive'));
+          if(!data.sessions.length) data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
         }
-        allCreators.push(data);
+
+
+
       }
     });
     console.log('Real creators loaded:', allCreators.length);
