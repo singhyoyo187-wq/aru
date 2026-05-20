@@ -1525,7 +1525,7 @@ function formatPriceLabel(){
   return currentCurrency === 'USD' ? 'USD' : 'INR';
 }
 
-loadCreators();
+
 
 window.toggleFaq=function(el){
   const ans=el.nextElementSibling;
@@ -2297,29 +2297,29 @@ window.sendContactForm=async function(){
 
 
 
-// ── CURRENCY SYSTEM ──
-let currentCurrency = 'INR';
-const USD_RATE = 0.012; // 1 INR = 0.012 USD approx
 
-window.toggleCurrency = function(){
-  currentCurrency = currentCurrency === 'INR' ? 'USD' : 'INR';
-  const btn = document.getElementById('btn-currency');
-  btn.textContent = currentCurrency === 'INR' ? '🇮🇳 INR' : '🇺🇸 USD';
-  // Re-render grid with new currency
-  renderGrid(document.querySelector('.cat.active')?.textContent?.toLowerCase()||'all');
-};
 
-function formatPrice(priceINR){
-  if(currentCurrency === 'USD'){
-    const usd = (priceINR * USD_RATE).toFixed(0);
-    return '$'+Number(usd).toLocaleString();
-  }
-  return '₹'+priceINR.toLocaleString('en-IN');
-}
 
-function formatPriceLabel(){
-  return currentCurrency === 'USD' ? 'USD' : 'INR';
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 loadCreators();
 setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block';},800);
