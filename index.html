@@ -1495,11 +1495,13 @@ window.fetchIgPhoto = async function(){
   toast('Instagram photo loaded! Save your profile to keep it.','success');
 };
 
-window.previewPhoto=function(url){const p=document.getElementById('av-preview');p.innerHTML=url?('<img src="'+url+'" onerror="this.parentElement.innerHTML=\'?\'">'): '<span>'+avatarInitial(CUD?.name||'?')+'</span>';};
-  const p=document.getElementById('av-preview');const p2=document.getElementById('av-preview-view');const html=url?'<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=\'?\'">':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(CUD?.name||'?').charAt(0)}</span>`;if(p)p.innerHTML=html;if(p2)p2.innerHTML=html;
+window.previewPhoto=function(url){const p=document.getElementById('av-preview');const p2=document.getElementById('av-preview-view');const html=url?'<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=\'?\'">':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(CUD?.name||'?').charAt(0)}</span>`;if(p)p.innerHTML=html;if(p2)p2.innerHTML=html;};
+
+window.saveProf=async function(){
   const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,city:document.getElementById('cp-city').value,isPublic:document.getElementById('cp-pub').value==='true'};
-  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');
-// ── CURRENCY SYSTEM ──
+  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');loadCreators();toggleProfileEdit();}catch(e){toast('Save failed. Try again.','error');}
+};
+
 let currentCurrency = 'INR';
 const USD_RATE = 0.012; // 1 INR = 0.012 USD approx
 
@@ -1523,8 +1525,8 @@ function formatPriceLabel(){
   return currentCurrency === 'USD' ? 'USD' : 'INR';
 }
 
-loadCreators();}catch(e){toast('Save failed. Try again.','error');}
-};
+loadCreators();
+
 window.toggleFaq=function(el){
   const ans=el.nextElementSibling;
   const icon=el.querySelector('.faq-icon');
