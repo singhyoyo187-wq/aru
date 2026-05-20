@@ -348,7 +348,7 @@ footer p{font-size:12px;color:var(--muted)}
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="early-badge"><span class="early-dot"></span>Now Live — SessionWala</div>
-    <h1>Your favourite<br>creator. <span class="accent">Live.</span><br>Just for you.</h1>
+    <h1>Book live sessions<br>with your <span class="accent">favourite</span><br>creators</h1>
     <p>Book 1-on-1 live sessions with India's top fitness, beauty &amp; wellness creators. Real time. Real you.</p>
     <div class="waitlist-bar"><span class="waitlist-num" id="waitlist-count">3,951</span><span class="waitlist-label">people on the waitlist and counting</span></div>
     <div class="hero-btns">
@@ -1517,7 +1517,7 @@ function formatPriceLabel(){
   return currentCurrency === 'USD' ? 'USD' : 'INR';
 }
 
-loadCreators();}catch(e){toast('Save failed. Try again.','error');}
+loadCreators();
 };
 window.toggleFaq=function(el){
   const ans=el.nextElementSibling;
