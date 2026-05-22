@@ -1171,10 +1171,7 @@ function slotManagerHTML(){
       </div>
     </div>
 
-    <div class="slot-manager" style="margin-top:1rem">
-      <h4>Or add specific slot</h4>
-      <div class="slot-add-row">
-        <input type="date" id="new-slot-date" min="${getFutMin()}" max="${getFutMax()}"/>
+    
         <select id="new-slot-time" style="flex:1;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text)">
           ${timeSlots.map(t=>'<option value="'+t+'">'+t+'</option>').join('')}
         </select>
