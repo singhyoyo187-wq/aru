@@ -821,10 +821,12 @@ async function loadCreators(){
     allCreators=[];
   }
   // Only use demo creators if NO real creators found
-  if(allCreators.length===0){
-    console.log('No real creators found, using demo');
-    allCreators=demoCreators();
-  }
+  const realCreators = allCreators.slice();
+if(allCreators.length===0){
+  allCreators=demoCreators();
+} else {
+  allCreators=[...demoCreators(),...realCreators];
+}
   renderGrid('all');
 }
 
