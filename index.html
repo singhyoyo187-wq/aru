@@ -807,8 +807,9 @@ async function loadCreators(){
           data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
         } else {
           data.sessions=data.sessions.filter(s=>!s.name.toLowerCase().includes('deep dive'));
-          if(!data.sessions.length) data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];allCreators.push(data);
+          if(!data.sessions.length) data.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:data.price||1000}];
         }
+        allCreators.push(data);
 
 
 
