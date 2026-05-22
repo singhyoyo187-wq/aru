@@ -889,11 +889,31 @@ window.doBook=async function(){
         await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,serviceCharge:sc,total,status:'confirmed',sessionStatus:'pending',sessionPIN,paymentId:response.razorpay_payment_id,zoomLink,refundStatus:'none',createdAt:serverTimestamp()});
         if(CUD?.referredBy){try{await updateDoc(doc(db,'users',CUD.referredBy),{credits:increment(100)});}catch(e){}}
         // FIX 3: EMAIL debug in correct catch block
-        console.log('Sending email to:',CU.email);
+        const emailParams = {
+          fan_name: CUD?.name||'there',
+          fan_email: CU.email,
+          creator_name: curCreator.name,
+          session_name: s.name,
+          booking_date: formatDate(selDate),
+          slot_time: selSlot,
+          duration: s.duration,
+          amount: 'Rs '+total.toLocaleString('en-IN'),
+          zoom_link: zoomLink,
+          session_pin: sessionPIN,
+          payment_id: response.razorpay_payment_id
+        };
+        console.log('Sending email with params:', emailParams);
         try{
-          await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:zoomLink+' | Session PIN: '+sessionPIN,payment_id:response.razorpay_payment_id});
-          console.log('Email sent successfully!');
-        }catch(e){console.error('EMAIL FAILED:',e);}
+          const emailResult = await emailjs.send('service_68pv1zr','template_wk0ksta', emailParams);
+          console.log('Email sent! Status:', emailResult.status, emailResult.text);
+        }catch(e){
+          console.error('EMAIL FAILED - Code:', e.status, 'Text:', e.text, 'Full error:', e);
+          // Try with minimal params to test connection
+          try{
+            await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:zoomLink,payment_id:response.razorpay_payment_id});
+            console.log('Retry email sent!');
+          }catch(e2){console.error('RETRY ALSO FAILED:',e2.status,e2.text);}
+        }
         document.getElementById('bsummary').innerHTML=`
           <div class="bd-row"><span class="bd-label">Creator</span><span>${curCreator.name}</span></div>
           <div class="bd-row"><span class="bd-label">Session</span><span>${s.name}</span></div>
@@ -1366,27 +1386,62 @@ window.completeSession=async function(bookingId){
 function accForm(){
   const d=CUD||{};
   return`<div class="pform">
-    <h3>My Profile</h3>
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;flex-shrink:0" onclick="document.getElementById('fan-photo-input').click()">
-        ${d.photoURL?'<img src="'+d.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':`<span style="font-size:28px;font-weight:700;color:var(--brand)">${(d.name||'?').charAt(0)}</span>`}
-        <div style="position:absolute;bottom:0;right:0;background:var(--brand);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px">✏️</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <h3 style="margin:0">My Profile</h3>
+      <button onclick="toggleFanProfileEdit()" id="fan-edit-btn" style="background:var(--brand);color:white;border:none;padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Edit Profile</button>
+    </div>
+    <!-- VIEW MODE -->
+    <div id="fan-view-mode">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+          ${d.photoURL?'<img src="'+d.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':`<span style="font-size:32px;font-weight:700;color:var(--brand)">${(d.name||'?').charAt(0)}</span>`}
+        </div>
+        <div>
+          <div style="font-size:18px;font-weight:700">${d.name||'—'}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:2px">${CU?.email||''}</div>
+          <div style="font-size:12px;color:var(--brand);margin-top:4px">Fan Account</div>
+        </div>
       </div>
-      <div>
-        <div style="font-size:16px;font-weight:700">${d.name||''}</div>
-        <div style="font-size:13px;color:var(--muted)">${CU?.email||''}</div>
-        <div style="font-size:12px;color:var(--brand);margin-top:4px">Fan Account</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.25rem">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px"><span style="color:var(--muted)">City</span><br><strong>${d.city||'Not set'}</strong></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px"><span style="color:var(--muted)">Instagram</span><br><strong>${d.instagram?'<a href="https://instagram.com/'+d.instagram.replace('@','')+'" target="_blank" style="color:var(--brand);text-decoration:none">'+d.instagram+'</a>':'Not set'}</strong></div>
+      </div>
+      <div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>
+      <button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border);margin-top:0.5rem" onclick="doLogout()">Logout</button>
+    </div>
+    <!-- EDIT MODE -->
+    <div id="fan-edit-mode" style="display:none">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.25rem">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;flex-shrink:0" onclick="document.getElementById('fan-photo-input').click()">
+          ${d.photoURL?'<img id="fan-photo-preview" src="'+d.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':`<span id="fan-photo-preview" style="font-size:32px;font-weight:700;color:var(--brand)">${(d.name||'?').charAt(0)}</span>`}
+          <div style="position:absolute;bottom:0;right:0;background:var(--brand);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px">✏️</div>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:500;margin-bottom:4px">Profile photo</p>
+          <p style="font-size:12px;color:var(--muted)">Tap the photo to upload from your device</p>
+        </div>
+      </div>
+      <input type="file" id="fan-photo-input" accept="image/*" style="display:none" onchange="uploadFanPhoto(this)"/>
+      <div class="fg"><label>Full name</label><input class="fi" id="fan-name" value="${d.name||''}"/></div>
+      <div class="fg"><label>City</label><input class="fi" id="fan-city" value="${d.city||''}" placeholder="e.g. Delhi"/></div>
+      <div class="fg"><label>Instagram (optional)</label><input class="fi" id="fan-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div>
+      <div style="display:flex;gap:10px;margin-top:1rem">
+        <button class="save-btn" onclick="saveFanProfile()">Save profile</button>
+        <button onclick="toggleFanProfileEdit()" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:11px 20px;border-radius:10px;font-size:14px;cursor:pointer">Cancel</button>
       </div>
     </div>
-    <input type="file" id="fan-photo-input" accept="image/*" style="display:none" onchange="uploadFanPhoto(this)"/>
-    <div class="fg"><label>Full name</label><input class="fi" id="fan-name" value="${d.name||''}"/></div>
-    <div class="fg"><label>City</label><input class="fi" id="fan-city" value="${d.city||''}" placeholder="e.g. Delhi"/></div>
-    <div class="fg"><label>Instagram (optional)</label><input class="fi" id="fan-insta" value="${d.instagram||''}" placeholder="@yourhandle"/></div>
-    <button class="save-btn" onclick="saveFanProfile()">Save profile</button>
-    <div class="credits-box" style="margin-top:1.5rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="save-btn" style="background:#2a2a2a;border:1px solid var(--border)" onclick="doLogout()">Logout</button></div>
   </div>`;
 }
+window.toggleFanProfileEdit=function(){
+  const view=document.getElementById('fan-view-mode');
+  const edit=document.getElementById('fan-edit-mode');
+  const btn=document.getElementById('fan-edit-btn');
+  if(!view||!edit) return;
+  const isEditing=edit.style.display!=='none';
+  view.style.display=isEditing?'block':'none';
+  edit.style.display=isEditing?'none':'block';
+  btn.textContent=isEditing?'Edit Profile':'Cancel';
+};
 // FIX 5 continued: Fan profile save + photo upload functions
 window.saveFanProfile=async function(){
   const upd={name:document.getElementById('fan-name').value,city:document.getElementById('fan-city').value,instagram:document.getElementById('fan-insta').value};
