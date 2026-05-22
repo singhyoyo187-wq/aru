@@ -1006,7 +1006,7 @@ window.doBook=async function(){
         // Generate unique 4-digit PIN for session verification
 const sessionPIN = String(Math.floor(1000+Math.random()*9000));
 const bookingRef = await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,serviceCharge:sc,total,status:'confirmed',sessionStatus:'pending',sessionPIN,paymentId:response.razorpay_payment_id,zoomLink,refundStatus:'none',createdAt:serverTimestamp()});
-        if(CUD?.referredBy){try{await updateDoc(doc(db,'users',CUD.referredBy),{credits:increment(100)});}catch(e){}}
+        if(CUD?.referredBy){try{await updateDoc(doc(db,'users',CUD.referredBy),{credits:increment(100)});}catch(e){console.error('EMAIL ERROR:',e);}}
         try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:zoomLink+' | Session PIN: '+sessionPIN,payment_id:response.razorpay_payment_id});}catch(e){}
         document.getElementById('bsummary').innerHTML=`
           <div class="bd-row"><span class="bd-label">Creator</span><span>${curCreator.name}</span></div>
