@@ -2342,6 +2342,27 @@ function toast(msg,type){const t=document.getElementById('toast');t.textContent=
 
 
 loadCreators();
+  window.saveFanProfile=async function(){
+  const upd={name:document.getElementById('fan-name').value,city:document.getElementById('fan-city').value,instagram:document.getElementById('fan-insta').value};
+  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');}
+  catch(e){toast('Save failed','error');}
+};
+window.uploadFanPhoto=async function(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const dataUrl=e.target.result;
+    try{
+      await setDoc(doc(db,'users',CU.uid),{photoURL:dataUrl},{merge:true});
+      CUD.photoURL=dataUrl;
+      toast('Photo updated!','success');
+      gotoDashboard();
+    }catch(err){toast('Photo too large. Try a smaller image.','error');}
+  };
+  reader.readAsDataURL(file);
+};
+loadCreators();
 setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block';},800);
 </script>
 <script>
