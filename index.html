@@ -318,6 +318,39 @@ footer p{font-size:12px;color:var(--muted)}
 .slot-time-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:'DM Sans',sans-serif}
 .slot-time-btn:hover{border-color:var(--brand);color:var(--text)}
 .slot-time-btn.selected{background:var(--brand);border-color:var(--brand);color:white}
+
+.chat-wrap{display:flex;flex-direction:column;height:500px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:12px}
+.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--card)}
+.chat-header-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0}
+.chat-header-name{font-size:14px;font-weight:600}
+.chat-header-sub{font-size:11px;color:var(--muted)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:75%;display:flex;flex-direction:column;gap:3px}
+.chat-msg.mine{align-self:flex-end;align-items:flex-end}
+.chat-msg.theirs{align-self:flex-start;align-items:flex-start}
+.chat-bubble{padding:10px 14px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
+.chat-msg.mine .chat-bubble{background:var(--brand);color:white;border-bottom-right-radius:4px}
+.chat-msg.theirs .chat-bubble{background:var(--card);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+.chat-time{font-size:10px;color:var(--muted);padding:0 4px}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:var(--card)}
+.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:10px 16px;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s}
+.chat-input:focus{border-color:rgba(255,77,109,0.5)}
+.chat-send-btn{background:var(--brand);color:white;border:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;transition:opacity 0.2s}
+.chat-send-btn:hover{opacity:0.88}
+.chat-empty{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
+.chat-date-divider{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;position:relative}
+.chat-date-divider::before,.chat-date-divider::after{content:'';position:absolute;top:50%;width:35%;height:1px;background:var(--border)}
+.chat-date-divider::before{left:0}.chat-date-divider::after{right:0}
+.msg-tab-badge{background:var(--brand);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:6px;display:inline-block}
+.chat-list-item{display:flex;gap:12px;align-items:center;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s;margin-bottom:8px}
+.chat-list-item:hover{border-color:rgba(255,77,109,0.3)}
+.chat-list-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;flex-shrink:0}
+.chat-list-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.chat-list-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.chat-list-time{font-size:11px;color:var(--muted);white-space:nowrap}
+.change-pass-form{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:1rem}
+.change-pass-form h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem}
+
 </style>
 </head>
 <body>
@@ -530,8 +563,8 @@ footer p{font-size:12px;color:var(--muted)}
 </div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp,updateDoc,arrayUnion,arrayRemove,deleteDoc,increment}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,updatePassword,EmailAuthProvider,reauthenticateWithCredential}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp,updateDoc,arrayUnion,arrayRemove,deleteDoc,increment,orderBy,onSnapshot,limit}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const ADMIN_EMAIL='lazyc5240@gmail.com';
 const BASE_URL='https://sessionwala.com';
 const app=initializeApp({apiKey:"AIzaSyDwCpBUCEoW-EqFKA8GNOuas3aJ0j3Ivqw",authDomain:"livewith-3b8cd.firebaseapp.com",projectId:"livewith-3b8cd",storageBucket:"livewith-3b8cd.firebasestorage.app",messagingSenderId:"688221135862",appId:"1:688221135862:web:a86207d20edd9606439dd7"});
@@ -984,14 +1017,20 @@ function renderDashboard(){
     ${isC?`<div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>`:''}
     <div class="dashboard-tabs">
       <div class="dtab active" onclick="switchTab(event,'tab-book')">My Bookings</div>
-      ${isC?`<div class="dtab" onclick="switchTab(event,'tab-slots')">My Slots</div><div class="dtab" onclick="switchTab(event,'tab-prof')">Profile</div><div class="dtab" onclick="switchTab(event,'tab-earn')">Earnings</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Referrals</div>`:`<div class="dtab" onclick="switchTab(event,'tab-explore')">Explore</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Refer and Earn</div><div class="dtab" onclick="switchTab(event,'tab-acc')">Account</div>`}
+      ${isC?`<div class="dtab" onclick="switchTab(event,'tab-slots')">My Slots</div><div class="dtab" onclick="switchTab(event,'tab-msgs')" id="tab-msgs-btn">💬 Messages</div><div class="dtab" onclick="switchTab(event,'tab-prof')">Profile</div><div class="dtab" onclick="switchTab(event,'tab-earn')">Earnings</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Referrals</div>`:`<div class="dtab" onclick="switchTab(event,'tab-explore')">Explore</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Refer and Earn</div><div class="dtab" onclick="switchTab(event,'tab-acc')">Account</div>`}
     </div>
     <div class="dtab-content active" id="tab-book"><p style="color:var(--muted)">Loading...</p></div>
-    ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,true)}</div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,false)}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
+    ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-msgs"><p style="color:var(--muted)">Loading...</p></div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,true)}</div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,false)}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
   showPage('dashboard');loadBkgs(isC);if(isC)loadEarn();
 }
 window.switchDashMode=function(){dashMode=dashMode==='creator'?'fan':'creator';renderDashboard();};
-window.switchTab=function(e,id){document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');document.getElementById(id).classList.add('active');};
+window.switchTab=function(e,id){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.dtab-content').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  if(id==='tab-msgs') loadCreatorChats();
+};
 function referralHTML(link,isCreator){
   return`<div class="pform"><h3>Refer and Earn</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Share your referral link and earn SessionWala Credits!</p>
@@ -1144,6 +1183,7 @@ async function loadBkgs(isC){
         +(b.refundAmount>0?'<div style="margin-top:6px;font-size:12px;color:var(--yellow)">Refund ₹'+b.refundAmount.toLocaleString('en-IN')+' — '+(b.refundStatus==='processed'?'Processed':'Within 72 hours')+'</div>':'')
         +(b.paymentId?'<div style="margin-top:4px;font-size:11px;color:var(--muted)">Payment: '+b.paymentId+'</div>':'')
         +(b.zoomLink&&b.status==='confirmed'&&sessStatus!=='completed'?'<div style="margin-top:10px"><a href="'+b.zoomLink+'" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">Join Zoom call →</a></div>':'')
+        +(b.status==='confirmed'?'<div id="chat-container-'+b.id+'"></div><button onclick="'+( activeChatBookingId===b.id ? 'closeChat' : 'openChat' )+'(''+b.id+'',''+(isC?b.fanName:b.creatorName)+'',''+(isC?(b.fanName||'F').charAt(0).toUpperCase():(b.creatorName||'C').charAt(0).toUpperCase())+'')" style="margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 16px;border-radius:10px;font-size:12px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">💬 '+(isC?'Chat with fan':'Chat with creator')+'</button>':'')
         +(b.status==='confirmed'&&!isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="cancelBooking(\''+b.id+'\',\''+b.bookingDate+'\',\''+b.slot+'\','+(b.price||0)+')">Cancel booking</button>':'')
         +(b.status==='confirmed'&&isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="creatorCancel(\''+b.id+'\','+(b.price||0)+')">I cannot make it</button>':'')
         +'</div>';
@@ -1539,6 +1579,8 @@ window.loadAdminData=async function(){
         <td>
           ${!r.approved?`<button class="action-btn btn-approve" onclick="adminApproveReview('${r.id}')">Approve</button>`:''}
           <button class="action-btn btn-reject" onclick="adminDeleteReview('${r.id}')">Delete</button>
+          ${!r.flagged?`<button class="action-btn btn-unverify" onclick="adminFlagReview('${r.id}')">Flag</button>`:`<button class="action-btn btn-verify" onclick="adminUnflagReview('${r.id}')">Unflag</button>`}
+          ${r.fanId?`<button class="action-btn btn-remove" onclick="adminBanReviewer('${r.fanId}','${r.fanName||''}')">Ban reviewer</button>`:''}
         </td>
       </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">💬</div><p>No reviews yet</p></div>';
     const refunds=bookings.filter(b=>b.refundStatus==='pending'||b.refundAmount>0);
@@ -1581,6 +1623,207 @@ window.adminTab=function(e,id){document.querySelectorAll('.dtab').forEach(t=>t.c
 window.gotoHome=function(){showPage('home');};
 function showErr(el,msg){el.textContent=msg;el.style.display='block';}
 function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.classList.remove('show'),4000);}
+
+// ── CHANGE PASSWORD ──
+window.changePassword = async function(){
+  const curr = document.getElementById('cp-curr-pass')?.value;
+  const newp = document.getElementById('cp-new-pass')?.value;
+  const conf = document.getElementById('cp-conf-pass')?.value;
+  const err = document.getElementById('cp-pass-err');
+  const ok = document.getElementById('cp-pass-ok');
+  if(err) err.style.display='none';
+  if(ok) ok.style.display='none';
+  if(!curr||!newp||!conf){if(err){err.textContent='Please fill all fields';err.style.display='block';}return;}
+  if(newp.length<8){if(err){err.textContent='New password must be at least 8 characters';err.style.display='block';}return;}
+  if(!/\d/.test(newp)){if(err){err.textContent='New password must include a number';err.style.display='block';}return;}
+  if(newp!==conf){if(err){err.textContent='Passwords do not match';err.style.display='block';}return;}
+  try{
+    const credential = EmailAuthProvider.credential(CU.email, curr);
+    await reauthenticateWithCredential(CU, credential);
+    await updatePassword(CU, newp);
+    if(ok){ok.textContent='Password changed successfully!';ok.style.display='block';}
+    document.getElementById('cp-curr-pass').value='';
+    document.getElementById('cp-new-pass').value='';
+    document.getElementById('cp-conf-pass').value='';
+    toast('Password changed successfully!','success');
+  }catch(e){
+    if(err){
+      if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){err.textContent='Current password is incorrect';}
+      else if(e.code==='auth/too-many-requests'){err.textContent='Too many attempts. Wait a few minutes.';}
+      else{err.textContent='Error: '+e.message;}
+      err.style.display='block';
+    }
+  }
+};
+
+// ── CHAT SYSTEM ──
+let chatUnsubscribe = null;
+let activeChatBookingId = null;
+
+function chatId(bookingId){ return 'chat_'+bookingId; }
+
+function formatChatTime(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return Math.floor(diff/60000)+'m ago';
+  if(diff < 86400000) return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+window.openChat = function(bookingId, otherName, otherInitial){
+  activeChatBookingId = bookingId;
+  // Unsubscribe previous listener
+  if(chatUnsubscribe) chatUnsubscribe();
+  
+  const chatRef = collection(db,'chats',chatId(bookingId),'messages');
+  const chatQ = query(chatRef, orderBy('createdAt','asc'), limit(100));
+  
+  // Render chat UI
+  const container = document.getElementById('chat-container-'+bookingId);
+  if(!container) return;
+  
+  container.innerHTML = `
+    <div class="chat-wrap" id="chatbox-${bookingId}">
+      <div class="chat-header">
+        <div class="chat-header-av">${otherInitial}</div>
+        <div>
+          <div class="chat-header-name">${otherName}</div>
+          <div class="chat-header-sub">Session chat · messages are only visible to you and ${otherName}</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="chat-msgs-${bookingId}">
+        <div class="chat-empty">Loading messages...</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input-${bookingId}" placeholder="Type a message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg('${bookingId}');}"/>
+        <button class="chat-send-btn" onclick="sendChatMsg('${bookingId}')">➤</button>
+      </div>
+    </div>`;
+  
+  // Real-time listener
+  chatUnsubscribe = onSnapshot(chatQ, (snap) => {
+    const msgsEl = document.getElementById('chat-msgs-'+bookingId);
+    if(!msgsEl) return;
+    if(snap.empty){
+      msgsEl.innerHTML='<div class="chat-empty">No messages yet. Say hello! 👋</div>';
+      return;
+    }
+    let html = '';
+    let lastDate = '';
+    snap.forEach(d => {
+      const msg = d.data();
+      const isMine = msg.senderId === CU.uid;
+      const msgDate = msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+      if(msgDate && msgDate !== lastDate){
+        html += `<div class="chat-date-divider">${msgDate}</div>`;
+        lastDate = msgDate;
+      }
+      html += `<div class="chat-msg ${isMine?'mine':'theirs'}">
+        <div class="chat-bubble">${escapeHtml(msg.text)}</div>
+        <div class="chat-time">${formatChatTime(msg.createdAt)}</div>
+      </div>`;
+    });
+    msgsEl.innerHTML = html;
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  });
+};
+
+function escapeHtml(text){
+  return (text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;').replace(/\n/g,'<br>');
+}
+
+window.sendChatMsg = async function(bookingId){
+  const input = document.getElementById('chat-input-'+bookingId);
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  try{
+    await addDoc(collection(db,'chats',chatId(bookingId),'messages'),{
+      text,
+      senderId: CU.uid,
+      senderName: CUD?.name||'User',
+      senderRole: CUD?.role||'fan',
+      createdAt: serverTimestamp()
+    });
+    // Update last message on booking for preview
+    await updateDoc(doc(db,'bookings',bookingId),{
+      lastMessage: text,
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: CU.uid
+    });
+  }catch(e){toast('Could not send message. Try again.','error');}
+};
+
+window.closeChat = function(bookingId){
+  if(chatUnsubscribe){chatUnsubscribe();chatUnsubscribe=null;}
+  const container = document.getElementById('chat-container-'+bookingId);
+  if(container) container.innerHTML = '';
+  activeChatBookingId = null;
+};
+
+// Creator messages tab - list all chats
+async function loadCreatorChats(){
+  const el = document.getElementById('tab-msgs');
+  if(!el) return;
+  try{
+    const q = query(collection(db,'bookings'),where('creatorId','==',CU.uid),where('status','==','confirmed'));
+    const snap = await getDocs(q);
+    if(snap.empty){
+      el.innerHTML='<div class="empty"><div class="ei">💬</div><p>No active bookings yet. Chats appear here after fans book sessions.</p></div>';
+      return;
+    }
+    const bks = [];
+    snap.forEach(d=>bks.push({...d.data(),id:d.id}));
+    el.innerHTML = '<h3 style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:1rem">Messages</h3>'
+      + bks.map(b=>`
+        <div class="chat-list-item" onclick="openCreatorChat('${b.id}','${b.fanName||'Fan'}','${(b.fanName||'F').charAt(0)}')">
+          <div class="chat-list-av">${(b.fanName||'F').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div class="chat-list-name">${b.fanName||'Fan'}</div>
+            <div class="chat-list-preview">${b.lastMessage||'No messages yet — start the chat!'}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${b.sessionName||''} · ${b.bookingDate?formatDate(b.bookingDate):''}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div class="chat-list-time">${b.lastMessageAt?formatChatTime(b.lastMessageAt):''}</div>
+          </div>
+        </div>
+        <div id="chat-container-${b.id}"></div>
+      `).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--muted)">Could not load chats.</p>';}
+}
+
+window.openCreatorChat = function(bookingId, fanName, fanInitial){
+  // Close any open chat first
+  if(activeChatBookingId && activeChatBookingId !== bookingId){
+    closeChat(activeChatBookingId);
+  }
+  if(activeChatBookingId === bookingId){
+    closeChat(bookingId);
+    return;
+  }
+  openChat(bookingId, fanName, fanInitial);
+};
+
+// ── MISSING ADMIN FUNCTIONS ──
+window.adminFlagReview=async function(id){
+  try{await updateDoc(doc(db,'reviews',id),{flagged:true,approved:false});toast('Review flagged and hidden','success');loadAdminData();}
+  catch(e){toast('Failed','error');}
+};
+window.adminUnflagReview=async function(id){
+  try{await updateDoc(doc(db,'reviews',id),{flagged:false});toast('Review unflagged','success');loadAdminData();}
+  catch(e){toast('Failed','error');}
+};
+window.adminBanReviewer=async function(fanId,fanName){
+  if(!confirm('Ban '+fanName+' from leaving reviews?'))return;
+  try{await updateDoc(doc(db,'users',fanId),{reviewBanned:true,flagged:true});toast(fanName+' banned from reviewing','success');loadAdminData();}
+  catch(e){toast('Failed','error');}
+};
+
+
 // FIX: Single loadCreators() call
 loadCreators();
 setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block';},800);
@@ -1619,15 +1862,27 @@ setTimeout(()=>{if(!CU)document.getElementById('btn-login').style.display='block
       <p style="font-size:12px;color:var(--muted);margin-top:1rem;text-align:center">Or email us directly at <strong style="color:var(--text)">sessionwala.bookings@gmail.com</strong></p>
     </div>
     <h2 style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem">Frequently Asked Questions</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Find quick answers to common questions</p>
     <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">For Fans</h3>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I book a session? <span class="faq-icon">+</span></div><div class="faq-a">Sign up or login → Browse creators → Select a creator → Choose a session → Pick an available date and time slot → Pay securely via Razorpay. You will receive a confirmation email with your Zoom link immediately after payment.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted? <span class="faq-icon">+</span></div><div class="faq-a">We accept all major payment methods via Razorpay — UPI (GPay, PhonePe, Paytm), Credit/Debit cards, Net banking, and all major wallets.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel my booking and get a refund? <span class="faq-icon">+</span></div><div class="faq-a">Yes — if you cancel at least 24 hours before your session, you get an 80% refund within 72 hours. If you cancel within 24 hours, no refund is applicable.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if the creator does not show up? <span class="faq-icon">+</span></div><div class="faq-a">If the creator is a no-show, you will receive a 100% full refund within 72 hours. Report it to us at sessionwala.bookings@gmail.com.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I book a session? <span class="faq-icon">+</span></div><div class="faq-a">Sign up or login → Browse creators → Select a creator → Choose a session type → Pick an available date and time slot → Pay securely via Razorpay. You will receive a confirmation email with your Zoom link immediately after payment.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted? <span class="faq-icon">+</span></div><div class="faq-a">We accept all major payment methods via Razorpay — UPI (GPay, PhonePe, Paytm), Credit/Debit cards, Net banking, and all major wallets. Payments are 100% secure and encrypted.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is the 5% service charge? <span class="faq-icon">+</span></div><div class="faq-a">A small 5% service charge is added to every booking. This covers platform costs, payment processing, and customer support. It is shown clearly before you pay — no hidden charges.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel my booking and get a refund? <span class="faq-icon">+</span></div><div class="faq-a">Yes — if you cancel at least 24 hours before your session, you get an 80% refund within 72 hours. If you cancel within 24 hours of the session, no refund is applicable. Go to Dashboard → My Bookings → Cancel booking.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if the creator does not show up? <span class="faq-icon">+</span></div><div class="faq-a">If the creator is a no-show, you will receive a 100% full refund within 72 hours. No action needed from your side — just report it to us at sessionwala.bookings@gmail.com and we will process it immediately.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I join the video call? <span class="faq-icon">+</span></div><div class="faq-a">After booking, you will receive an email with your Zoom link. You can also find it in Dashboard → My Bookings. You can also chat with the creator directly from your booking card to get session details.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I chat with the creator? <span class="faq-icon">+</span></div><div class="faq-a">After your booking is confirmed, a Chat button appears on your booking card in the Dashboard. Tap it to open a private chat with your creator. You can share questions, get session prep tips, and receive the Zoom link directly.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">I forgot my password. What do I do? <span class="faq-icon">+</span></div><div class="faq-a">Click Login → then click Forgot password? → enter your registered email address → you will receive a password reset link in your inbox. You can also change your password from Dashboard → Account → Change Password.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I leave a review? <span class="faq-icon">+</span></div><div class="faq-a">You can leave a review only after completing a paid session with a creator. Go to the creator's profile page and scroll to the Reviews section. Your review will be published after admin approval.</div></div>
     <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">For Creators</h3>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a fee to join SessionWala? <span class="faq-icon">+</span></div><div class="faq-a">No — joining is completely free. For your first month, there is zero platform fee. After the first month, a small platform fee applies.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I set my availability? <span class="faq-icon">+</span></div><div class="faq-a">After your profile is approved, go to Dashboard → My Slots → add your available dates and times. Fans can only book the slots you have added.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How and when do I get paid? <span class="faq-icon">+</span></div><div class="faq-a">Payouts are processed every Monday via Razorpay to your registered bank account or UPI.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I apply to join as a creator? <span class="faq-icon">+</span></div><div class="faq-a">Click Join as Creator on the homepage → fill in your details (name, email, Instagram handle, niche) → submit your application. Our team will review it within 2-5 business days and email you when approved.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a fee to join SessionWala? <span class="faq-icon">+</span></div><div class="faq-a">No — joining SessionWala is completely free. For your first month, there is zero platform fee and you keep 100% of your session earnings (minus applicable GST). After the first month, a small platform fee applies.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I set my availability? <span class="faq-icon">+</span></div><div class="faq-a">After your profile is approved, go to Dashboard → My Slots. Use the Quick Add feature to select a day and pick multiple time slots at once. Fans can only book the slots you have added. You can add or remove slots anytime.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I communicate with fans before a session? <span class="faq-icon">+</span></div><div class="faq-a">Go to Dashboard → Messages to see all your confirmed bookings. Click on any booking to open a private chat with that fan. You can share the Zoom link, session preparation tips, and answer any questions directly in the chat.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How and when do I get paid? <span class="faq-icon">+</span></div><div class="faq-a">Payouts are processed every Monday via Razorpay to your registered bank account or UPI. Your earnings are shown in Dashboard → Earnings with a full breakdown including platform fee and GST deductions.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What happens if I cancel a session? <span class="faq-icon">+</span></div><div class="faq-a">If you cancel a confirmed booking, the fan receives a 100% refund and your next session earnings will be forfeited to SessionWala as a penalty. Please only accept bookings you can commit to.</div></div>
+    <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">General</h3>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is SessionWala available across India? <span class="faq-icon">+</span></div><div class="faq-a">Yes — SessionWala is available across all of India. Sessions are conducted online via Zoom so location does not matter. Both fans and creators can be from anywhere in India.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is my payment information safe? <span class="faq-icon">+</span></div><div class="faq-a">Yes — all payments are processed by Razorpay, which is PCI-DSS compliant and RBI regulated. SessionWala never stores your card or UPI details. Your data is secured on Google Firebase infrastructure.</div></div>
     <div style="background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);border-radius:12px;padding:1.25rem;margin-top:2rem;text-align:center">
       <p style="font-size:14px;font-weight:600;margin-bottom:6px">Still need help?</p>
       <p style="font-size:13px;color:var(--muted)">Email us at <strong style="color:var(--text)">sessionwala.bookings@gmail.com</strong></p>
