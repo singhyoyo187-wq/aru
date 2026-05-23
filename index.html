@@ -1835,14 +1835,14 @@ window.loadCreatorChats = async function(){
         const preview = b.lastMessage||'No messages yet — say hello! 👋';
         const timeStr = b.lastMessageAt ? formatChatTime(b.lastMessageAt) : '';
         const sessionInfo = (b.sessionName||'') + (b.bookingDate ? ' · '+formatDate(b.bookingDate) : '');
-        return '<div class="chat-list-item" data-bid="'+b.id+'" data-name="'+fanName+'" data-init="'+fanInit+'" onclick="creatorOpenChatItem(this)">'
-          +'<div class="chat-list-av">'+fanInit+'</div>'
-          +'<div style="flex:1;min-width:0">'
+        return '<div class="chat-list-item" data-bid="'+b.id+'" data-name="'+fanName+'" data-init="'+fanInit+'" onclick="creatorOpenChatItem(event)">'
+          +'<div class="chat-list-av" style="pointer-events:none">'+fanInit+'</div>'
+          +'<div style="flex:1;min-width:0;pointer-events:none">'
           +'<div class="chat-list-name">'+fanName+'</div>'
           +'<div class="chat-list-preview">'+preview+'</div>'
           +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+sessionInfo+'</div>'
           +'</div>'
-          +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="text-align:right;flex-shrink:0;pointer-events:none">'
           +'<div class="chat-list-time">'+timeStr+'</div>'
           +'</div>'
           +'</div>'
@@ -1853,10 +1853,13 @@ window.loadCreatorChats = async function(){
   }catch(e){el.innerHTML='<p style="color:var(--muted)">Could not load chats.</p>';}
 }
 
-window.creatorOpenChatItem = function(el){
+window.creatorOpenChatItem = function(event){
+  const el = event.currentTarget || event.target.closest('.chat-list-item');
+  if(!el) return;
   const bookingId = el.getAttribute('data-bid');
   const fanName = el.getAttribute('data-name');
   const fanInit = el.getAttribute('data-init');
+  if(!bookingId) return;
   if(activeChatBookingId === bookingId){
     closeChat(bookingId);
     el.style.background = '';
