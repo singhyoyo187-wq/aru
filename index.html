@@ -480,6 +480,20 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="auth-switch">Already have account? <a onclick="showPage('login')">Sign in</a></div>
   </div></div>
 </div>
+<div class="page" id="page-waitlist-fan">
+  <div class="waitlist-page"><div class="waitlist-card">
+    <div style="font-size:48px;margin-bottom:1rem">🎉</div>
+    <h2>Account created!</h2>
+    <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:1rem">Your account is under review. We approve fans manually to keep the community quality high.</p>
+    <div class="waitlist-steps">
+      <div class="waitlist-step"><div class="ws-num">1</div><div><strong>Account created ✓</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">Your profile is under review</div></div></div>
+      <div class="waitlist-step"><div class="ws-num">2</div><div><strong>Admin review</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">We verify accounts to prevent spam</div></div></div>
+      <div class="waitlist-step"><div class="ws-num">3</div><div><strong>You're in!</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">Start booking sessions with top creators</div></div></div>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">Expected review: <strong style="color:var(--text)">24-48 hours</strong></p>
+    <button class="btn-primary" style="margin-top:1.5rem;width:100%" onclick="doLogout()">Back to homepage</button>
+  </div></div>
+</div>
 <div class="page" id="page-waitlist">
   <div class="waitlist-page"><div class="waitlist-card">
     <div style="font-size:48px;margin-bottom:1rem">🎉</div>
@@ -674,7 +688,7 @@ window.doSignup=async function(){
       if(!rs.empty){referredBy=rs.docs[0].id;try{await updateDoc(doc(db,'users',referredBy),{credits:increment(200)});}catch(e){}}
     }
     const myRefCode=name.toLowerCase().replace(/\s+/g,'')+Math.floor(Math.random()*999);
-    const ud={name,email,role:selRole,uid:c.user.uid,verified:false,photoURL:'',flagged:false,penaltyNextSession:false,credits:0,referralCode:myRefCode,referredBy,createdAt:serverTimestamp()};
+    const ud={name,email,role:selRole,uid:c.user.uid,verified:false,photoURL:'',flagged:false,penaltyNextSession:false,credits:0,referralCode:myRefCode,referredBy,status:selRole==='fan'?'pending':'',createdAt:serverTimestamp()};
     if(selRole==='creator'){
       ud.instagram=document.getElementById('su-insta').value.trim();
       ud.niche=document.getElementById('su-niche').value;
@@ -684,7 +698,7 @@ window.doSignup=async function(){
     }
     await setDoc(doc(db,'users',c.user.uid),ud);CUD=ud;
     if(selRole==='creator'){showPage('waitlist');toast('Application submitted! We will email you when approved','success');}
-    else{toast('Welcome to SessionWala!','success');gotoDashboard();}
+    else{showPage('waitlist-fan');toast('Account created! Pending admin approval.','success');}
   }catch(e){showErr(err,e.message.includes('email-already-in-use')?'This email is already registered. Try logging in.':e.message.replace('Firebase: ',''));}
   finally{btn.innerHTML="Create account — it's free";btn.disabled=false;}
 };
@@ -700,6 +714,7 @@ window.doLogin=async function(){
     const d=await getDoc(doc(db,'users',auth.currentUser.uid));
     if(d.exists())CUD=d.data();
     if(CUD?.role==='creator'&&CUD?.status==='pending'){toast('Application under review','info');showPage('waitlist');return;}
+    if(CUD?.role==='fan'&&CUD?.status==='pending'){toast('Account pending approval','info');showPage('waitlist-fan');return;}
     if(email===ADMIN_EMAIL){toast('Welcome back, Admin!','success');showPage('admin');loadAdminData();return;}
     toast('Welcome back!','success');gotoDashboard();
   }catch(e){showErr(err,'Wrong email or password — please try again');}
@@ -1002,6 +1017,7 @@ window.gotoDashboard=async function(){
   if(!CU){showPage('login');return;}
   if(!CUD){const d=await getDoc(doc(db,'users',CU.uid));if(d.exists())CUD=d.data();}
   if(CUD?.role==='creator'&&CUD?.status==='pending'){showPage('waitlist');return;}
+  if(CUD?.role==='fan'&&CUD?.status==='pending'){showPage('waitlist-fan');return;}
   if(dashMode==='auto')dashMode=CUD?.role||'fan';
   if(CUD?.role==='creator') setTimeout(()=>window.cleanPastSlots&&window.cleanPastSlots(),1000);
   renderDashboard();
@@ -1416,10 +1432,12 @@ window.selectSocialRole=async function(role){
       ud.instagram='';ud.niche='';ud.bio='';ud.followers='0';ud.price=1000;ud.rating=5.0;ud.sessions_count=0;ud.live=false;ud.isPublic=false;ud.city='';
       ud.availableSlots=[];ud.status='pending';ud.firstMonthFree=true;ud.joinedAt=serverTimestamp();
       ud.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:1000}];
+    } else {
+      ud.status='pending';
     }
     await setDoc(doc(db,'users',user.uid),ud);CUD=ud;
     if(role==='creator'){showPage('waitlist');toast('Application submitted!','success');}
-    else{toast('Welcome to SessionWala! 🎉','success');gotoDashboard();}
+    else{showPage('waitlist-fan');toast('Account created! Pending admin approval.','success');}
   }catch(e){toast('Something went wrong. Try again.','error');}
 };
 window.pinNext=function(el,nextId){
@@ -1511,21 +1529,55 @@ window.toggleFanProfileEdit=function(){
 };
 // FIX 5 continued: Fan profile save + photo upload functions
 window.saveFanProfile=async function(){
-  const upd={name:document.getElementById('fan-name').value,city:document.getElementById('fan-city').value,instagram:document.getElementById('fan-insta').value};
-  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');}
-  catch(e){toast('Save failed','error');}
+  const nameEl=document.getElementById('fan-name');
+  const cityEl=document.getElementById('fan-city');
+  const instaEl=document.getElementById('fan-insta');
+  if(!nameEl){toast('Please open Edit Profile first','error');return;}
+  const upd={
+    name:nameEl.value.trim()||CUD?.name||'',
+    city:cityEl?cityEl.value.trim():'',
+    instagram:instaEl?instaEl.value.trim():''
+  };
+  try{
+    await setDoc(doc(db,'users',CU.uid),upd,{merge:true});
+    Object.assign(CUD,upd);
+    toast('Profile saved!','success');
+    toggleFanProfileEdit();
+  }catch(e){
+    console.error('Save profile error:',e.code,e.message);
+    toast('Save failed: '+( e.code||e.message||'unknown error'),'error');
+  }
 };
 window.uploadFanPhoto=async function(input){
   if(!input.files||!input.files[0]) return;
   const file=input.files[0];
+  // Compress image using canvas before saving
   const reader=new FileReader();
   reader.onload=async function(e){
-    const dataUrl=e.target.result;
-    try{
-      await setDoc(doc(db,'users',CU.uid),{photoURL:dataUrl},{merge:true});
-      CUD.photoURL=dataUrl;
-      toast('Photo updated!','success');gotoDashboard();
-    }catch(err){toast('Photo too large. Try a smaller image.','error');}
+    const img=new Image();
+    img.onload=async function(){
+      const canvas=document.createElement('canvas');
+      const MAX=300;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+      else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      try{
+        await setDoc(doc(db,'users',CU.uid),{photoURL:compressed},{merge:true});
+        CUD.photoURL=compressed;
+        // Update preview immediately
+        const prev=document.getElementById('fan-photo-preview');
+        if(prev&&prev.tagName==='IMG') prev.src=compressed;
+        else if(prev) prev.parentElement.innerHTML='<img id="fan-photo-preview" src="'+compressed+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+        toast('Photo updated!','success');
+      }catch(err){
+        console.error('Photo save error:',err);
+        toast('Could not save photo. Try again.','error');
+      }
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 };
@@ -1572,9 +1624,22 @@ window.loadAdminData=async function(){
           <button class="action-btn btn-remove" onclick="adminRemoveUser('${u.id}','${u.name}')">Remove</button>
         </td>
       </tr>`).join('')}</tbody></table></div>`;
-    document.getElementById('atab-fans').innerHTML=`<div style="overflow-x:auto"><table class="admin-table">
+    const pendingFans=fans.filter(u=>u.status==='pending');
+    const activeFans=fans.filter(u=>u.status!=='pending');
+    document.getElementById('atab-fans').innerHTML=
+      (pendingFans.length?`<h4 style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem;color:var(--yellow)">⏳ Pending Approval (${pendingFans.length})</h4>
+      <div style="overflow-x:auto"><table class="admin-table">
+      <thead><tr><th>Fan</th><th>Email</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>${pendingFans.map(u=>`<tr>
+        <td><div class="user-row-info"><div class="user-mini-av" style="background:var(--surface);color:var(--brand)">${avatarInitial(u.name)}</div><div style="font-weight:500">${u.name}</div></div></td>
+        <td style="color:var(--muted)">${u.email}</td>
+        <td style="font-size:12px;color:var(--muted)">${u.createdAt?.toDate?u.createdAt.toDate().toLocaleDateString('en-IN'):'—'}</td>
+        <td><button class="action-btn btn-approve" onclick="approveFan('${u.id}','${u.name}','${u.email}')">Approve</button><button class="action-btn btn-reject" onclick="adminRemoveUser('${u.id}','${u.name}')">Reject</button></td>
+      </tr>`).join('')}</tbody></table></div>`:'')
+      +`<h4 style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;margin:1.5rem 0 1rem">Active Fans (${activeFans.length})</h4>
+      <div style="overflow-x:auto"><table class="admin-table">
       <thead><tr><th>Fan</th><th>Email</th><th>Credits</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${fans.map(u=>`<tr>
+      <tbody>${activeFans.map(u=>`<tr>
         <td><div class="user-row-info"><div class="user-mini-av" style="background:var(--surface);color:var(--brand)">${avatarInitial(u.name)}</div><div style="font-weight:500">${u.name}</div></div></td>
         <td style="color:var(--muted)">${u.email}</td>
         <td style="color:var(--brand)">₹${(u.credits||0).toLocaleString('en-IN')}</td>
@@ -1621,6 +1686,13 @@ window.loadAdminData=async function(){
         <td>${b.refundStatus!=='processed'?`<button class="action-btn btn-approve" onclick="adminProcessRefund('${b.id}')">Mark processed</button>`:''}</td>
       </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">💰</div><p>No pending refunds</p></div>';
   }catch(e){console.error(e);toast('Failed to load admin data','error');}
+};
+window.approveFan=async function(uid,name,email){
+  try{
+    await updateDoc(doc(db,'users',uid),{status:'approved'});
+    try{await emailjs.send('service_68pv1zr','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Your account is approved! Start booking sessions.',booking_date:'Today',slot_time:'Login to get started',duration:'N/A',amount:'N/A',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(eml){console.log('Email error:',eml);}
+    toast(name+' approved!','success');loadAdminData();
+  }catch(e){toast('Failed','error');}
 };
 window.approveCreator=async function(uid,name,email){
   try{
