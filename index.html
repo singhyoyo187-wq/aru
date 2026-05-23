@@ -1730,6 +1730,14 @@ window.openChat = function(bookingId, otherName, otherInitial){
       </div>
     </div>`;
   
+  // Scroll chat into view
+  setTimeout(()=>{
+    const chatbox = document.getElementById('chatbox-'+bookingId);
+    if(chatbox) chatbox.scrollIntoView({behavior:'smooth', block:'nearest'});
+    const input = document.getElementById('chat-input-'+bookingId);
+    if(input) input.focus();
+  }, 100);
+  
   // Real-time listener
   chatUnsubscribe = onSnapshot(chatQ, (snap) => {
     const msgsEl = document.getElementById('chat-msgs-'+bookingId);
@@ -1800,6 +1808,9 @@ window.closeChat = function(bookingId){
   if(chatUnsubscribe){chatUnsubscribe();chatUnsubscribe=null;}
   const container = document.getElementById('chat-container-'+bookingId);
   if(container) container.innerHTML = '';
+  // Reset highlight on chat list item
+  const listItem = document.querySelector('.chat-list-item[data-bid="'+bookingId+'"]');
+  if(listItem){listItem.style.background='';listItem.style.borderColor='';}
   activeChatBookingId = null;
 };
 
@@ -1816,35 +1827,72 @@ window.loadCreatorChats = async function(){
     }
     const bks = [];
     snap.forEach(d=>bks.push({...d.data(),id:d.id}));
+    // Build chat list using data attributes - avoids all quote escaping issues
     el.innerHTML = '<h3 style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:1rem">Messages</h3>'
-      + bks.map(b=>`
-        <div class="chat-list-item" onclick="openCreatorChat('${b.id}','${b.fanName||'Fan'}','${(b.fanName||'F').charAt(0)}')">
-          <div class="chat-list-av">${(b.fanName||'F').charAt(0).toUpperCase()}</div>
-          <div style="flex:1;min-width:0">
-            <div class="chat-list-name">${b.fanName||'Fan'}</div>
-            <div class="chat-list-preview">${b.lastMessage||'No messages yet — start the chat!'}</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">${b.sessionName||''} · ${b.bookingDate?formatDate(b.bookingDate):''}</div>
-          </div>
-          <div style="text-align:right;flex-shrink:0">
-            <div class="chat-list-time">${b.lastMessageAt?formatChatTime(b.lastMessageAt):''}</div>
-          </div>
-        </div>
-        <div id="chat-container-${b.id}"></div>
-      `).join('');
+      + bks.map(b=>{
+        const fanName = b.fanName||'Fan';
+        const fanInit = fanName.charAt(0).toUpperCase();
+        const preview = b.lastMessage||'No messages yet — say hello! 👋';
+        const timeStr = b.lastMessageAt ? formatChatTime(b.lastMessageAt) : '';
+        const sessionInfo = (b.sessionName||'') + (b.bookingDate ? ' · '+formatDate(b.bookingDate) : '');
+        return '<div class="chat-list-item" data-bid="'+b.id+'" data-name="'+fanName+'" data-init="'+fanInit+'" onclick="creatorOpenChatItem(this)">'
+          +'<div class="chat-list-av">'+fanInit+'</div>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div class="chat-list-name">'+fanName+'</div>'
+          +'<div class="chat-list-preview">'+preview+'</div>'
+          +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+sessionInfo+'</div>'
+          +'</div>'
+          +'<div style="text-align:right;flex-shrink:0">'
+          +'<div class="chat-list-time">'+timeStr+'</div>'
+          +'</div>'
+          +'</div>'
+          +'<div id="chat-container-'+b.id+'"></div>';
+      }).join('');
+    // Set up real-time updates for unread badge
+    setupCreatorChatBadge(bks.map(b=>b.id));
   }catch(e){el.innerHTML='<p style="color:var(--muted)">Could not load chats.</p>';}
 }
 
-window.openCreatorChat = function(bookingId, fanName, fanInitial){
-  // Close any open chat first
-  if(activeChatBookingId && activeChatBookingId !== bookingId){
-    closeChat(activeChatBookingId);
-  }
+window.creatorOpenChatItem = function(el){
+  const bookingId = el.getAttribute('data-bid');
+  const fanName = el.getAttribute('data-name');
+  const fanInit = el.getAttribute('data-init');
   if(activeChatBookingId === bookingId){
     closeChat(bookingId);
+    el.style.background = '';
     return;
   }
+  if(activeChatBookingId){
+    // Close previous - reset its background
+    const prevEl = document.querySelector('.chat-list-item[data-bid="'+activeChatBookingId+'"]');
+    if(prevEl) prevEl.style.background = '';
+    closeChat(activeChatBookingId);
+  }
+  el.style.background = 'rgba(255,77,109,0.08)';
+  el.style.borderColor = 'var(--brand)';
+  openChat(bookingId, fanName, fanInit);
+};
+window.openCreatorChat = function(bookingId, fanName, fanInitial){
+  if(activeChatBookingId === bookingId){ closeChat(bookingId); return; }
+  if(activeChatBookingId) closeChat(activeChatBookingId);
   openChat(bookingId, fanName, fanInitial);
 };
+function setupCreatorChatBadge(bookingIds){
+  // Listen for new messages on all bookings and update previews
+  bookingIds.forEach(bid => {
+    const chatRef = collection(db,'chats','chat_'+bid,'messages');
+    const q = query(chatRef, orderBy('createdAt','desc'), limit(1));
+    onSnapshot(q, snap => {
+      if(!snap.empty){
+        const lastMsg = snap.docs[0].data();
+        const previewEl = document.querySelector('.chat-list-item[data-bid="'+bid+'"] .chat-list-preview');
+        const timeEl = document.querySelector('.chat-list-item[data-bid="'+bid+'"] .chat-list-time');
+        if(previewEl) previewEl.textContent = lastMsg.text;
+        if(timeEl) timeEl.textContent = formatChatTime(lastMsg.createdAt);
+      }
+    });
+  });
+}
 
 // ── MISSING ADMIN FUNCTIONS ──
 window.adminFlagReview=async function(id){
