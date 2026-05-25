@@ -480,6 +480,25 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="auth-switch">Already have account? <a onclick="showPage('login')">Sign in</a></div>
   </div></div>
 </div>
+<div class="page" id="page-verify-email">
+  <div class="waitlist-page"><div class="waitlist-card">
+    <div style="font-size:48px;margin-bottom:1rem">📧</div>
+    <h2>Verify your email</h2>
+    <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem">We sent a verification link to <strong id="verify-email-addr" style="color:var(--text)">your email</strong>. Click the link to verify your account.</p>
+    <div class="waitlist-steps">
+      <div class="waitlist-step"><div class="ws-num">1</div><div><strong>Check your inbox</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">Look for an email from SessionWala</div></div></div>
+      <div class="waitlist-step"><div class="ws-num">2</div><div><strong>Click the verification link</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">This confirms your email is real</div></div></div>
+      <div class="waitlist-step"><div class="ws-num">3</div><div><strong>Admin review</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">We review and approve your account</div></div></div>
+      <div class="waitlist-step"><div class="ws-num">4</div><div><strong>You're in!</strong><div style="color:var(--muted);font-size:12px;margin-top:2px">Start exploring and booking sessions</div></div></div>
+    </div>
+    <div id="verify-resend-ok" class="auth-success" style="display:none">Verification email resent! Check your inbox.</div>
+    <div id="verify-resend-err" class="auth-err" style="display:none"></div>
+    <button class="btn-primary" style="width:100%;margin-top:1rem" onclick="checkEmailVerified()">I've verified my email ✓</button>
+    <button class="btn-outline" style="width:100%;margin-top:10px" onclick="resendVerificationEmail()">Resend verification email</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:1rem">Check your spam folder if you don't see it.</p>
+    <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:8px" onclick="doLogout()">Use a different account</button>
+  </div></div>
+</div>
 <div class="page" id="page-waitlist-fan">
   <div class="waitlist-page"><div class="waitlist-card">
     <div style="font-size:48px;margin-bottom:1rem">🎉</div>
@@ -577,7 +596,7 @@ footer p{font-size:12px;color:var(--muted)}
 </div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,updatePassword,EmailAuthProvider,reauthenticateWithCredential}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,updatePassword,EmailAuthProvider,reauthenticateWithCredential,sendEmailVerification}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,serverTimestamp,updateDoc,arrayUnion,arrayRemove,deleteDoc,increment,orderBy,onSnapshot,limit}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const ADMIN_EMAIL='lazyc5240@gmail.com';
 const BASE_URL='https://sessionwala.com';
@@ -640,6 +659,23 @@ onAuthStateChanged(auth,async u=>{
     const d=await getDoc(doc(db,'users',u.uid));
     if(d.exists())CUD=d.data();
     const isAdmin=CU.email===ADMIN_EMAIL;
+    // If email not verified and not admin - show verify page
+    if(!isAdmin && !u.emailVerified){
+      document.getElementById('btn-login').style.display='none';
+      document.getElementById('btn-logout').style.display='block';
+      document.getElementById('btn-dash').style.display='none';
+      document.getElementById('btn-admin').style.display='none';
+      document.getElementById('btn-home-admin').style.display='none';
+      document.getElementById('nav-name').textContent='';
+      // Only redirect if not already on verify page or home
+      const activePage=document.querySelector('.page.active');
+      if(activePage && activePage.id!=='page-verify-email' && activePage.id!=='page-home' && activePage.id!=='page-login' && activePage.id!=='page-signup'){
+        const emailEl=document.getElementById('verify-email-addr');
+        if(emailEl) emailEl.textContent=u.email;
+        showPage('verify-email');
+      }
+      return;
+    }
     document.getElementById('nav-name').textContent=isAdmin?'':(CUD?.name?.split(' ')[0]||'');
     document.getElementById('btn-login').style.display='none';
     document.getElementById('btn-logout').style.display='block';
@@ -697,8 +733,13 @@ window.doSignup=async function(){
       ud.sessions=[{name:'1-on-1 Consultation',desc:'Personalised 1-on-1 session tailored to your goals',duration:'30 min',price:1000}];
     }
     await setDoc(doc(db,'users',c.user.uid),ud);CUD=ud;
-    if(selRole==='creator'){showPage('waitlist');toast('Application submitted! We will email you when approved','success');}
-    else{showPage('waitlist-fan');toast('Account created! Pending admin approval.','success');}
+    // Send email verification
+    try{await sendEmailVerification(c.user);}catch(ev){console.log('Verification email error:',ev);}
+    // Show verify email page
+    const emailEl=document.getElementById('verify-email-addr');
+    if(emailEl) emailEl.textContent=email;
+    showPage('verify-email');
+    toast('Verification email sent! Check your inbox.','success');
   }catch(e){showErr(err,e.message.includes('email-already-in-use')?'This email is already registered. Try logging in.':e.message.replace('Firebase: ',''));}
   finally{btn.innerHTML="Create account — it's free";btn.disabled=false;}
 };
@@ -713,6 +754,14 @@ window.doLogin=async function(){
     await signInWithEmailAndPassword(auth,email,pass);
     const d=await getDoc(doc(db,'users',auth.currentUser.uid));
     if(d.exists())CUD=d.data();
+    // Check email verification first (skip for admin)
+    if(email!==ADMIN_EMAIL && !auth.currentUser.emailVerified){
+      const emailEl=document.getElementById('verify-email-addr');
+      if(emailEl) emailEl.textContent=email;
+      showPage('verify-email');
+      toast('Please verify your email first','info');
+      return;
+    }
     if(CUD?.role==='creator'&&CUD?.status==='pending'){toast('Application under review','info');showPage('waitlist');return;}
     if(CUD?.role==='fan'&&CUD?.status==='pending'){toast('Account pending approval','info');showPage('waitlist-fan');return;}
     if(email===ADMIN_EMAIL){toast('Welcome back, Admin!','success');showPage('admin');loadAdminData();return;}
@@ -724,12 +773,55 @@ window.doForgotPassword=async function(){
   const email=document.getElementById('forgot-email').value.trim();
   const err=document.getElementById('forgot-err'),ok=document.getElementById('forgot-ok');
   err.style.display='none';ok.style.display='none';
-  if(!isValidEmail(email)){showErr(err,'Please enter a valid email');return;}
-  const btn=document.getElementById('forgot-btn');btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
+  if(!isValidEmail(email)){showErr(err,'Please enter a valid email address');return;}
+  const btn=document.getElementById('forgot-btn');
+  btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
   try{
-    await sendPasswordResetEmail(auth,email);
-    ok.style.display='block';ok.textContent='Reset link sent to '+email+'. Check your inbox.';
-  }catch(e){showErr(err,'Error: '+e.code+'. Please try again.');}
+    // actionCodeSettings - makes reset link redirect to sessionwala.com
+    const actionCodeSettings={
+      url:'https://sessionwala.com',
+      handleCodeInApp:false
+    };
+    await sendPasswordResetEmail(auth,email,actionCodeSettings);
+    // Also send EmailJS notification so it comes from Gmail (more reliable)
+    try{
+      await emailjs.send('service_68pv1zr','template_wk0ksta',{
+        fan_name:'there',
+        fan_email:email,
+        creator_name:'SessionWala Team',
+        session_name:'Password Reset Request',
+        booking_date:new Date().toLocaleDateString('en-IN'),
+        slot_time:'Check your inbox',
+        duration:'Click the reset link in the email from Firebase to change your password.',
+        amount:'N/A',
+        zoom_link:'https://sessionwala.com',
+        payment_id:'If you did not request this, ignore it.'
+      });
+    }catch(emailErr){
+      console.log('EmailJS notification failed (non-critical):',emailErr);
+    }
+    ok.style.display='block';
+    ok.innerHTML='Reset link sent to <strong>'+email+'</strong>.<br><br>'+
+      '✅ Check your <strong>inbox</strong> and <strong>spam folder</strong>.<br>'+
+      '📧 Look for email from <strong>noreply@sessionwala.com</strong> or <strong>Firebase</strong>.<br>'+
+      '⏱ May take 2-3 minutes to arrive.';
+  }catch(e){
+    console.error('Password reset error:',e.code,e.message);
+    if(e.code==='auth/user-not-found'){
+      // Don't reveal if email exists - security best practice
+      // Show success anyway
+      ok.style.display='block';
+      ok.innerHTML='If an account exists for <strong>'+email+'</strong>, a reset link has been sent.<br>Check your inbox and spam folder.';
+    } else if(e.code==='auth/too-many-requests'){
+      showErr(err,'Too many attempts. Please wait a few minutes and try again.');
+    } else if(e.code==='auth/invalid-email'){
+      showErr(err,'Please enter a valid email address.');
+    } else if(e.code==='auth/unauthorized-domain'){
+      showErr(err,'Domain not authorized. Please contact support at sessionwala.bookings@gmail.com');
+    } else {
+      showErr(err,'Could not send reset email. Error: '+e.code+'. Please email us at sessionwala.bookings@gmail.com');
+    }
+  }
   finally{btn.innerHTML='Send reset email';btn.disabled=false;}
 };
 window.doLogout=async function(){await signOut(auth);toast('Logged out','success');showPage('home');};
@@ -1436,8 +1528,12 @@ window.selectSocialRole=async function(role){
       ud.status='pending';
     }
     await setDoc(doc(db,'users',user.uid),ud);CUD=ud;
-    if(role==='creator'){showPage('waitlist');toast('Application submitted!','success');}
-    else{showPage('waitlist-fan');toast('Account created! Pending admin approval.','success');}
+    if(role==='creator'){showPage('waitlist');toast('Application submitted! Waiting for admin approval.','success');}
+    else{
+      // Google accounts are auto email-verified - go straight to admin approval waitlist
+      showPage('waitlist-fan');
+      toast('Account created! Pending admin approval.','success');
+    }
   }catch(e){toast('Something went wrong. Try again.','error');}
 };
 window.pinNext=function(el,nextId){
@@ -1984,6 +2080,60 @@ window.adminBanReviewer=async function(fanId,fanName){
   catch(e){toast('Failed','error');}
 };
 
+
+
+// ── EMAIL VERIFICATION ──
+window.checkEmailVerified = async function(){
+  if(!CU){showPage('login');return;}
+  try{
+    // Reload user to get fresh emailVerified status
+    await CU.reload();
+    const freshUser = auth.currentUser;
+    if(freshUser.emailVerified){
+      CU = freshUser;
+      // Now check approval status
+      const d = await getDoc(doc(db,'users',CU.uid));
+      if(d.exists()) CUD = d.data();
+      if(CUD?.role==='creator'&&CUD?.status==='pending'){
+        showPage('waitlist');
+        toast('Email verified! Now waiting for admin approval.','success');
+      } else if(CUD?.role==='fan'&&CUD?.status==='pending'){
+        showPage('waitlist-fan');
+        toast('Email verified! Now waiting for admin approval.','success');
+      } else {
+        toast('Email verified! Welcome to SessionWala!','success');
+        gotoDashboard();
+      }
+    } else {
+      const errEl=document.getElementById('verify-resend-err');
+      if(errEl){errEl.textContent='Email not verified yet. Please click the link in your inbox first.';errEl.style.display='block';}
+      toast('Not verified yet — click the link in your email','error');
+    }
+  }catch(e){
+    console.error('Verify check error:',e);
+    toast('Could not check. Try again.','error');
+  }
+};
+
+window.resendVerificationEmail = async function(){
+  if(!CU){showPage('login');return;}
+  const okEl=document.getElementById('verify-resend-ok');
+  const errEl=document.getElementById('verify-resend-err');
+  if(okEl) okEl.style.display='none';
+  if(errEl) errEl.style.display='none';
+  try{
+    await sendEmailVerification(CU);
+    if(okEl) okEl.style.display='block';
+    toast('Verification email resent!','success');
+  }catch(e){
+    console.error('Resend error:',e);
+    if(e.code==='auth/too-many-requests'){
+      if(errEl){errEl.textContent='Too many requests. Wait a few minutes then try again.';errEl.style.display='block';}
+    } else {
+      if(errEl){errEl.textContent='Could not resend. Try again in a few minutes.';errEl.style.display='block';}
+    }
+  }
+};
 
 // FIX: Single loadCreators() call
 loadCreators();
