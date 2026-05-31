@@ -1019,7 +1019,7 @@ window.doBook=async function(){
   const btn=document.getElementById('pay-btn');
   btn.innerHTML='<span class="loader"></span>Opening payment...';btn.disabled=true;
   const options={
-    key:'rzp_test_SnKyHOgz55oeUZ',amount:total*100,currency:'INR',
+    key:'rzp_live_Sw1Wk1T3bDDRwm',amount:total*100,currency:'INR',
     name:'SessionWala',description:s.name+' with '+curCreator.name,
     prefill:{name:CUD?.name||'',email:CU.email},theme:{color:'#FF4D6D'},
     handler:async function(response){
