@@ -563,6 +563,7 @@ footer p{font-size:12px;color:var(--muted)}
       <div class="dtab" onclick="adminTab(event,'atab-bookings')">📅 Bookings</div>
       <div class="dtab" onclick="adminTab(event,'atab-reviews')">💬 Reviews</div>
       <div class="dtab" onclick="adminTab(event,'atab-refunds')">💰 Refunds</div>
+      <div class="dtab" onclick="adminTab(event,'atab-payouts')">🏦 Payouts</div>
     </div>
     <div class="dtab-content active" id="atab-pending"><p style="color:var(--muted)">Loading...</p></div>
     <div class="dtab-content" id="atab-creators"><p style="color:var(--muted)">Loading...</p></div>
@@ -570,6 +571,7 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="dtab-content" id="atab-bookings"><p style="color:var(--muted)">Loading...</p></div>
     <div class="dtab-content" id="atab-reviews"><p style="color:var(--muted)">Loading...</p></div>
     <div class="dtab-content" id="atab-refunds"><p style="color:var(--muted)">Loading...</p></div>
+    <div class="dtab-content" id="atab-payouts"><p style="color:var(--muted)">Loading...</p></div>
   </div>
 </div>
 <div class="page" id="page-terms">
@@ -883,7 +885,7 @@ function demoCreators(){return[
   {id:'d12',photoURL:'https://images.unsplash.com/photo-1485811661309-ab85183a729c?w=400&h=400&fit=crop&crop=face',name:'Arjun Nair',niche:'mental',followers:'88K',rating:4.7,sessions_count:63,price:1600,live:false,verified:true,city:'Kochi',bio:'Life coach and NLP practitioner. Helping young professionals break through mental blocks.',availableSlots:[{date:getFutureDate(1),time:'7:00 PM'},{date:getFutureDate(3),time:'8:00 PM'},{date:getFutureDate(5),time:'7:00 PM'},{date:getFutureDate(6),time:'10:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Clarity coaching to define and achieve your goals',duration:'30 min',price:1600}]}
 ];}
 function cardImg(c){
-  if(c.photoURL)return '<img src="'+c.photoURL+'" alt="'+c.name+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0"/>';
+  if(c.photoURL)return '<img src="'+c.photoURL+'" alt="'+c.name+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0" onerror="this.style.display='none';this.nextSibling&&(this.nextSibling.style.display='flex')"/><span class="icard-initial" style="display:none">'+avatarInitial(c.name)+'</span>';
   return '<span class="icard-initial">'+avatarInitial(c.name)+'</span>';
 }
 window.renderGrid=function(f){
@@ -1020,8 +1022,13 @@ window.doBook=async function(){
   btn.innerHTML='<span class="loader"></span>Opening payment...';btn.disabled=true;
   const options={
     key:'rzp_live_Sw1Wk1T3bDDRwm',amount:total*100,currency:'INR',
-    name:'SessionWala',description:s.name+' with '+curCreator.name,
-    prefill:{name:CUD?.name||'',email:CU.email},theme:{color:'#FF4D6D'},
+    name:'SessionWala',
+    description:s.name+' with '+curCreator.name,
+    image:'https://sessionwala.com/favicon.ico',
+    prefill:{name:CUD?.name||'',email:CU.email,contact:''},
+    notes:{booking_for:curCreator.name,session_type:s.name,fan_email:CU.email},
+    theme:{color:'#FF4D6D'},
+    retry:{enabled:true,max_count:3},
     handler:async function(response){
       try{
         const zoomLink='https://zoom.us/j/sessionwala-'+Math.random().toString(36).substr(2,9);
@@ -1125,10 +1132,10 @@ function renderDashboard(){
     ${isC?`<div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>`:''}
     <div class="dashboard-tabs">
       <div class="dtab active" onclick="switchTab(event,'tab-book')">My Bookings</div>
-      ${isC?`<div class="dtab" onclick="switchTab(event,'tab-slots')">My Slots</div><div class="dtab" onclick="switchTab(event,'tab-msgs')" id="tab-msgs-btn">💬 Messages</div><div class="dtab" onclick="switchTab(event,'tab-prof')">Profile</div><div class="dtab" onclick="switchTab(event,'tab-earn')">Earnings</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Referrals</div>`:`<div class="dtab" onclick="switchTab(event,'tab-explore')">Explore</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Refer and Earn</div><div class="dtab" onclick="switchTab(event,'tab-acc')">Account</div>`}
+      ${isC?`<div class="dtab" onclick="switchTab(event,'tab-slots')">My Slots</div><div class="dtab" onclick="switchTab(event,'tab-msgs')" id="tab-msgs-btn">💬 Messages</div><div class="dtab" onclick="switchTab(event,'tab-prof')">Profile</div><div class="dtab" onclick="switchTab(event,'tab-earn')">Earnings</div><div class="dtab" onclick="switchTab(event,'tab-payout')">💰 Payout</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Referrals</div>`:`<div class="dtab" onclick="switchTab(event,'tab-explore')">Explore</div><div class="dtab" onclick="switchTab(event,'tab-ref')">Refer and Earn</div><div class="dtab" onclick="switchTab(event,'tab-acc')">Account</div>`}
     </div>
     <div class="dtab-content active" id="tab-book"><p style="color:var(--muted)">Loading...</p></div>
-    ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-msgs"><p style="color:var(--muted)">Loading...</p></div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,true)}</div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,false)}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
+    ${isC?`<div class="dtab-content" id="tab-slots">${slotManagerHTML()}</div><div class="dtab-content" id="tab-msgs"><p style="color:var(--muted)">Loading...</p></div><div class="dtab-content" id="tab-prof">${creatorProfileForm()}</div><div class="dtab-content" id="tab-earn"><div id="earn-el">Loading...</div></div><div class="dtab-content" id="tab-payout">${payoutForm()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,true)}</div>`:`<div class="dtab-content" id="tab-explore">${exploreFanSection()}</div><div class="dtab-content" id="tab-ref">${referralHTML(refLink,false)}</div><div class="dtab-content" id="tab-acc">${accForm()}</div>`}`;
   showPage('dashboard');loadBkgs(isC);if(isC)loadEarn();
 }
 window.switchDashMode=function(){dashMode=dashMode==='creator'?'fan':'creator';renderDashboard();};
@@ -1138,7 +1145,139 @@ window.switchTab=function(e,id){
   e.target.classList.add('active');
   document.getElementById(id).classList.add('active');
   if(id==='tab-msgs') loadCreatorChats();
+  if(id==='tab-payout') loadPayoutAmount();
 };
+window.loadPayoutAmount=async function(){
+  const el=document.getElementById('payout-amount');
+  if(!el) return;
+  try{
+    const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid),where('sessionStatus','==','completed'));
+    const snap=await getDocs(q);
+    let earned=0;
+    snap.forEach(d=>{const b=d.data();if(b.status==='confirmed')earned+=b.price||0;});
+    const isFirstMonth=CUD?.firstMonthFree===true&&CUD?.joinedAt&&(Date.now()-(CUD.joinedAt?.toDate?CUD.joinedAt.toDate():new Date()).getTime())/(1000*60*60*24)<=30;
+    const fee=isFirstMonth?0:Math.round(earned*0.1);
+    const gst=Math.round(fee*0.18);
+    const net=Math.max(0,earned-fee-gst);
+    el.textContent='₹'+net.toLocaleString('en-IN');
+  }catch(e){if(el)el.textContent='₹0';}
+};
+function payoutForm(){
+  const d=CUD||{};
+  const bank=d.bankDetails||{};
+  return`<div class="pform">
+    <h3>💰 Payout Settings</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Add your bank details to receive weekly payouts every Monday via Razorpay.</p>
+    <div id="payout-err" class="auth-err" style="margin-bottom:1rem"></div>
+    <div id="payout-ok" class="auth-success" style="margin-bottom:1rem"></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+      <h4 style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem">Bank Account Details</h4>
+      <div class="fg"><label>Account holder name</label><input class="fi" id="bank-name" value="${bank.accountName||d.name||''}" placeholder="Name as on bank account"/></div>
+      <div class="fg"><label>Bank account number</label><input class="fi" id="bank-acc" value="${bank.accountNumber||''}" placeholder="Enter your account number" type="text"/></div>
+      <div class="fg"><label>Confirm account number</label><input class="fi" id="bank-acc-confirm" value="${bank.accountNumber||''}" placeholder="Re-enter account number" type="text"/></div>
+      <div class="fg"><label>IFSC code</label><input class="fi" id="bank-ifsc" value="${bank.ifsc||''}" placeholder="e.g. HDFC0001234" style="text-transform:uppercase"/></div>
+      <div class="fg"><label>Bank name</label><input class="fi" id="bank-bankname" value="${bank.bankName||''}" placeholder="e.g. HDFC Bank"/></div>
+      <div class="fg"><label>Account type</label>
+        <select class="fi" id="bank-type">
+          <option value="savings" ${(bank.accountType||'savings')==='savings'?'selected':''}>Savings Account</option>
+          <option value="current" ${bank.accountType==='current'?'selected':''}>Current Account</option>
+        </select>
+      </div>
+      <button class="save-btn" onclick="saveBankDetails()" style="width:100%">Save Bank Details</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+      <h4 style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;margin-bottom:1rem">Request Payout</h4>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Payouts are processed every Monday automatically. You can also request a manual payout anytime.</p>
+      <div style="background:var(--dark);border-radius:10px;padding:1rem;margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;color:var(--muted)">Available for payout</span><span id="payout-amount" style="font-size:15px;font-weight:700;color:var(--green)">Loading...</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted)">Next automatic payout</span><span style="font-size:13px;color:var(--text)">${getNextMonday()}</span></div>
+      </div>
+      ${bank.accountNumber?`<button class="save-btn" onclick="requestPayout()" style="width:100%;background:var(--green)">Request Payout Now</button>`:'<p style="font-size:12px;color:var(--yellow);text-align:center">⚠️ Add your bank details above before requesting payout</p>'}
+    </div>
+    <div style="background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);border-radius:12px;padding:1rem">
+      <p style="font-size:12px;color:var(--muted);line-height:1.8">
+        <strong style="color:var(--text)">How payouts work:</strong><br>
+        ✅ Payouts are released every Monday via Razorpay<br>
+        ✅ Only completed sessions are included<br>
+        ✅ Platform fee + GST deducted before transfer<br>
+        ✅ Reaches your bank in 1-2 working days<br>
+        ✅ First month — zero platform fee
+      </p>
+    </div>
+  </div>`;
+}
+
+function getNextMonday(){
+  const d=new Date();
+  const day=d.getDay();
+  const diff=day===1?7:day===0?1:8-day;
+  d.setDate(d.getDate()+diff);
+  return d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+}
+
+window.saveBankDetails=async function(){
+  const name=document.getElementById('bank-name')?.value.trim();
+  const acc=document.getElementById('bank-acc')?.value.trim();
+  const accConfirm=document.getElementById('bank-acc-confirm')?.value.trim();
+  const ifsc=document.getElementById('bank-ifsc')?.value.trim().toUpperCase();
+  const bankName=document.getElementById('bank-bankname')?.value.trim();
+  const type=document.getElementById('bank-type')?.value;
+  const err=document.getElementById('payout-err');
+  const ok=document.getElementById('payout-ok');
+  if(err) err.style.display='none';
+  if(ok) ok.style.display='none';
+  if(!name){if(err){err.textContent='Please enter account holder name';err.style.display='block';}return;}
+  if(!acc||acc.length<9){if(err){err.textContent='Please enter a valid account number';err.style.display='block';}return;}
+  if(acc!==accConfirm){if(err){err.textContent='Account numbers do not match';err.style.display='block';}return;}
+  if(!ifsc||ifsc.length!==11){if(err){err.textContent='Please enter a valid 11-character IFSC code';err.style.display='block';}return;}
+  if(!bankName){if(err){err.textContent='Please enter your bank name';err.style.display='block';}return;}
+  try{
+    const bankDetails={accountName:name,accountNumber:acc,ifsc,bankName,accountType:type,addedAt:new Date().toISOString()};
+    await setDoc(doc(db,'users',CU.uid),{bankDetails},{merge:true});
+    CUD.bankDetails=bankDetails;
+    if(ok){ok.textContent='Bank details saved successfully! ✓';ok.style.display='block';}
+    toast('Bank details saved!','success');
+    // Refresh payout tab
+    document.getElementById('tab-payout').innerHTML=payoutForm();
+  }catch(e){
+    console.error('Save bank error:',e);
+    if(err){err.textContent='Could not save. Try again.';err.style.display='block';}
+  }
+};
+
+window.requestPayout=async function(){
+  if(!CUD?.bankDetails?.accountNumber){toast('Please add bank details first','error');return;}
+  try{
+    // Calculate available payout
+    const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid),where('sessionStatus','==','completed'));
+    const snap=await getDocs(q);
+    let earned=0;
+    snap.forEach(d=>{const b=d.data();if(b.status==='confirmed')earned+=b.price||0;});
+    const isFirstMonth=CUD?.firstMonthFree===true&&CUD?.joinedAt&&(Date.now()-(CUD.joinedAt?.toDate?CUD.joinedAt.toDate():new Date()).getTime())/(1000*60*60*24)<=30;
+    const fee=isFirstMonth?0:Math.round(earned*0.1);
+    const gst=Math.round(fee*0.18);
+    const net=Math.max(0,earned-fee-gst);
+    if(net<=0){toast('No earnings available for payout yet','info');return;}
+    // Save payout request
+    await addDoc(collection(db,'payoutRequests'),{
+      creatorId:CU.uid,
+      creatorName:CUD?.name||'Creator',
+      creatorEmail:CU.email,
+      amount:net,
+      grossAmount:earned,
+      platformFee:fee,
+      gst,
+      bankDetails:CUD.bankDetails,
+      status:'pending',
+      requestedAt:serverTimestamp()
+    });
+    toast('Payout request submitted! Admin will process within 24 hours.','success');
+  }catch(e){
+    console.error('Payout request error:',e);
+    toast('Could not submit request. Try again.','error');
+  }
+};
+
 function referralHTML(link,isCreator){
   return`<div class="pform"><h3>Refer and Earn</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">Share your referral link and earn SessionWala Credits!</p>
@@ -1328,32 +1467,55 @@ async function loadBkgs(isC){
 async function loadEarn(){
   try{
     const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid));
-    const snap=await getDocs(q);let earned=0,count=0;
-    snap.forEach(d=>{const b=d.data();if(b.status==='confirmed'){earned+=b.price||0;count++;}});
+    const snap=await getDocs(q);
+    let earned=0,count=0,pending=0;
+    snap.forEach(d=>{
+      const b=d.data();
+      if(b.status==='confirmed'){
+        if(b.sessionStatus==='completed'){earned+=b.price||0;count++;}
+        else{pending+=b.price||0;}
+      }
+    });
     const hasPenalty=CUD?.penaltyNextSession;
-    let platformFee=0;
-    if(CUD?.firstMonthFree&&CUD?.joinedAt){const joined=CUD.joinedAt?.toDate?CUD.joinedAt.toDate():new Date();if((Date.now()-joined.getTime())/(1000*60*60*24)>30)platformFee=Math.round(earned*0.1);}
-    else platformFee=Math.round(earned*0.1);
+    // First month free logic - fixed
+    const joined=CUD?.joinedAt?.toDate?CUD.joinedAt.toDate():null;
+    const daysSinceJoin=joined?(Date.now()-joined.getTime())/(1000*60*60*24):999;
+    const isFirstMonth=CUD?.firstMonthFree===true && daysSinceJoin<=30;
+    const daysLeft=isFirstMonth?Math.ceil(30-daysSinceJoin):0;
+    const platformFeeRate=isFirstMonth?0:0.10;
+    const platformFee=Math.round(earned*platformFeeRate);
     const gst=Math.round(platformFee*0.18);
-    const payout=Math.max(0,earned-platformFee-gst);
+    const totalDeductions=platformFee+gst;
+    const netPayout=Math.max(0,earned-totalDeductions);
+    const pendingPayout=Math.max(0,pending*(1-platformFeeRate)*0.82);
     document.getElementById('earn-el').innerHTML=`
       <div class="dash-stats">
-        <div class="dstat"><div class="dstat-num" style="color:var(--brand)">₹${earned.toLocaleString('en-IN')}</div><div class="dstat-label">Gross earnings</div></div>
+        <div class="dstat"><div class="dstat-num" style="color:var(--brand)">₹${earned.toLocaleString('en-IN')}</div><div class="dstat-label">Completed sessions</div></div>
         <div class="dstat"><div class="dstat-num" style="color:var(--green)">${count}</div><div class="dstat-label">Sessions done</div></div>
-        <div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${payout.toLocaleString('en-IN')}</div><div class="dstat-label">Net payout</div></div>
+        <div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${netPayout.toLocaleString('en-IN')}</div><div class="dstat-label">Net payout</div></div>
       </div>
-      ${hasPenalty?'<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--red)">Penalty active: Next session earnings go to platform.</div>':''}
+      ${isFirstMonth?`<div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--green)">🎉 First month free — <strong>${daysLeft} days remaining</strong>. Zero platform fee on all earnings this month!</div>`:''}
+      ${hasPenalty?'<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--red)">⚠️ Penalty active: You cancelled a booking. Next session earnings go to platform.</div>':''}
       <div class="pform"><h3>Payout Breakdown</h3>
-        <div style="font-size:13px;line-height:2.2">
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Gross earnings</span><span>₹${earned.toLocaleString('en-IN')}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Platform fee ${platformFee===0?'(First month free)':'(10%)'}</span><span>-₹${platformFee.toLocaleString('en-IN')}</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GST on platform fee (18%)</span><span>-₹${gst.toLocaleString('en-IN')}</span></div>
-          <hr style="border:none;border-top:1px solid var(--border);margin:8px 0"/>
-          <div style="display:flex;justify-content:space-between;font-weight:600"><span>Net payout (every Monday)</span><span style="color:var(--green)">₹${payout.toLocaleString('en-IN')}</span></div>
+        <div style="background:var(--surface);border-radius:10px;padding:1rem;margin-bottom:1rem">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">COMPLETED SESSIONS</div>
+          <div style="font-size:13px;line-height:2.4">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Total session earnings</span><span style="font-weight:600">₹${earned.toLocaleString('en-IN')}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Platform fee (${isFirstMonth?'0% — First month free':'10%'})</span><span style="color:${platformFee===0?'var(--green)':'var(--muted)'}">-₹${platformFee.toLocaleString('en-IN')}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GST on platform fee (18%)</span><span style="color:var(--muted)">-₹${gst.toLocaleString('en-IN')}</span></div>
+            <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+            <div style="display:flex;justify-content:space-between;font-size:15px"><span style="font-weight:600">Net payout</span><span style="font-weight:700;color:var(--green)">₹${netPayout.toLocaleString('en-IN')}</span></div>
+          </div>
         </div>
-        <div class="credits-box" style="margin-top:1rem"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>
+        ${pending>0?`<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem">
+          <div style="font-size:12px;color:var(--yellow);margin-bottom:6px">UPCOMING SESSIONS (pending completion)</div>
+          <div style="font-size:13px;line-height:2"><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Upcoming earnings</span><span>₹${pending.toLocaleString('en-IN')}</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Est. net payout</span><span style="color:var(--yellow)">₹${Math.round(pendingPayout).toLocaleString('en-IN')}</span></div></div>
+        </div>`:''}
+        <p style="font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.7">💡 Payouts are released every <strong>Monday</strong> via Razorpay to your registered bank account. Only completed sessions are paid out.</p>
+        <div class="credits-box"><div><div class="credits-num">₹${(CUD?.credits||0).toLocaleString('en-IN')}</div><div class="credits-label">SessionWala Credits</div></div></div>
+        <button onclick="switchTab(event,'tab-payout')" style="width:100%;margin-top:1rem;background:var(--brand);color:white;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Request Payout / Manage Bank Details →</button>
       </div>`;
-  }catch(e){}
+  }catch(e){console.error('loadEarn error:',e);}
 }
 function exploreFanSection(){
   var h='<div class="fan-explore"><div><h4>Discover new creators</h4><p>Browse all creators and book your next session</p></div><button class="btn-primary" onclick="gotoHome()">Explore now</button></div>';
@@ -1453,9 +1615,33 @@ window.previewPhoto=function(url){
   if(p)p.innerHTML=html;if(p2)p2.innerHTML=html;
 };
 window.saveProf=async function(){
-  const upd={name:document.getElementById('cp-name').value,instagram:document.getElementById('cp-insta').value,followers:document.getElementById('cp-fol').value,price:parseInt(document.getElementById('cp-price').value)||1000,bio:document.getElementById('cp-bio').value,photoURL:document.getElementById('cp-photo').value,city:document.getElementById('cp-city').value,isPublic:document.getElementById('cp-pub').value==='true'};
-  try{await setDoc(doc(db,'users',CU.uid),upd,{merge:true});Object.assign(CUD,upd);toast('Profile saved!','success');loadCreators();toggleProfileEdit();}
-  catch(e){toast('Save failed. Try again.','error');}
+  const newPrice=parseInt(document.getElementById('cp-price').value)||1000;
+  const upd={
+    name:document.getElementById('cp-name').value,
+    instagram:document.getElementById('cp-insta').value,
+    followers:document.getElementById('cp-fol').value,
+    price:newPrice,
+    bio:document.getElementById('cp-bio').value,
+    photoURL:document.getElementById('cp-photo').value,
+    city:document.getElementById('cp-city').value,
+    isPublic:document.getElementById('cp-pub').value==='true'
+  };
+  // Also update sessions array price to match new price
+  const currentSessions=CUD?.sessions||[];
+  if(currentSessions.length>0){
+    const updatedSessions=currentSessions.map(s=>({...s,price:newPrice}));
+    upd.sessions=updatedSessions;
+  }
+  try{
+    await setDoc(doc(db,'users',CU.uid),upd,{merge:true});
+    Object.assign(CUD,upd);
+    toast('Profile saved!','success');
+    loadCreators();
+    toggleProfileEdit();
+  }catch(e){
+    console.error('Save error:',e);
+    toast('Save failed. Try again.','error');
+  }
 };
 let currentCurrency='INR';
 window.toggleCurrency=function(){
@@ -1781,6 +1967,22 @@ window.loadAdminData=async function(){
         <td><span class="status ${b.refundStatus==='processed'?'status-confirmed':'status-refund'}">${b.refundStatus==='processed'?'Processed':'Pending'}</span></td>
         <td>${b.refundStatus!=='processed'?`<button class="action-btn btn-approve" onclick="adminProcessRefund('${b.id}')">Mark processed</button>`:''}</td>
       </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">💰</div><p>No pending refunds</p></div>';
+    // Load payout requests
+    try{
+      const pSnap=await getDocs(collection(db,'payoutRequests'));
+      const payouts=[];pSnap.forEach(d=>payouts.push({...d.data(),id:d.id}));
+      const pendingPayouts=payouts.filter(p=>p.status==='pending');
+      document.getElementById('atab-payouts').innerHTML=payouts.length?`<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>Creator</th><th>Amount</th><th>Bank</th><th>Requested</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>${payouts.map(p=>`<tr>
+          <td><div style="font-weight:500">${p.creatorName||'—'}</div><div style="font-size:11px;color:var(--muted)">${p.creatorEmail||''}</div></td>
+          <td style="color:var(--green);font-weight:600">₹${(p.amount||0).toLocaleString('en-IN')}</td>
+          <td style="font-size:12px;color:var(--muted)">${p.bankDetails?.bankName||'—'}<br>${p.bankDetails?.accountNumber?'A/C: ****'+p.bankDetails.accountNumber.slice(-4):''}<br>IFSC: ${p.bankDetails?.ifsc||'—'}</td>
+          <td style="font-size:12px;color:var(--muted)">${p.requestedAt?.toDate?p.requestedAt.toDate().toLocaleDateString('en-IN'):'—'}</td>
+          <td><span class="status ${p.status==='processed'?'status-confirmed':'status-refund'}">${p.status==='processed'?'Processed':'Pending'}</span></td>
+          <td>${p.status!=='processed'?`<button class="action-btn btn-approve" onclick="adminProcessPayout('${p.id}')">Mark Paid</button>`:'✓ Done'}</td>
+        </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">🏦</div><p>No payout requests yet</p></div>';
+    }catch(pe){console.log('Payout load error:',pe);}
   }catch(e){console.error(e);toast('Failed to load admin data','error');}
 };
 window.approveFan=async function(uid,name,email){
@@ -1804,6 +2006,7 @@ window.adminRemoveUser=async function(uid,name){if(!confirm('Remove '+name+'?'))
 window.adminClearFlag=async function(uid){try{await updateDoc(doc(db,'users',uid),{flagged:false});toast('Flag cleared','success');loadAdminData();}catch(e){toast('Failed','error');}};
 window.adminRefund=async function(bookingId,amount,fanName){if(!confirm('Issue ₹'+amount.toLocaleString('en-IN')+' refund to '+fanName+'?'))return;try{await updateDoc(doc(db,'bookings',bookingId),{refundAmount:amount,refundStatus:'pending',status:'refund_initiated'});toast('Refund initiated','success');loadAdminData();}catch(e){toast('Failed','error');}};
 window.adminProcessRefund=async function(bookingId){try{await updateDoc(doc(db,'bookings',bookingId),{refundStatus:'processed'});toast('Refund marked processed','success');loadAdminData();}catch(e){toast('Failed','error');}};
+window.adminProcessPayout=async function(payoutId){try{await updateDoc(doc(db,'payoutRequests',payoutId),{status:'processed',processedAt:serverTimestamp()});toast('Payout marked as processed','success');loadAdminData();}catch(e){toast('Failed','error');}};
 window.adminNoShow=async function(bookingId,creatorId,fanId,amount){
   const isCreator=confirm('Who was the no-show?\nOK = Creator (fan gets full refund)\nCancel = Fan (no refund, fan flagged)');
   try{
