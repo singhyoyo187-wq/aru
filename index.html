@@ -1006,7 +1006,8 @@ window.onDateChange=function(date){
   var sg='<div class="slots-grid">';slots.forEach(s=>{sg+='<div class="slot" onclick="pickSlotFn(this,\''+s.time+'\')">' +s.time+'</div>';});sg+='</div>';cont.innerHTML=sg;
 };
 window.pickSess=function(i){
-  selSess=i;document.querySelectorAll('.scard').forEach(c=>c.classList.remove('selected'));
+  selSess=i;
+  document.querySelectorAll('.scard').forEach(c=>c.classList.remove('selected'));
   document.getElementById('sc'+i).classList.add('selected');
   const s=curCreator.sessions[i];
   document.getElementById('sel-info').style.display='block';
@@ -1014,11 +1015,9 @@ window.pickSess=function(i){
   document.getElementById('sel-dur').textContent=s.duration+' · '+s.desc;
   const sc=Math.round(s.price*0.05);
   const total_price=s.price+sc;
-  const curr = typeof currentCurrency!=='undefined'?currentCurrency:'INR';
-  const fmt = p => curr==='USD'?'$'+(p*0.012).toFixed(0):'₹'+p.toLocaleString('en-IN');
-  document.getElementById('t-fee').textContent=fmt(s.price)+(curr==='USD'?' (~₹'+s.price.toLocaleString('en-IN')+')':'');
-  document.getElementById('t-sc').textContent=fmt(sc);
-  document.getElementById('t-total').textContent=fmt(total_price);
+  document.getElementById('t-fee').textContent=formatPrice(s.price);
+  document.getElementById('t-sc').textContent=formatPrice(sc)+' (5%)';
+  document.getElementById('t-total').textContent=formatPrice(total_price);
 };
 window.pickSlotFn=function(el,t){document.querySelectorAll('.slot').forEach(s=>s.classList.remove('active'));el.classList.add('active');selSlot=t;};
 window.doBook=async function(){
@@ -1049,9 +1048,9 @@ const bookingRef = await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:
           <div class="bd-row"><span class="bd-label">Date</span><span>${formatDate(selDate)}</span></div>
           <div class="bd-row"><span class="bd-label">Time</span><span>${selSlot}</span></div>
           <div class="bd-row"><span class="bd-label">Duration</span><span>${s.duration}</span></div>
-          <div class="bd-row"><span class="bd-label">Session price</span><span>Rs ${s.price.toLocaleString('en-IN')}</span></div>
-          <div class="bd-row"><span class="bd-label">Service charge (5%)</span><span>Rs ${sc.toLocaleString('en-IN')}</span></div>
-          <div class="bd-row"><span class="bd-label">Total paid</span><span>Rs ${total.toLocaleString('en-IN')}</span></div>
+          <div class="bd-row"><span class="bd-label">Session price</span><span>₹${s.price.toLocaleString('en-IN')}${currentCurrency==='USD'?' (~$'+(s.price*0.012).toFixed(0)+')':''}</span></div>
+          <div class="bd-row"><span class="bd-label">Service charge (5%)</span><span>₹${sc.toLocaleString('en-IN')}${currentCurrency==='USD'?' (~$'+(sc*0.012).toFixed(0)+')':''}</span></div>
+          <div class="bd-row"><span class="bd-label">Total paid</span><span>₹${total.toLocaleString('en-IN')}${currentCurrency==='USD'?' (~$'+(total*0.012).toFixed(0)+')':''}</span></div>
           <div style="background:rgba(255,77,109,0.08);border:2px dashed var(--brand);border-radius:12px;padding:1rem;margin-top:12px;text-align:center">
             <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your Session PIN — share with creator to start session</div>
             <div style="font-family:Syne,sans-serif;font-size:36px;font-weight:800;letter-spacing:12px;color:var(--brand)">${sessionPIN}</div>
@@ -1398,7 +1397,8 @@ async function loadEarn(){
     html+='<div style="font-size:13px;line-height:2.5">';
     html+='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Total earnings</span><span style="font-weight:600">&#8377;'+earned.toLocaleString('en-IN')+'</span></div>';
     html+='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Platform fee ('+(isFirstMonth?'0% - First month free':'10%')+')</span><span>-&#8377;'+platformFee.toLocaleString('en-IN')+'</span></div>';
-    html+='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GST on platform fee (18%)</span><span>-&#8377;'+gst.toLocaleString('en-IN')+'</span></div>';
+    html+='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GST @18% on platform fee</span><span style="color:var(--muted)">-&#8377;'+gst.toLocaleString('en-IN')+'</span></div>';
+    html+='<div style="font-size:11px;color:var(--muted);margin-bottom:4px;padding-left:2px">(18% of &#8377;'+platformFee.toLocaleString('en-IN')+' = &#8377;'+gst.toLocaleString('en-IN')+')</div>';
     html+='<div style="border-top:1px solid var(--border);margin:8px 0"></div>';
     html+='<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span>Net payout</span><span style="color:var(--green)">&#8377;'+net.toLocaleString('en-IN')+'</span></div>';
     html+='</div></div>';
@@ -1535,8 +1535,25 @@ window.toggleCurrency = function(){
   currentCurrency = currentCurrency === 'INR' ? 'USD' : 'INR';
   const btn = document.getElementById('btn-currency');
   btn.textContent = currentCurrency === 'INR' ? '🇮🇳 INR' : '🇺🇸 USD';
-  // Re-render grid with new currency
+  // Re-render creator grid
   renderGrid(document.querySelector('.cat.active')?.textContent?.toLowerCase()||'all');
+  // If on profile page, re-render session prices
+  const profPage = document.getElementById('page-profile');
+  if(profPage && profPage.classList.contains('active') && curCreator){
+    // Re-render session cards with new currency
+    const sessionsList = document.querySelector('.sessions-list');
+    if(sessionsList && curCreator.sessions){
+      sessionsList.innerHTML = curCreator.sessions.map((s,i)=>
+        '<div class="scard'+(selSess===i?' selected':'')+'" id="sc'+i+'" onclick="pickSess('+i+')">'
+        +'<div class="scard-header"><div class="scard-name">'+s.name+'</div>'
+        +'<div class="scard-price">'+formatPrice(s.price)+'</div></div>'
+        +'<div class="scard-desc">'+s.desc+'</div>'
+        +'<div class="scard-meta"><span>'+s.duration+'</span><span>Zoom call</span></div></div>'
+      ).join('');
+    }
+    // Re-render booking panel totals if session selected
+    if(selSess!==null) pickSess(selSess);
+  }
 };
 function formatPrice(priceINR){
   if(currentCurrency === 'USD'){
@@ -1809,7 +1826,11 @@ window.saveFanProfile=async function(){
   const upd={name:nameEl.value.trim()||CUD?.name||'',city:cityEl?cityEl.value.trim():'',instagram:instaEl?instaEl.value.trim():''};
   try{
     await setDoc(doc(db,'users',CU.uid),upd,{merge:true});
-    Object.assign(CUD,upd);toast('Profile saved!','success');toggleFanProfileEdit();
+    Object.assign(CUD,upd);
+    toast('Profile saved!','success');
+    // Re-render the account tab so view mode shows new data
+    const accTab=document.getElementById('tab-acc');
+    if(accTab) accTab.innerHTML=accForm();
   }catch(e){console.error('Save profile error:',e.code,e.message);toast('Save failed: '+(e.code||e.message||'error'),'error');}
 };
 window.uploadFanPhoto=async function(input){
