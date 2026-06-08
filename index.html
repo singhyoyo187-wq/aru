@@ -397,6 +397,8 @@ footer p{font-size:12px;color:var(--muted)}
       <div class="cat" onclick="filterCat(this,'nutrition')">🥗 Nutrition</div>
       <div class="cat" onclick="filterCat(this,'dance')">💃 Dance</div>
       <div class="cat" onclick="filterCat(this,'mental')">🧠 Wellness</div>
+      <div class="cat" onclick="filterCat(this,'lifestyle')">✨ Lifestyle</div>
+      <div class="cat" onclick="filterCat(this,'travel')">✈️ Travel</div>
     </div>
     <div class="grid" id="creators-grid"></div>
   </div>
@@ -472,7 +474,9 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="fg"><label>Email address</label><input class="fi" type="email" id="su-email" placeholder="you@example.com" oninput="validateEmailField('su-email','su-email-err','su-email-ok')"/><div class="field-err" id="su-email-err">Please enter a valid email</div><div class="field-ok" id="su-email-ok">Valid email</div></div>
     <div class="fg"><label>Password</label><div class="pass-wrap"><input class="fi" type="password" id="su-pass" placeholder="Min 8 chars with a number" oninput="checkPassStrength()"/><button class="pass-toggle" onclick="togglePass('su-pass',this)" type="button">👁</button></div><div class="pass-strength" id="pass-strength-bar"></div><div class="pass-strength-label" id="pass-strength-label"></div><div class="field-err" id="su-pass-err">Min 8 characters with a number</div></div>
     <div class="fg" id="insta-fg" style="display:none"><label>Instagram handle</label><input class="fi" id="su-insta" placeholder="@yourhandle"/></div>
-    <div class="fg" id="niche-fg" style="display:none"><label>Your niche</label><select class="fi" id="su-niche"><option value="">Select your niche</option><option value="fitness">💪 Fitness and Strength</option><option value="yoga">🧘 Yoga and Mindfulness</option><option value="beauty">💄 Beauty and Skincare</option><option value="nutrition">🥗 Nutrition and Diet</option><option value="dance">💃 Dance and Cardio</option><option value="mental">🧠 Mental Wellness</option></select></div>
+    <div class="fg" id="niche-fg" style="display:none"><label>Your niche</label><select class="fi" id="su-niche"><option value="">Select your niche</option><option value="fitness">💪 Fitness and Strength</option><option value="yoga">🧘 Yoga and Mindfulness</option><option value="beauty">💄 Beauty and Skincare</option><option value="nutrition">🥗 Nutrition and Diet</option><option value="dance">💃 Dance and Cardio</option><option value="mental">🧠 Mental Wellness</option>
+<option value="lifestyle">✨ Lifestyle</option>
+<option value="travel">✈️ Travel</option></select></div>
     <div class="fg"><label>Referral code (optional)</label><input class="fi" id="su-ref" placeholder="e.g. ananya123"/></div>
     <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account — it's free</button>
     <div class="social-divider">or sign up with</div>
@@ -532,7 +536,10 @@ footer p{font-size:12px;color:var(--muted)}
   </div></div>
 </div>
 <div class="page" id="page-profile">
-  <div onclick="gotoHome()" class="back-btn">← Back to creators</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid var(--border);max-width:1100px;margin:0 auto">
+  <button onclick="gotoHome()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px">← Back to creators</button>
+  <button onclick="gotoHome()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer">🏠 Home</button>
+</div>
   <div id="profile-content"></div>
 </div>
 <div class="page" id="page-success">
@@ -549,6 +556,9 @@ footer p{font-size:12px;color:var(--muted)}
 <div class="page" id="page-dashboard"><div class="dashboard" id="dash-content"></div></div>
 <div class="page" id="page-admin">
   <div class="admin-wrap">
+    <div style="margin-bottom:1rem">
+      <button onclick="gotoHome()" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🏠 Home</button>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:12px">
       <div><h1 style="font-size:24px;font-weight:800;letter-spacing:-0.5px">Admin Dashboard</h1><p style="font-size:13px;color:var(--muted);margin-top:4px">SessionWala platform management</p></div>
       <span class="admin-badge">Admin Access</span>
@@ -875,7 +885,7 @@ function formatDate(s){if(!s)return'';const d=new Date(s+'T00:00:00');return d.t
 function getFutMin(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
 function getFutMax(){const d=new Date();d.setDate(d.getDate()+30);return d.toISOString().split('T')[0];}
 function avatarInitial(n){return n?n.charAt(0).toUpperCase():'?';}
-function nicheLabel(n){return{fitness:'💪 Fitness',yoga:'🧘 Yoga',beauty:'💄 Beauty',nutrition:'🥗 Nutrition',dance:'💃 Dance',mental:'🧠 Wellness'}[n]||n;}
+function nicheLabel(n){return{fitness:'💪 Fitness',yoga:'🧘 Yoga',beauty:'💄 Beauty',nutrition:'🥗 Nutrition',dance:'💃 Dance',mental:'🧠 Wellness',lifestyle:'✨ Lifestyle',travel:'✈️ Travel'}[n]||n;}
 function demoCreators(){return[
   {id:'d1',photoURL:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=face',name:'Ananya Kapoor',niche:'fitness',followers:'210K',rating:4.9,sessions_count:128,price:1800,live:true,verified:true,city:'Delhi',bio:'NASM certified personal trainer with 5 years experience. Specialised in strength training and body transformation for Indian body types.',availableSlots:[{date:getFutureDate(1),time:'7:00 AM'},{date:getFutureDate(1),time:'9:00 AM'},{date:getFutureDate(2),time:'6:00 PM'},{date:getFutureDate(3),time:'7:00 AM'},{date:getFutureDate(4),time:'5:00 PM'}],sessions:[{name:'1-on-1 Consultation',desc:'Personalised fitness session tailored to your goals',duration:'30 min',price:1800}]},
   {id:'d2',photoURL:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop&crop=face',name:'Meera Joshi',niche:'yoga',followers:'180K',rating:5.0,sessions_count:94,price:1200,live:false,verified:true,city:'Mumbai',bio:'200hr RYT certified yoga instructor. Specialist in vinyasa, yin yoga and breathwork for stress relief and mindfulness.',availableSlots:[{date:getFutureDate(1),time:'6:00 AM'},{date:getFutureDate(2),time:'7:00 AM'},{date:getFutureDate(4),time:'6:00 AM'},{date:getFutureDate(5),time:'8:00 AM'}],sessions:[{name:'1-on-1 Consultation',desc:'Custom sequence designed for your body and goals',duration:'30 min',price:1200}]},
@@ -1114,6 +1124,9 @@ function renderDashboard(){
   const isC=dashMode==='creator'&&CUD?.role==='creator';
   const refLink=BASE_URL+'?ref='+(CUD?.referralCode||'');
   document.getElementById('dash-content').innerHTML=`
+    <div style="margin-bottom:1rem">
+      <button onclick="gotoHome()" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s" onmouseover="this.style.color='var(--brand)';this.style.borderColor='var(--brand)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">🏠 Home</button>
+    </div>
     <div class="dash-header">
       <div><h1>Welcome, ${CUD?.name?.split(' ')[0]||'there'} 👋</h1><span class="mode-badge">${isC?'Creator Mode':'Fan Mode'}</span></div>
       ${CUD?.role==='creator'?`<button class="switch-mode-btn" onclick="switchDashMode()">${isC?'Switch to Fan Mode':'Switch to Creator Mode'}</button>`:''}
