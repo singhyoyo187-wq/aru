@@ -468,7 +468,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="trust-item"><span class="ic"><svg viewBox="0 0 24 24"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg></span><span>Instant email confirmation</span></div>
   </div>
   <div class="section" id="section-explore">
-    <div class="section-header"><h2>Featured Creators</h2></div>
+    <div class="section-header" style="flex-wrap:wrap;gap:12px"><h2>Featured Creators</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="creator-search" placeholder="Search by name or city..." oninput="onCreatorSearch(this.value)" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:13px;color:var(--text);min-width:180px;transition:border-color var(--t-fast)"/>
+        <select id="creator-sort" onchange="onCreatorSort(this.value)" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;color:var(--text);cursor:pointer">
+          <option value="featured">Featured</option>
+          <option value="rating">Top rated</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="popular">Most sessions</option>
+        </select>
+      </div>
+    </div>
     <div class="cats">
       <div class="cat active" onclick="filterCat(this,'all')">All</div>
       <div class="cat" onclick="filterCat(this,'fitness')">💪 Fitness</div>
@@ -649,6 +660,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="astat"><div class="astat-num" id="as-creators" style="color:var(--brand2)">—</div><div class="astat-label">Creators</div></div>
       <div class="astat"><div class="astat-num" id="as-bookings" style="color:var(--green)">—</div><div class="astat-label">Bookings</div></div>
       <div class="astat"><div class="astat-num" id="as-revenue" style="color:var(--yellow)">—</div><div class="astat-label">Service Fee Revenue</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:14px">
+      <input id="admin-search" class="fi" placeholder="Search the active tab (name, email, session...)" style="flex:1;min-width:200px;font-size:13px" oninput="adminSearch(document.querySelector('.dtab-content.active')?.id, this.value)"/>
+      <button class="action-btn btn-approve" onclick="bulkApprovePending()" style="padding:8px 14px">⚡ Bulk-approve creators</button>
+      <button class="action-btn btn-approve" onclick="bulkApprovePendingFans()" style="padding:8px 14px">⚡ Bulk-approve fans</button>
+      <button class="action-btn btn-verify" onclick="exportBookingsCSV()" style="padding:8px 14px">⬇ Bookings CSV</button>
+      <button class="action-btn btn-verify" onclick="exportUsersCSV()" style="padding:8px 14px">⬇ Users CSV</button>
     </div>
     <div class="dashboard-tabs">
       <div class="dtab active" onclick="adminTab(event,'atab-pending')">⏳ Pending</div>
@@ -1014,7 +1032,24 @@ async function loadCreators(){
     allCreators=demoCreators();
   }
   renderGrid('all');
+  // BATCH5: open creator from deep link (#creator-<id>) after creators are loaded
+  handleCreatorHash();
 }
+function handleCreatorHash(){
+  const h=window.location.hash||'';
+  const m=h.match(/^#creator-(.+)$/);
+  if(m){const id=decodeURIComponent(m[1]);const c=allCreators.find(x=>x.id===id);if(c){if(!CU){afterAuthAction=()=>openProfile(id);showPage('signup');}else{openProfile(id);}}}
+}
+window.addEventListener('hashchange',handleCreatorHash);
+window.shareCreator=async function(id,name){
+  const url=BASE_URL+'/#creator-'+encodeURIComponent(id);
+  const shareData={title:'SessionWala — '+name,text:'Book a 1-on-1 session with '+name+' on SessionWala',url};
+  try{
+    if(navigator.share){await navigator.share(shareData);return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(url);toast('Profile link copied!','success');}
+  catch(e){prompt('Copy this link:',url);}
+};
 function getFutureDate(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function formatDate(s){if(!s)return'';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
 function getFutMin(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
@@ -1039,10 +1074,18 @@ function cardImg(c){
   if(c.photoURL)return '<img src="'+c.photoURL+'" alt="'+c.name+'" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0"/>';
   return '<span class="icard-initial">'+avatarInitial(c.name)+'</span>';
 }
+// BATCH5: grid state for category + search + sort
+let gridCat='all',gridSearch='',gridSort='featured';
 window.renderGrid=function(f){
+  if(f!==undefined)gridCat=f;
   const g=document.getElementById('creators-grid');if(!g)return;
-  const list=f==='all'?allCreators:allCreators.filter(c=>c.niche===f);
-  if(!list.length){g.innerHTML='<p style="color:var(--muted);padding:1rem 0">No creators in this category yet.</p>';return;}
+  let list=gridCat==='all'?allCreators.slice():allCreators.filter(c=>c.niche===gridCat);
+  if(gridSearch){const q=gridSearch.toLowerCase();list=list.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.city||'').toLowerCase().includes(q)||nicheLabel(c.niche).toLowerCase().includes(q));}
+  if(gridSort==='rating')list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if(gridSort==='price-low')list.sort((a,b)=>(a.price||0)-(b.price||0));
+  else if(gridSort==='price-high')list.sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(gridSort==='popular')list.sort((a,b)=>(b.sessions_count||0)-(a.sessions_count||0));
+  if(!list.length){g.innerHTML='<p style="color:var(--muted);padding:1rem 0">'+(gridSearch?'No creators match your search.':'No creators in this category yet.')+'</p>';return;}
   g.innerHTML=list.map(c=>'<div class="icard" onclick="handleCreatorClick(\''+c.id+'\')">'+
     '<div class="icard-img">'+cardImg(c)+(c.live?'<div class="live-badge">LIVE</div>':'')+(c.verified?'<div class="verified-badge">Verified</div>':'')+'</div>'+
     '<div class="icard-body">'+
@@ -1053,6 +1096,8 @@ window.renderGrid=function(f){
     '</div></div>'
   ).join('');
 };
+window.onCreatorSearch=function(v){gridSearch=v||'';renderGrid();};
+window.onCreatorSort=function(v){gridSort=v||'featured';renderGrid();};
 window.filterCat=function(el,f){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderGrid(f);};
 window.handleCreatorClick=function(id){
   if(!CU){afterAuthAction=()=>openProfile(id);showPage('signup');return;}
@@ -1093,6 +1138,7 @@ window.openProfile=async function(id){
           <div class="pstat" style="margin-left:20px"><div class="pstat-num">${c.rating||5.0}★</div><div class="pstat-label">Rating</div></div>
           <div class="pstat" style="margin-left:20px"><div class="pstat-num">${c.sessions_count||0}</div><div class="pstat-label">Sessions</div></div>
         </div>
+        <button onclick="shareCreator('${c.id}','${(c.name||'').replace(/'/g,"")}')" style="margin-top:14px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color var(--t-fast)" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'"><span class="ic" style="font-size:14px"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8 15.8 7.2M8.2 13.2 15.8 16.8"/></svg></span>Share profile</button>
       </div>
     </div>
     <div class="profile-body">
@@ -1447,10 +1493,32 @@ window.removeSlot=async function(i){
   }catch(e){toast('Failed','error');}
 };
 function to24h(t){if(!t)return'00:00:00';const[tm,ap]=(t||'').split(' ');let[h,m]=(tm||'0:00').split(':');h=parseInt(h)||0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+(m||'00')+':00';}
+// BATCH5: add booking to Google Calendar
+function gcalStamp(d){return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0')+'T'+String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'00Z';}
+window.addToCalendar=function(bookingId){
+  const b=(window._myBookings||[]).find(x=>x.id===bookingId);
+  if(!b){toast('Booking not found','error');return;}
+  const start=new Date(b.bookingDate+'T'+to24h(b.slot));
+  if(isNaN(start.getTime())){toast('Invalid session time','error');return;}
+  const durMin=parseInt((b.sessionDuration||'30').match(/\d+/)?.[0]||'30');
+  const end=new Date(start.getTime()+durMin*60000);
+  const title=encodeURIComponent('SessionWala: '+(b.sessionName||'Session')+' with '+(b.creatorName||b.fanName||''));
+  const details=encodeURIComponent('Your SessionWala session.\nSession PIN: '+(b.sessionPIN||'—')+'\nThe meeting link will be shared in chat on SessionWala before the session.\n\nhttps://sessionwala.com');
+  const url='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+gcalStamp(start)+'/'+gcalStamp(end)+'&details='+details;
+  window.open(url,'_blank','noopener');
+};
+// BATCH5: rebook same creator
+window.bookAgain=function(creatorId){
+  if(!creatorId){gotoHome();return;}
+  const c=allCreators.find(x=>x.id===creatorId);
+  if(c){openProfile(creatorId);}
+  else{toast('This creator is no longer available','info');gotoHome();}
+};
 async function loadBkgs(isC){
   try{
     const q=query(collection(db,'bookings'),where(isC?'creatorId':'fanId','==',CU.uid));
     const snap=await getDocs(q);const bks=[];snap.forEach(d=>bks.push({...d.data(),id:d.id}));
+    window._myBookings=bks; // BATCH5: cache for add-to-calendar
     const el=document.getElementById('tab-book');
     if(!bks.length){el.innerHTML=`<div class="empty"><div class="ei">📅</div><p>${isC?'No bookings yet. Add your slots and go live!':'No sessions booked yet.'}</p>${!isC?'<button class="btn-primary" onclick="gotoHome()" style="margin-top:1rem">Explore creators</button>':''}</div>`;return;}
     const totalSpent=bks.reduce((a,b)=>a+(b.total||0),0);
@@ -1504,6 +1572,8 @@ async function loadBkgs(isC){
         +(b.paymentId?'<div style="margin-top:4px;font-size:11px;color:var(--muted)">Payment: '+b.paymentId+'</div>':'')
         +(b.status==='confirmed'&&sessStatus!=='completed'?(b.zoomLink?'<div style="margin-top:10px"><a href="'+b.zoomLink+'" target="_blank" style="color:var(--brand);font-size:13px;font-weight:500">Join video call &#8599;</a></div>':'<div style="margin-top:10px;font-size:12px;color:var(--muted)">📩 Meeting link will be shared by '+(isC?'you':'the creator')+' in chat before the session</div>'):'')
         +(b.status==='confirmed'?'<div id="chat-container-'+b.id+'"></div><button data-bid="'+b.id+'" data-name="'+(isC?(b.fanName||'Fan'):(b.creatorName||'Creator'))+'" data-init="'+(isC?(b.fanName||'F').charAt(0).toUpperCase():(b.creatorName||'C').charAt(0).toUpperCase())+'" onclick="toggleChatBtn(this)" style="margin-top:10px;background:var(--surface);border:1px solid var(--brand);color:var(--brand);padding:7px 16px;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer">💬 '+(isC?'Chat with fan':'Chat with creator')+'</button>':'')
+        +(b.status==='confirmed'&&sessStatus!=='completed'?'<button onclick="addToCalendar(\''+b.id+'\')" style="margin-top:10px;margin-left:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 16px;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer">📅 Add to calendar</button>':'')
+        +(!isC&&(sessStatus==='completed'||(b.status&&b.status.indexOf('cancel')>=0))?'<button onclick="bookAgain(\''+b.creatorId+'\')" style="margin-top:10px;margin-left:8px;background:var(--brand);border:none;color:white;padding:7px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer">↻ Book again</button>':'')
         +(b.status==='confirmed'&&!isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="cancelBooking(\''+b.id+'\',\''+b.bookingDate+'\',\''+b.slot+'\','+( b.price||0)+')">Cancel booking</button>':'')
         +(b.status==='confirmed'&&isC&&sessStatus==='pending'?'<button class="cancel-btn" onclick="creatorCancel(\''+b.id+'\','+( b.price||0)+')">I cannot make it</button>':'')
         +'</div>';
@@ -2020,6 +2090,7 @@ window.loadAdminData=async function(){
     const users=[];uSnap.forEach(d=>users.push({...d.data(),id:d.id}));
     const bookings=[];bSnap.forEach(d=>bookings.push({...d.data(),id:d.id}));
     const reviews=[];rSnap.forEach(d=>reviews.push({...d.data(),id:d.id}));
+    window._adminCache={users,bookings,reviews}; // BATCH5: cache for search + CSV export
     const creators=users.filter(u=>u.role==='creator');
     const fans=users.filter(u=>u.role==='fan');
     const revenue=bookings.filter(b=>b.status==='confirmed').reduce((a,b)=>a+(b.serviceCharge||0),0);
@@ -2146,6 +2217,67 @@ window.loadAdminData=async function(){
       }
     }catch(pe){console.log('Payout load:',pe);}
   }catch(e){console.error(e);toast('Failed to load admin data','error');}
+};
+// ── BATCH5: admin power features (CSV export, bulk approve, search) ──
+function csvEscape(v){v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function downloadCSV(filename,rows){
+  const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+}
+window.exportBookingsCSV=function(){
+  const b=(window._adminCache?.bookings)||[];
+  if(!b.length){toast('No bookings to export','info');return;}
+  const header=['Booking ID','Session','Fan','Fan Email','Creator','Date','Slot','Price','Service Charge','Total','Status','Session Status','Payment ID','Refund Amount','Refund Status'];
+  const rows=[header,...b.map(x=>[x.id,x.sessionName,x.fanName,x.fanEmail,x.creatorName,x.bookingDate,x.slot,x.price,x.serviceCharge,x.total,x.status,x.sessionStatus,x.paymentId,x.refundAmount,x.refundStatus])];
+  downloadCSV('sessionwala-bookings-'+new Date().toISOString().split('T')[0]+'.csv',rows);
+  toast('Bookings exported','success');
+};
+window.exportUsersCSV=function(){
+  const u=(window._adminCache?.users)||[];
+  if(!u.length){toast('No users to export','info');return;}
+  const header=['User ID','Name','Email','Role','Status','Verified','Public','Niche','Instagram','City','Credits','Flagged'];
+  const rows=[header,...u.map(x=>[x.id,x.name,x.email,x.role,x.status,x.verified,x.isPublic,x.niche,x.instagram,x.city,x.credits,x.flagged])];
+  downloadCSV('sessionwala-users-'+new Date().toISOString().split('T')[0]+'.csv',rows);
+  toast('Users exported','success');
+};
+window.bulkApprovePending=async function(){
+  const pending=((window._adminCache?.users)||[]).filter(u=>u.role==='creator'&&u.status==='pending');
+  if(!pending.length){toast('No pending creators','info');return;}
+  if(!confirm('Approve all '+pending.length+' pending creators? Each will be verified, made public, and emailed.'))return;
+  toast('Approving '+pending.length+' creators...','info');
+  let ok=0;
+  for(const u of pending){
+    try{
+      await updateDoc(doc(db,'users',u.id),{status:'approved',isPublic:true,verified:true,live:false});
+      try{await emailjsSafe.send('service_68pv1zr','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'Check your dashboard',duration:'N/A',amount:'First month free',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(e){}
+      ok++;
+    }catch(e){console.log('bulk approve fail',u.id,e);}
+  }
+  toast(ok+' creators approved','success');loadAdminData();
+};
+window.bulkApprovePendingFans=async function(){
+  const pending=((window._adminCache?.users)||[]).filter(u=>u.role==='fan'&&u.status==='pending');
+  if(!pending.length){toast('No pending fans','info');return;}
+  if(!confirm('Approve all '+pending.length+' pending fans?'))return;
+  let ok=0;
+  for(const u of pending){
+    try{
+      await updateDoc(doc(db,'users',u.id),{status:'approved'});
+      try{await emailjsSafe.send('service_68pv1zr','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Your account is approved! Start booking sessions.',booking_date:'Today',slot_time:'Login to get started',duration:'N/A',amount:'N/A',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(e){}
+      ok++;
+    }catch(e){}
+  }
+  toast(ok+' fans approved','success');loadAdminData();
+};
+window.adminSearch=function(tabId,val){
+  val=(val||'').toLowerCase().trim();
+  const tab=document.getElementById(tabId);if(!tab)return;
+  tab.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.style.display=!val||tr.textContent.toLowerCase().includes(val)?'':'none';
+  });
 };
 window.approveCreator=async function(uid,name,email){
   try{
