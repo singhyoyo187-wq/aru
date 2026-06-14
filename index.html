@@ -421,6 +421,56 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .page.active{animation:none}
   *{transition-duration:0.01ms !important}
 }
+/* ── FINAL BATCH: mobile sticky CTA ── */
+.mobile-book-cta{display:none}
+@media(max-width:768px){
+  .mobile-book-cta{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:200;padding:12px 16px 20px;background:linear-gradient(to top,rgba(13,13,13,0.98) 60%,transparent);gap:10px}
+  .mobile-book-cta .btn-primary{flex:1;text-align:center;padding:14px}
+  /* niche chips: horizontal snap scroll on mobile */
+  .cats{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding-bottom:4px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{scroll-snap-align:start;flex-shrink:0}
+  /* push content above sticky CTA */
+  #page-home footer{padding-bottom:80px}
+}
+/* ── FINAL BATCH: session ticket motif ── */
+.ticket{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;position:relative;margin-bottom:12px}
+.ticket::before,.ticket::after{content:'';position:absolute;width:20px;height:20px;background:var(--dark);border-radius:50%;top:50%;transform:translateY(-50%)}
+.ticket::before{left:-10px}
+.ticket::after{right:-10px}
+.ticket-top{padding:14px 20px 10px;border-bottom:2px dashed rgba(255,255,255,0.07)}
+.ticket-bottom{padding:10px 20px 14px}
+.ticket-event{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
+.ticket-creator{font-size:12px;color:var(--muted);margin-bottom:8px}
+.ticket-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.ticket-price{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--brand)}
+.ticket-status{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+/* ── FINAL BATCH: UPI payment logos area ── */
+.upi-logos{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;opacity:0.7}
+.upi-badge{background:white;color:#1f1f1f;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:0.3px}
+/* ── FINAL BATCH: A11y ── */
+.cat[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:white}
+.faq-q[aria-expanded="true"] .faq-icon{transform:rotate(45deg)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* ── FINAL BATCH: homepage reviews section ── */
+.homepage-reviews{padding:3rem 2rem;max-width:1100px;margin:0 auto}
+.homepage-reviews h2{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem}
+.homepage-reviews p.sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.review-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.review-card-stars{color:#F59E0B;font-size:14px;margin-bottom:8px}
+.review-card-text{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;font-style:italic}
+.review-card-author{font-size:12px;font-weight:600;color:var(--text)}
+.review-card-creator{font-size:11px;color:var(--brand);margin-top:2px}
+/* ── FINAL BATCH: upcoming session banner ── */
+.upcoming-banner{background:linear-gradient(135deg,rgba(255,77,109,0.1),rgba(255,140,66,0.08));border:1px solid rgba(255,77,109,0.25);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.upcoming-banner h4{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px}
+.upcoming-banner p{font-size:13px;color:var(--muted)}
+.countdown{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--brand)}
+/* ── FINAL BATCH: admin daily digest ── */
+.digest-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.digest-item{font-size:13px;display:flex;align-items:center;gap:6px}
+.digest-num{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"SessionWala","url":"https://sessionwala.com","email":"support@sessionwala.com","address":{"@type":"PostalAddress","addressLocality":"Delhi","addressCountry":"IN"},"description":"Indian creator marketplace for 1-on-1 live video sessions with verified fitness, beauty and wellness creators."}
@@ -481,15 +531,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       </div>
     </div>
     <div class="cats">
-      <div class="cat active" onclick="filterCat(this,'all')">All</div>
-      <div class="cat" onclick="filterCat(this,'fitness')">💪 Fitness</div>
-      <div class="cat" onclick="filterCat(this,'yoga')">🧘 Yoga</div>
-      <div class="cat" onclick="filterCat(this,'beauty')">💄 Beauty</div>
-      <div class="cat" onclick="filterCat(this,'nutrition')">🥗 Nutrition</div>
-      <div class="cat" onclick="filterCat(this,'dance')">💃 Dance</div>
-      <div class="cat" onclick="filterCat(this,'mental')">🧠 Wellness</div>
-      <div class="cat" onclick="filterCat(this,'lifestyle')">✨ Lifestyle</div>
-      <div class="cat" onclick="filterCat(this,'travel')">✈️ Travel</div>
+      <div class="cat active" role="button" aria-pressed="true" onclick="filterCat(this,'all')">All</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'fitness')">💪 Fitness</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'yoga')">🧘 Yoga</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'beauty')">💄 Beauty</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'nutrition')">🥗 Nutrition</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'dance')">💃 Dance</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'mental')">🧠 Wellness</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'lifestyle')">✨ Lifestyle</div>
+      <div class="cat" role="button" aria-pressed="false" onclick="filterCat(this,'travel')">✈️ Travel</div>
     </div>
     <div class="grid" id="creators-grid"><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div></div>
   </div>
@@ -502,6 +552,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="step"><div class="step-num">3</div><h3>Join the video call</h3><p>Get confirmation email with Zoom link instantly</p></div>
     </div>
   </div></div>
+  <!-- Homepage reviews (UX-12) -->
+  <div class="homepage-reviews" id="homepage-reviews-section" style="display:none">
+    <h2>What fans are saying</h2>
+    <p class="sub">Real reviews from real sessions</p>
+    <div class="reviews-grid" id="homepage-reviews-grid"></div>
+  </div>
   <div class="join">
     <h2>Are you a creator?</h2>
     <p>Monetise your expertise. Set your own schedule. Connect with fans who want to learn from you.</p>
@@ -522,6 +578,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <a href="https://t.me/contact_sessionwala" target="_blank" rel="noopener" style="cursor:pointer">Telegram</a>
     </div>
   </footer>
+  <!-- Mobile sticky CTA -->
+  <div class="mobile-book-cta" id="mobile-cta" aria-label="Quick actions">
+    <button class="btn-primary" onclick="document.getElementById('section-explore').scrollIntoView({behavior:'smooth'})">Book a session</button>
+    <button class="btn-outline" onclick="if(!window.CU){window.selRole='creator';window.showPage('signup');}else{window.gotoDashboard();}">Join as Creator</button>
+  </div>
 </div>
 <div class="page" id="page-login">
   <div class="auth-wrap"><div class="auth-card">
@@ -529,7 +590,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="auth-sub">Welcome back!</div>
     <div class="auth-err" id="login-err"></div>
     <div class="fg"><label>Email address</label><input class="fi" type="email" id="li-email" placeholder="you@example.com" oninput="validateEmailField('li-email','li-email-err','li-email-ok')"/><div class="field-err" id="li-email-err">Please enter a valid email</div><div class="field-ok" id="li-email-ok">Valid email</div></div>
-    <div class="fg"><label>Password</label><div class="pass-wrap"><input class="fi" type="password" id="li-pass" placeholder="Your password" oninput="validateLoginPass()"/><button class="pass-toggle" onclick="togglePass('li-pass',this)" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span></button></div><div class="field-err" id="li-pass-err">Please enter your password</div></div>
+    <div class="fg"><label>Password</label><div class="pass-wrap"><input class="fi" type="password" id="li-pass" placeholder="Your password" oninput="validateLoginPass()"/><button class="pass-toggle" onclick="togglePass('li-pass',this)" type="button" aria-label="Show password"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span></button></div><div class="field-err" id="li-pass-err">Please enter your password</div></div>
     <button class="auth-btn" id="li-btn" onclick="doLogin()">Sign in</button>
     <div style="text-align:center;margin-top:10px"><a onclick="showPage('forgot')" style="font-size:13px;color:var(--brand);cursor:pointer">Forgot password?</a></div>
     <div class="social-divider">or continue with</div>
@@ -564,7 +625,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
     <div class="fg"><label>Full name</label><input class="fi" type="text" id="su-name" placeholder="Your full name" oninput="validateName()"/><div class="field-err" id="su-name-err">Min 2 characters</div></div>
     <div class="fg"><label>Email address</label><input class="fi" type="email" id="su-email" placeholder="you@example.com" oninput="validateEmailField('su-email','su-email-err','su-email-ok')"/><div class="field-err" id="su-email-err">Please enter a valid email</div><div class="field-ok" id="su-email-ok">Valid email</div></div>
-    <div class="fg"><label>Password</label><div class="pass-wrap"><input class="fi" type="password" id="su-pass" placeholder="Min 8 chars with a number" oninput="checkPassStrength()"/><button class="pass-toggle" onclick="togglePass('su-pass',this)" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span></button></div><div class="pass-strength" id="pass-strength-bar"></div><div class="pass-strength-label" id="pass-strength-label"></div><div class="field-err" id="su-pass-err">Min 8 characters with a number</div></div>
+    <div class="fg"><label>Password</label><div class="pass-wrap"><input class="fi" type="password" id="su-pass" placeholder="Min 8 chars with a number" oninput="checkPassStrength()"/><button class="pass-toggle" onclick="togglePass('su-pass',this)" type="button" aria-label="Show password"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span></button></div><div class="pass-strength" id="pass-strength-bar"></div><div class="pass-strength-label" id="pass-strength-label"></div><div class="field-err" id="su-pass-err">Min 8 characters with a number</div></div>
     <div class="fg" id="insta-fg" style="display:none"><label>Instagram handle</label><input class="fi" id="su-insta" placeholder="@yourhandle"/></div>
     <div class="fg" id="niche-fg" style="display:none"><label>Your niche</label><select class="fi" id="su-niche"><option value="">Select your niche</option><option value="fitness">💪 Fitness and Strength</option><option value="yoga">🧘 Yoga and Mindfulness</option><option value="beauty">💄 Beauty and Skincare</option><option value="nutrition">🥗 Nutrition and Diet</option><option value="dance">💃 Dance and Cardio</option><option value="mental">🧠 Mental Wellness</option>
 <option value="lifestyle">✨ Lifestyle</option>
@@ -661,6 +722,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="astat"><div class="astat-num" id="as-bookings" style="color:var(--green)">—</div><div class="astat-label">Bookings</div></div>
       <div class="astat"><div class="astat-num" id="as-revenue" style="color:var(--yellow)">—</div><div class="astat-label">Service Fee Revenue</div></div>
     </div>
+    <div class="digest-bar" id="admin-digest"><span style="color:var(--muted);font-size:13px">Loading digest...</span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:14px">
       <input id="admin-search" class="fi" placeholder="Search the active tab (name, email, session...)" style="flex:1;min-width:200px;font-size:13px" oninput="adminSearch(document.querySelector('.dtab-content.active')?.id, this.value)"/>
       <button class="action-btn btn-approve" onclick="bulkApprovePending()" style="padding:8px 14px">⚡ Bulk-approve creators</button>
@@ -707,9 +769,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <p><strong>Payout schedule:</strong> Every Monday via Razorpay to your registered bank account.</p>
     </div>
     <h3>Cancellation by Creator</h3>
-    <p>If a creator cancels a confirmed booking, the fan receives a 100% refund. The creator's next session earnings will be forfeited to SessionWala as penalty.</p>
+    <p>If a creator cancels a confirmed booking, the fan receives a 100% refund. A cancellation fee equal to one session's earnings may apply to the creator's next payout.</p>
     <h3>Creator No-Show</h3>
-    <p>If a creator does not attend a confirmed session, the fan receives a full refund and the creator's next session earnings go entirely to SessionWala as penalty.</p>
+    <p>If a creator does not attend a confirmed session, the fan receives a full refund. A cancellation fee equal to one session's earnings may apply to the creator's next payout.</p>
     <h2>3. Fan Terms</h2>
     <h3>Booking and Payment</h3>
     <p>A 5% service charge is added to all bookings at checkout. Payment is processed securely via Razorpay.</p>
@@ -1043,12 +1105,19 @@ function handleCreatorHash(){
 window.addEventListener('hashchange',handleCreatorHash);
 window.shareCreator=async function(id,name){
   const url=BASE_URL+'/#creator-'+encodeURIComponent(id);
+  const text='Book a 1-on-1 session with '+name+' on SessionWala 🎯\n'+url;
   const shareData={title:'SessionWala — '+name,text:'Book a 1-on-1 session with '+name+' on SessionWala',url};
   try{
     if(navigator.share){await navigator.share(shareData);return;}
   }catch(e){if(e&&e.name==='AbortError')return;}
-  try{await navigator.clipboard.writeText(url);toast('Profile link copied!','success');}
-  catch(e){prompt('Copy this link:',url);}
+  // Fallback: show share options
+  const waUrl='https://wa.me/?text='+encodeURIComponent(text);
+  const choice=confirm('Share "'+name+'" profile:\n\nClick OK to share on WhatsApp\nClick Cancel to copy link');
+  if(choice){window.open(waUrl,'_blank','noopener');}
+  else{
+    try{await navigator.clipboard.writeText(url);toast('Profile link copied!','success');}
+    catch(e){prompt('Copy this link:',url);}
+  }
 };
 function getFutureDate(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
 function formatDate(s){if(!s)return'';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
@@ -1098,7 +1167,11 @@ window.renderGrid=function(f){
 };
 window.onCreatorSearch=function(v){gridSearch=v||'';renderGrid();};
 window.onCreatorSort=function(v){gridSort=v||'featured';renderGrid();};
-window.filterCat=function(el,f){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderGrid(f);};
+window.filterCat=function(el,f){
+  document.querySelectorAll('.cat').forEach(c=>{c.classList.remove('active');c.setAttribute('aria-pressed','false');});
+  el.classList.add('active');el.setAttribute('aria-pressed','true');
+  renderGrid(f);
+};
 window.handleCreatorClick=function(id){
   if(!CU){afterAuthAction=()=>openProfile(id);showPage('signup');return;}
   openProfile(id);
@@ -1139,6 +1212,7 @@ window.openProfile=async function(id){
           <div class="pstat" style="margin-left:20px"><div class="pstat-num">${c.sessions_count||0}</div><div class="pstat-label">Sessions</div></div>
         </div>
         <button onclick="shareCreator('${c.id}','${(c.name||'').replace(/'/g,"")}')" style="margin-top:14px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color var(--t-fast)" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'"><span class="ic" style="font-size:14px"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8 15.8 7.2M8.2 13.2 15.8 16.8"/></svg></span>Share profile</button>
+        <a href="https://wa.me/?text=${encodeURIComponent('Book a 1-on-1 session with '+(c.name||'')+' on SessionWala 🎯\n'+BASE_URL+'/#creator-'+c.id)}" target="_blank" rel="noopener" style="margin-top:14px;margin-left:8px;background:#25D366;color:white;border:none;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.006 22l4.977-1.306A9.948 9.948 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill-rule="evenodd" clip-rule="evenodd"/></svg> WhatsApp</a>
       </div>
     </div>
     <div class="profile-body">
@@ -1166,7 +1240,14 @@ window.openProfile=async function(id){
         <div class="total-row"><span>Service charge (5%)</span><span id="t-sc">—</span></div>
         <div class="total-row final"><span>Total</span><span id="t-total">—</span></div>
         <button class="pay-btn" id="pay-btn" onclick="doBook()">Pay with Razorpay</button>
-        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">UPI · Card · Net Banking · Wallets</p>
+        <div class="upi-logos" aria-label="Accepted payment methods">
+          <span class="upi-badge">UPI</span>
+          <span class="upi-badge" style="color:#00a650">GPay</span>
+          <span class="upi-badge" style="color:#5f259f">PhonePe</span>
+          <span class="upi-badge" style="color:#002970">Paytm</span>
+          <span class="upi-badge">Cards</span>
+          <span class="upi-badge">NetBanking</span>
+        </div>
       </div></div>
     </div>`;
   showPage('profile');
@@ -1401,6 +1482,26 @@ function slotManagerHTML(){
       </div>
     </div>
     <div class="slot-manager" style="margin-top:1rem">
+      <h4>🔁 Recurring slots</h4>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Add same time every week automatically</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Day of week</label>
+        <select id="recur-day" style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text)">
+          <option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option>
+          <option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option>
+        </select></div>
+        <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Time</label>
+        <select id="recur-time" style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text)">
+          ${['6:00 AM','7:00 AM','8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM','9:00 PM','10:00 PM'].map(t=>'<option value="'+t+'">'+t+'</option>').join('')}
+        </select></div>
+        <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">For how many weeks</label>
+        <select id="recur-weeks" style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text)">
+          <option value="2">2 weeks</option><option value="4" selected>4 weeks</option><option value="6">6 weeks</option><option value="8">8 weeks</option>
+        </select></div>
+        <button class="slot-add-btn" onclick="addRecurringSlots()">Add recurring</button>
+      </div>
+    </div>
+    <div class="slot-manager" style="margin-top:1rem">
       <h4>Your upcoming slots (${futureSlots.length})</h4>
       <div class="slot-list" id="slot-list">
         ${!futureSlots.length?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">No upcoming slots. Add some above!</p>':
@@ -1521,12 +1622,13 @@ async function loadBkgs(isC){
     window._myBookings=bks; // BATCH5: cache for add-to-calendar
     const el=document.getElementById('tab-book');
     if(!bks.length){el.innerHTML=`<div class="empty"><div class="ei">📅</div><p>${isC?'No bookings yet. Add your slots and go live!':'No sessions booked yet.'}</p>${!isC?'<button class="btn-primary" onclick="gotoHome()" style="margin-top:1rem">Explore creators</button>':''}</div>`;return;}
+    const bannerHTML=renderUpcomingBanner(bks);
     const totalSpent=bks.reduce((a,b)=>a+(b.total||0),0);
     const statsHtml=!isC?`<div class="dash-stats"><div class="dstat"><div class="dstat-num" style="color:var(--brand)">${bks.length}</div><div class="dstat-label">Sessions booked</div></div><div class="dstat"><div class="dstat-num" style="color:var(--brand2)">₹${totalSpent.toLocaleString('en-IN')}</div><div class="dstat-label">Total spent</div></div><div class="dstat"><div class="dstat-num" style="color:var(--green)">${bks.filter(b=>b.status==='confirmed').length}</div><div class="dstat-label">Confirmed</div></div></div>`:'';
     const sClass=s=>s==='confirmed'?'status-confirmed':s&&(s.includes('refund')||s.includes('cancel'))?'status-refund':'status-cancelled';
     const sLabel=s=>({confirmed:'Confirmed',cancelled_refund:'Cancelled — Refund pending',cancelled_no_refund:'Cancelled — No refund',creator_cancelled:'Creator cancelled — Refund initiated',creator_noshow:'Creator no-show — Refund initiated',fan_noshow:'No-show — No refund'}[s]||s||'Confirmed');
     // Helper to convert slot time to 24hr
-    el.innerHTML=statsHtml+bks.map((b,bIdx)=>{
+    el.innerHTML=bannerHTML+statsHtml+bks.map((b,bIdx)=>{
       const now=Date.now();
       const sessTime=b.bookingDate&&b.slot?new Date(b.bookingDate+'T'+to24h(b.slot)).getTime():0;
       const isSessionTime=sessTime>0&&now>=sessTime&&now<=(sessTime+3*60*60*1000);
@@ -1559,11 +1661,16 @@ async function loadBkgs(isC){
       }
       // Completed badge
       var completedBadge=sessStatus==='completed'?'<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:0.75rem;margin-top:12px;text-align:center;font-size:13px;color:var(--green);font-weight:600">&#10003; Session completed — Payment released on Monday</div>':'';
-      return '<div class="bcard">'
-        +'<div class="bcard-header"><div class="bcard-title">'+b.sessionName+'</div>'
-        +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="status '+sClass(b.status)+'">'+sLabel(b.status)+'</span>'+(b.status==='confirmed'?statusBadge:'')+'</div></div>'
-        +'<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+(isC?'Fan: '+b.fanName:'Creator: '+b.creatorName)+'</div>'
-        +'<div class="bcard-meta"><span>&#128197; '+(b.bookingDate?formatDate(b.bookingDate):'')+'</span><span>&#8987; '+(b.slot||'')+'</span><span>'+(b.sessionDuration||'')+'</span><span>&#8377;'+(b.total||0).toLocaleString('en-IN')+'</span></div>'
+      return '<div class="ticket">'
+        +'<div class="ticket-top">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+        +'<div><div class="ticket-event">'+b.sessionName+'</div>'
+        +'<div class="ticket-creator">'+(isC?'Fan: '+b.fanName:'with '+b.creatorName)+'</div></div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="ticket-status '+sClass(b.status)+'">'+sLabel(b.status)+'</span>'+(b.status==='confirmed'?statusBadge:'')+'</div></div>'
+        +'<div class="ticket-meta"><span>📅 '+(b.bookingDate?formatDate(b.bookingDate):'')+'</span><span>🕐 '+(b.slot||'')+'</span><span>'+(b.sessionDuration||'')+'</span></div>'
+        +'</div><div class="ticket-bottom" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+        +'<div class="ticket-price">₹'+(b.total||0).toLocaleString('en-IN')+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+( b.paymentId?'Payment: '+b.paymentId.substring(0,20)+'...':'' )+'</div></div>'
         +fanPinBox
         +creatorPinEntry
         +creatorProgress
@@ -1584,9 +1691,10 @@ async function loadEarn(){
   try{
     const q=query(collection(db,'bookings'),where('creatorId','==',CU.uid));
     const snap=await getDocs(q);
+    const allBkData=[];
     let earned=0,count=0,pendingEarned=0;
     snap.forEach(d=>{
-      const b=d.data();
+      const b=d.data();allBkData.push(b);
       if(b.status==='confirmed'){
         if(b.sessionStatus==='completed'){earned+=b.price||0;count++;}
         else{pendingEarned+=b.price||0;}
@@ -1600,10 +1708,15 @@ async function loadEarn(){
     const platformFee=isFirstMonth?0:Math.round(earned*0.10);
     const gst=Math.round(platformFee*0.18);
     const net=Math.max(0,earned-platformFee-gst);
+    const wm=earningsThisWeekMonth(allBkData);
     var html='<div class="dash-stats">';
-    html+='<div class="dstat"><div class="dstat-num" style="color:var(--brand)">&#8377;'+earned.toLocaleString('en-IN')+'</div><div class="dstat-label">Completed earnings</div></div>';
+    html+='<div class="dstat"><div class="dstat-num" style="color:var(--brand)">&#8377;'+earned.toLocaleString('en-IN')+'</div><div class="dstat-label">Total completed</div></div>';
     html+='<div class="dstat"><div class="dstat-num" style="color:var(--green)">'+count+'</div><div class="dstat-label">Sessions done</div></div>';
     html+='<div class="dstat"><div class="dstat-num" style="color:var(--brand2)">&#8377;'+net.toLocaleString('en-IN')+'</div><div class="dstat-label">Net payout</div></div>';
+    html+='</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">';
+    html+='<div class="dstat"><div class="dstat-num" style="color:var(--brand);font-size:18px">&#8377;'+wm.week.toLocaleString('en-IN')+'</div><div class="dstat-label">This week</div></div>';
+    html+='<div class="dstat"><div class="dstat-num" style="color:var(--brand);font-size:18px">&#8377;'+wm.month.toLocaleString('en-IN')+'</div><div class="dstat-label">This month</div></div>';
     html+='</div>';
     if(isFirstMonth) html+='<div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--green)">First month free &#8212; <strong>'+daysLeft+' days left</strong>. Zero platform fee!</div>';
     if(hasPenalty) html+='<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:var(--red)">Penalty active: Next session earnings go to platform.</div>';
@@ -1785,11 +1898,10 @@ window.toggleFaq=function(el){
   const ans=el.nextElementSibling;
   const icon=el.querySelector('.faq-icon');
   const isOpen=ans.classList.contains('open');
-  // Close all
   document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
   document.querySelectorAll('.faq-icon').forEach(i=>i.classList.remove('open'));
-  // Open this one if it was closed
-  if(!isOpen){ans.classList.add('open');icon.classList.add('open');}
+  document.querySelectorAll('.faq-q').forEach(q=>q.setAttribute('aria-expanded','false'));
+  if(!isOpen){ans.classList.add('open');icon.classList.add('open');el.setAttribute('aria-expanded','true');}
 };
 window.sendContactForm=async function(){
   const name=document.getElementById('ct-name').value.trim();
@@ -2091,6 +2203,7 @@ window.loadAdminData=async function(){
     const bookings=[];bSnap.forEach(d=>bookings.push({...d.data(),id:d.id}));
     const reviews=[];rSnap.forEach(d=>reviews.push({...d.data(),id:d.id}));
     window._adminCache={users,bookings,reviews}; // BATCH5: cache for search + CSV export
+    renderAdminDigest(users,bookings);
     const creators=users.filter(u=>u.role==='creator');
     const fans=users.filter(u=>u.role==='fan');
     const revenue=bookings.filter(b=>b.status==='confirmed').reduce((a,b)=>a+(b.serviceCharge||0),0);
@@ -2670,7 +2783,70 @@ window.adminProcessPayout=async function(idOrBtn){
     toast('Payout marked as processed','success');loadAdminData();
   }catch(e){toast('Failed','error');}
 };
+// ── FINAL BATCH: homepage featured reviews (UX-12) ──
+async function loadHomepageReviews(){
+  try{
+    const rq=query(collection(db,'reviews'),where('approved','==',true),limit(6));
+    const rs=await getDocs(rq);
+    if(rs.empty)return;
+    const revs=[];rs.forEach(d=>revs.push(d.data()));
+    const sec=document.getElementById('homepage-reviews-section');
+    const grid=document.getElementById('homepage-reviews-grid');
+    if(!sec||!grid)return;
+    grid.innerHTML=revs.map(r=>`<div class="review-card"><div class="review-card-stars">${'★'.repeat(r.rating||5)}${'☆'.repeat(5-(r.rating||5))}</div><div class="review-card-text">"${(r.text||'').substring(0,140)}${(r.text||'').length>140?'...':''}"</div><div class="review-card-author">${r.fanName||'Fan'}</div><div class="review-card-creator">Session with ${r.creatorName||'Creator'}</div></div>`).join('');
+    sec.style.display='block';
+  }catch(e){console.log('homepage reviews:',e);}
+}
+// ── FINAL BATCH: upcoming session countdown banner (F-3) ──
+function renderUpcomingBanner(bks){
+  const now=Date.now();
+  const upcoming=bks.filter(b=>b.status==='confirmed'&&b.sessionStatus!=='completed'&&b.bookingDate&&b.slot).map(b=>({...b,ts:new Date(b.bookingDate+'T'+to24h(b.slot)).getTime()})).filter(b=>b.ts>now).sort((a,b)=>a.ts-b.ts);
+  if(!upcoming.length)return'';
+  const next=upcoming[0];const diffMs=next.ts-now;const diffH=Math.floor(diffMs/3600000);const diffM=Math.floor((diffMs%3600000)/60000);
+  const timeStr=diffH>24?Math.floor(diffH/24)+'d '+diffH%24+'h':diffH+'h '+diffM+'m';
+  const isC=dashMode==='creator';
+  return`<div class="upcoming-banner"><div><h4>⏰ Next session in <span class="countdown">${timeStr}</span></h4><p>${next.sessionName} · ${isC?'Fan: '+next.fanName:'Creator: '+next.creatorName} · ${formatDate(next.bookingDate)} at ${next.slot}</p></div><button onclick="addToCalendar('${next.id}')" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap">📅 Add to calendar</button></div>`;
+}
+// ── FINAL BATCH: admin daily digest (A-5) ──
+function renderAdminDigest(users,bookings){
+  const pC=users.filter(u=>u.role==='creator'&&u.status==='pending').length;
+  const pF=users.filter(u=>u.role==='fan'&&u.status==='pending').length;
+  const pR=bookings.filter(b=>b.refundStatus==='pending'&&b.refundAmount>0).length;
+  const payAmt=bookings.filter(b=>b.status==='confirmed'&&b.sessionStatus==='completed').reduce((a,b)=>a+(b.price||0),0);
+  const el=document.getElementById('admin-digest');if(!el)return;
+  el.innerHTML=`<span class="digest-item">${pC>0?'🔴':'🟢'} <span class="digest-num">${pC}</span> pending creators</span><span class="digest-item">${pF>0?'🔴':'🟢'} <span class="digest-num">${pF}</span> pending fans</span><span class="digest-item">${pR>0?'🟡':'🟢'} <span class="digest-num">${pR}</span> refunds due</span><span class="digest-item">💰 <span class="digest-num">₹${payAmt.toLocaleString('en-IN')}</span> payout Monday</span>`;
+}
+// ── FINAL BATCH: recurring slots (C-1) ──
+window.addRecurringSlots=async function(){
+  const dayEl=document.getElementById('recur-day');const timeEl=document.getElementById('recur-time');const weeksEl=document.getElementById('recur-weeks');
+  if(!dayEl||!timeEl||!weeksEl){toast('Please fill all fields','error');return;}
+  const day=parseInt(dayEl.value);const time=timeEl.value;const weeks=parseInt(weeksEl.value)||4;
+  if(isNaN(day)||!time){toast('Please select day and time','error');return;}
+  const existing=CUD?.availableSlots||[];const newSlots=[];
+  for(let w=1;w<=weeks;w++){
+    const d=new Date();const diff=((day+7-d.getDay())%7)||7;d.setDate(d.getDate()+diff+(w-1)*7);
+    const dateStr=d.toISOString().split('T')[0];
+    if(!existing.some(s=>s.date===dateStr&&s.time===time))newSlots.push({date:dateStr,time});
+  }
+  if(!newSlots.length){toast('All these slots already exist','info');return;}
+  try{
+    const allSlots=[...existing,...newSlots];
+    await updateDoc(doc(db,'users',CU.uid),{availableSlots:allSlots});
+    CUD.availableSlots=allSlots;toast(newSlots.length+' recurring slots added!','success');
+    document.getElementById('tab-slots').innerHTML=slotManagerHTML();
+  }catch(e){toast('Failed to add recurring slots','error');}
+};
+// ── FINAL BATCH: earnings this week / this month (C-2) ──
+function earningsThisWeekMonth(bks){
+  const now=new Date();
+  const wS=new Date(now);wS.setDate(now.getDate()-now.getDay());wS.setHours(0,0,0,0);
+  const mS=new Date(now.getFullYear(),now.getMonth(),1);
+  let week=0,month=0;
+  bks.forEach(b=>{if(b.status==='confirmed'&&b.sessionStatus==='completed'&&b.price){const d=b.createdAt?.toDate?b.createdAt.toDate():null;if(!d)return;if(d>=wS)week+=b.price;if(d>=mS)month+=b.price;}});
+  return{week,month};
+}
 loadCreators();
+loadHomepageReviews();
 // Auth state resolves via onAuthStateChanged (fires for both logged-in and logged-out).
 // Short fallback only if Firebase is unusually slow, with a gentle reveal.
 setTimeout(()=>{const b=document.getElementById('btn-login');if(!CU&&b&&b.style.display==='none'){b.style.display='block';}},1200);
@@ -2723,83 +2899,83 @@ document.addEventListener('DOMContentLoaded',function(){
     <!-- FOR FANS -->
     <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">For Fans</h3>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I book a session? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I book a session? <span class="faq-icon">+</span></div>
       <div class="faq-a">Sign up or login → Browse creators → Select a creator → Choose a session type → Pick an available date and time slot → Pay securely via Razorpay. You will receive a confirmation email with your Zoom link immediately after payment.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">What payment methods are accepted? <span class="faq-icon">+</span></div>
       <div class="faq-a">We accept all major payment methods via Razorpay — UPI (GPay, PhonePe, Paytm), Credit/Debit cards, Net banking, and all major wallets. Payments are 100% secure.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What is the 5% service charge? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">What is the 5% service charge? <span class="faq-icon">+</span></div>
       <div class="faq-a">A small 5% service charge is added to every booking. This covers platform costs, payment processing, and customer support. It is shown clearly before you pay — no hidden charges.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel my booking and get a refund? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">Can I cancel my booking and get a refund? <span class="faq-icon">+</span></div>
       <div class="faq-a">Yes — if you cancel at least 24 hours before your session, you get an 80% refund within 72 hours. If you cancel within 24 hours of the session, no refund is applicable. Go to Dashboard → My Bookings → Cancel booking.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What if the creator does not show up? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">What if the creator does not show up? <span class="faq-icon">+</span></div>
       <div class="faq-a">If the creator is a no-show, you will receive a 100% full refund within 72 hours. No action needed from your side — just report it to us at support@sessionwala.com and we will process it immediately.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I join the video call? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I join the video call? <span class="faq-icon">+</span></div>
       <div class="faq-a">Your creator shares the video call link in chat shortly before your session. Open Dashboard → My Bookings → "Chat with creator" to find it. Most creators use Zoom or Google Meet, so keep the app ready on your device.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I leave a review? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I leave a review? <span class="faq-icon">+</span></div>
       <div class="faq-a">You can leave a review only after completing a paid session with a creator. Go to the creator's profile page and scroll to the Reviews section. Your review will be published after admin approval.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">I forgot my password. What do I do? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">I forgot my password. What do I do? <span class="faq-icon">+</span></div>
       <div class="faq-a">Click "Login" → then click "Forgot password?" → enter your registered email address → you will receive a password reset link in your inbox within a few minutes. Check your spam folder if you don't see it.</div>
     </div>
     <!-- FOR CREATORS -->
     <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">For Creators</h3>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I apply to join as a creator? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I apply to join as a creator? <span class="faq-icon">+</span></div>
       <div class="faq-a">Click "Join as Creator" on the homepage → fill in your details (name, email, Instagram handle, niche) → submit your application. Our team will review it within 2-5 business days and email you when approved.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is there a fee to join SessionWala? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">Is there a fee to join SessionWala? <span class="faq-icon">+</span></div>
       <div class="faq-a">No — joining SessionWala is completely free. For your first month, there is zero platform fee and you keep 100% of your session earnings (minus applicable GST). After the first month, a small platform fee applies.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I set my availability? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I set my availability? <span class="faq-icon">+</span></div>
       <div class="faq-a">After your profile is approved, go to Dashboard → My Slots → Add new slot. Select the date and time you are available. Fans can only book the slots you have added. You can add or remove slots anytime.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How and when do I get paid? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How and when do I get paid? <span class="faq-icon">+</span></div>
       <div class="faq-a">Payouts are processed every Monday via Razorpay to your registered bank account or UPI. Your earnings are shown in Dashboard → Earnings with a full breakdown including platform fee and GST deductions.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">What happens if I cancel a session? <span class="faq-icon">+</span></div>
-      <div class="faq-a">If you cancel a confirmed booking, the fan receives a 100% refund and your next session's earnings will be forfeited to SessionWala as a penalty. Repeated cancellations may result in account suspension. Please only accept bookings you can commit to.</div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">What happens if I cancel a session? <span class="faq-icon">+</span></div>
+      <div class="faq-a">If you cancel a confirmed booking, the fan receives a 100% refund and a cancellation fee equal to one session may apply to your next payout. Repeated cancellations may result in account review. Please only accept bookings you can commit to.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I list my session price? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I list my session price? <span class="faq-icon">+</span></div>
       <div class="faq-a">List your session price inclusive of all taxes including GST. SessionWala adds a 5% service charge to fans at checkout — this is separate from your earnings. Go to Dashboard → Profile → set your session price.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How does the referral programme work? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How does the referral programme work? <span class="faq-icon">+</span></div>
       <div class="faq-a">Go to Dashboard → Referrals → copy your unique referral link. When another creator signs up via your link, you earn ₹200 SessionWala Credits. When a fan books a session via your link, you earn ₹100 Credits. Credits can be redeemed against platform fees.</div>
     </div>
     <!-- GENERAL -->
     <h3 style="font-size:16px;font-weight:700;color:var(--brand);margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid var(--border)">General</h3>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is SessionWala available across India? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">Is SessionWala available across India? <span class="faq-icon">+</span></div>
       <div class="faq-a">Yes — SessionWala is available across all of India. Sessions are conducted online via Zoom so location does not matter. Both fans and creators can be from anywhere in India.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is my payment information safe? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">Is my payment information safe? <span class="faq-icon">+</span></div>
       <div class="faq-a">Yes — all payments are processed by Razorpay, which is PCI-DSS compliant and RBI regulated. SessionWala never stores your card or UPI details. Your data is secured on Google Firebase infrastructure.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How do I delete my account? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">How do I delete my account? <span class="faq-icon">+</span></div>
       <div class="faq-a">Email us at support@sessionwala.com with subject "Delete my account" from your registered email address. We will process it within 7 business days. Note that completed booking records may be retained as per our legal obligations.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">I have an issue not listed here. What do I do? <span class="faq-icon">+</span></div>
+      <div class="faq-q" role="button" aria-expanded="false" onclick="toggleFaq(this)">I have an issue not listed here. What do I do? <span class="faq-icon">+</span></div>
       <div class="faq-a">Use the contact form above, email us directly at support@sessionwala.com, or message us on Telegram at @contact_sessionwala. We respond within 24 hours on working days (Monday to Saturday).</div>
     </div>
     <div style="background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);border-radius:12px;padding:1.25rem;margin-top:2rem;text-align:center">
