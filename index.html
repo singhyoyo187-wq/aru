@@ -1196,7 +1196,7 @@ window.openProfile=async function(id){
   if(curCreator&&(!curCreator.sessions||!curCreator.sessions.length)) curCreator.sessions=[{name:'1-on-1 Consultation',desc:'Personalised session tailored to your goals',duration:'30 min',price:curCreator.price||1000}];
   selSess=null;selSlot='';selDate='';reviewRating=0;
   const c=curCreator;
-  const slots=c.availableSlots||[];
+  const slots=(c.availableSlots||[]).filter(isFutureSlot);
   const uniqueDates=[...new Set(slots.map(s=>s.date))].sort();
   let reviewsHTML='<p style="color:var(--muted);font-size:13px">No reviews yet.</p>';
   try{
@@ -1283,7 +1283,7 @@ window.submitReview=async function(creatorId,creatorName){
 };
 window.onDateChange=function(date){
   selDate=date;selSlot='';
-  const slots=(curCreator.availableSlots||[]).filter(s=>s.date===date);
+  const slots=(curCreator.availableSlots||[]).filter(s=>s.date===date&&isFutureSlot(s));
   const cont=document.getElementById('slots-container');
   if(!slots.length){cont.innerHTML='<div class="no-slots">No slots available on this date</div>';return;}
   var sg='<div class="slots-grid">';slots.forEach(s=>{sg+='<div class="slot" onclick="pickSlotFn(this,\''+s.time+'\')">' +s.time+'</div>';});sg+='</div>';cont.innerHTML=sg;
@@ -1308,6 +1308,7 @@ window.doBook=async function(){
   if(selSess===null){toast('Select a session first','error');return;}
   if(!selDate){toast('Please select a date','error');return;}
   if(!selSlot){toast('Please pick a time slot','error');return;}
+  if(!isFutureSlot({date:selDate,time:selSlot})){toast('This slot has already passed. Please pick an upcoming slot.','error');return;}
   const s=curCreator.sessions[selSess];
   const sc=Math.round(s.price*0.05);
   const total=s.price+sc;
@@ -1449,7 +1450,7 @@ function slotManagerHTML(){
   const today=new Date();
   const todayStr=today.toISOString().split('T')[0];
   // Filter future slots only
-  const futureSlots=slots.filter(s=>s.date>=todayStr).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const futureSlots=slots.filter(isFutureSlot).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
   // Generate next 7 days
   const days=[];
   for(let d=0;d<7;d++){
@@ -1518,7 +1519,7 @@ function slotManagerHTML(){
       <h4>Your upcoming slots (${futureSlots.length})</h4>
       <div class="slot-list" id="slot-list">
         ${!futureSlots.length?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">No upcoming slots. Add some above!</p>':
-          futureSlots.map((s,i)=>'<div class="slot-item"><div><div style="font-weight:500">'+formatDate(s.date)+'</div><div style="font-size:12px;color:var(--muted)">'+s.time+'</div></div><button class="slot-del" onclick="removeSlot('+i+')">&#x2715;</button></div>').join('')}
+          futureSlots.map((s,i)=>'<div class="slot-item"><div><div style="font-weight:500">'+formatDate(s.date)+'</div><div style="font-size:12px;color:var(--muted)">'+s.time+'</div></div><button class="slot-del" onclick="removeSlot(\''+s.date+'\',\''+s.time+'\')">&#x2715;</button></div>').join('')}
       </div>
     </div>
   </div>`;
@@ -1598,15 +1599,22 @@ window.addSlot=async function(){
     document.getElementById('tab-slots').innerHTML=slotManagerHTML();toast('Slot added','success');
   }catch(e){toast('Failed to add slot','error');}
 };
-window.removeSlot=async function(i){
-  const slots=CUD?.availableSlots||[];const slot=slots[i];if(!slot)return;
-  try{
-    await updateDoc(doc(db,'users',CU.uid),{availableSlots:arrayRemove(slot)});
-    CUD.availableSlots=slots.filter((_,idx)=>idx!==i);
+window.removeSlot=function(date,time){
+  const slots=CUD?.availableSlots||[];
+  const slot=slots.find(s=>s.date===date&&s.time===time);if(!slot)return;
+  updateDoc(doc(db,'users',CU.uid),{availableSlots:arrayRemove(slot)}).then(()=>{
+    CUD.availableSlots=slots.filter(s=>!(s.date===date&&s.time===time));
     document.getElementById('tab-slots').innerHTML=slotManagerHTML();toast('Slot removed','success');
-  }catch(e){toast('Failed','error');}
+  }).catch(()=>toast('Failed','error'));
 };
 function to24h(t){if(!t)return'00:00:00';const[tm,ap]=(t||'').split(' ');let[h,m]=(tm||'0:00').split(':');h=parseInt(h)||0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return String(h).padStart(2,'0')+':'+(m||'00')+':00';}
+// Is a slot still in the future (bookable)? Past date/time slots are hidden.
+function isFutureSlot(s){
+  if(!s||!s.date)return false;
+  const t=new Date(s.date+'T'+to24h(s.time));
+  if(isNaN(t.getTime()))return false;
+  return t.getTime()>Date.now();
+}
 // BATCH5: add booking to Google Calendar
 function gcalStamp(d){return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0')+'T'+String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'00Z';}
 window.addToCalendar=function(bookingId){
