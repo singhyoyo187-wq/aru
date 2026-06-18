@@ -1091,11 +1091,11 @@ async function loadCreators(){
     console.error('loadCreators error:',e);
     allCreators=[];
   }
-  // Only use demo creators if NO real creators found
-  if(allCreators.length===0){
-    console.log('No real creators found, using demo');
-    allCreators=demoCreators();
-  }
+  // Always show demo creators alongside real ones (real first, demo after)
+  // so the platform never looks empty. Demo creators show "Fully booked this week".
+  const realCount=allCreators.length;
+  allCreators=allCreators.concat(demoCreators());
+  console.log('Total creators (real + demo):', allCreators.length, '| real:', realCount);
   renderGrid('all');
   // Route from current URL after creators load (handles direct visits + old #creator- links)
   handleCreatorHash();
