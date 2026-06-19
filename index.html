@@ -932,8 +932,22 @@ window.checkPassStrength=function(){
 window.togglePass=function(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.innerHTML=el.type==='password'?icon('eye'):icon('eyeOff');};
 onAuthStateChanged(auth,async u=>{
   if(u){
-    CU=u;
+    const isAdminUser=u.email===ADMIN_EMAIL;
     const d=await getDoc(doc(db,'users',u.uid));
+    // Account removed/rejected: Auth exists but no Firestore record → block access
+    if(!d.exists()&&!isAdminUser){
+      await signOut(auth);
+      CU=null;CUD=null;
+      document.getElementById('btn-login').style.display='block';
+      document.getElementById('btn-logout').style.display='none';
+      document.getElementById('btn-dash').style.display='none';
+      document.getElementById('btn-admin').style.display='none';
+      document.getElementById('btn-home-admin').style.display='none';
+      showPage('home');
+      toast('This account is no longer active. Please contact support.','error');
+      return;
+    }
+    CU=u;
     if(d.exists())CUD=d.data();
     const isAdmin=CU.email===ADMIN_EMAIL;
     const isAdmin2=CU.email===ADMIN_EMAIL;document.getElementById('nav-name').textContent=isAdmin2?'':(CUD?.name?.split(' ')[0]||'');
@@ -1314,6 +1328,7 @@ window.pickSess=function(i){
 window.pickSlotFn=function(el,t){document.querySelectorAll('.slot').forEach(s=>s.classList.remove('active'));el.classList.add('active');selSlot=t;};
 window.doBook=async function(){
   if(!CU){toast('Please login to book','error');showPage('login');return;}
+  if(!CUD){toast('Your account is not active. Please contact support.','error');return;}
   if(selSess===null){toast('Select a session first','error');return;}
   if(!selDate){toast('Please select a date','error');return;}
   if(!selSlot){toast('Please pick a time slot','error');return;}
