@@ -1989,17 +1989,14 @@ window.sendContactForm=async function(){
   if(!message||message.length<10){err.textContent='Please describe your issue (min 10 characters)';err.style.display='block';return;}
   const btn=document.getElementById('ct-btn');btn.innerHTML='<span class="loader"></span>Sending...';btn.disabled=true;
   try{
-    await emailjsSafe.send('service_klryyoj','template_wk0ksta',{
-      fan_name:name,
-      fan_email:email,
-      creator_name:'SessionWala Support',
-      session_name:'Support: '+subject+' | Type: '+type,
-      booking_date:new Date().toLocaleDateString('en-IN'),
-      slot_time:'Contact Form',
-      duration:message,
-      amount:'N/A',
-      zoom_link:'N/A',
-      payment_id:'Reply to: '+email
+    await emailjsSafe.send('service_klryyoj','template_contact',{
+      from_name:name,
+      from_email:email,
+      user_type:type,
+      subject:subject,
+      message:message,
+      sent_date:new Date().toLocaleString('en-IN'),
+      reply_to:email
     });
     ok.style.display='block';
     document.getElementById('ct-name').value='';
@@ -2498,7 +2495,7 @@ window.bulkApprovePending=async function(){
   for(const u of pending){
     try{
       await updateDoc(doc(db,'users',u.id),{status:'approved',isPublic:true,verified:true,live:false});
-      try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'Check your dashboard',duration:'N/A',amount:'First month free',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(e){}
+      try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Creator application approved',booking_date:new Date().toLocaleDateString('en-IN'),slot_time:'Login to your dashboard',duration:'You can now set up your profile and start accepting sessions',amount:'0',zoom_link:'Visit https://sessionwala.com to get started'});}catch(e){}
       ok++;
     }catch(e){console.log('bulk approve fail',u.id,e);}
   }
@@ -2512,7 +2509,7 @@ window.bulkApprovePendingFans=async function(){
   for(const u of pending){
     try{
       await updateDoc(doc(db,'users',u.id),{status:'approved'});
-      try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Your account is approved! Start booking sessions.',booking_date:'Today',slot_time:'Login to get started',duration:'N/A',amount:'N/A',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(e){}
+      try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:u.name,fan_email:u.email,creator_name:'SessionWala Team',session_name:'Account approved',booking_date:new Date().toLocaleDateString('en-IN'),slot_time:'Login and explore creators',duration:'You can now book 1-on-1 sessions with creators',amount:'0',zoom_link:'Visit https://sessionwala.com to get started'});}catch(e){}
       ok++;
     }catch(e){}
   }
@@ -2528,7 +2525,7 @@ window.adminSearch=function(tabId,val){
 window.approveCreator=async function(uid,name,email){
   try{
     await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true,live:false});
-    try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Your application is approved!',booking_date:'Today',slot_time:'Check your dashboard',duration:'N/A',amount:'First month free',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(eml){console.log('Email error',eml);}
+    try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Creator application approved',booking_date:new Date().toLocaleDateString('en-IN'),slot_time:'Login to your dashboard',duration:'You can now set up your profile and start accepting sessions',amount:'0',zoom_link:'Visit https://sessionwala.com to get started'});}catch(eml){console.log('Email error',eml);}
     toast(name+' approved and notified','success');loadAdminData();
   }catch(e){toast('Failed','error');}
 };
@@ -2557,7 +2554,7 @@ window.adminBanReviewer=async function(fanId,fanName){if(!confirm('Ban '+fanName
 window.approveFan=async function(uid,name,email){
   try{
     await updateDoc(doc(db,'users',uid),{status:'approved'});
-    try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Your account is approved! Start booking sessions.',booking_date:'Today',slot_time:'Login to get started',duration:'N/A',amount:'N/A',zoom_link:'https://sessionwala.com',payment_id:'N/A'});}catch(eml){console.log('Email error:',eml);}
+    try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Account approved',booking_date:new Date().toLocaleDateString('en-IN'),slot_time:'Login and explore creators',duration:'You can now book 1-on-1 sessions with creators',amount:'0',zoom_link:'Visit https://sessionwala.com to get started'});}catch(eml){console.log('Email error:',eml);}
     toast(name+' approved!','success');loadAdminData();
   }catch(e){toast('Failed','error');}
 };
