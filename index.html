@@ -3,11 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     ANALYTICS — IMPORTANT: Replace the placeholder IDs below
+     1. Google Analytics: replace G-XXXXXXXXXX with your GA4 ID
+     2. Meta Pixel: replace YOUR_PIXEL_ID with your Meta Pixel ID
+     If you don't have these yet, leave as-is (they stay inactive)
+     ============================================================ -->
+
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
+<!-- Meta Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'YOUR_PIXEL_ID');
+  fbq('track', 'PageView');
+</script>
+
 <title>SessionWala — Book 1-on-1 Live Sessions with Top Indian Creators</title>
 <meta name="description" content="SessionWala is live — book 1-on-1 video sessions with India's verified fitness, beauty and wellness creators. Secure Razorpay payments, HD video sessions.">
 <link rel="canonical" href="https://sessionwala.com/">
 <meta name="theme-color" content="#0D0D0D">
 <meta name="robots" content="index,follow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SessionWala">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SessionWala">
 <meta property="og:title" content="SessionWala — Book 1-on-1 Live Sessions with Top Indian Creators">
@@ -473,6 +509,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .digest-num{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
 </style>
 <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"SessionWala","url":"https://sessionwala.com","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://sessionwala.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
+</script>
+<script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"SessionWala","url":"https://sessionwala.com","email":"support@sessionwala.com","address":{"@type":"PostalAddress","addressLocality":"Delhi","addressCountry":"IN"},"description":"Indian creator marketplace for 1-on-1 live video sessions with verified fitness, beauty and wellness creators."}
 </script>
 <script type="application/ld+json">
@@ -850,6 +889,18 @@ function ensureRazorpay(){
 }
 // Thin wrapper so existing emailjs.send(...) calls keep working but auto-load the lib first
 const emailjsSafe={send:async(...a)=>{const lib=await ensureEmailjs();return lib.send(...a);}};
+
+// Safe analytics tracking — never breaks the site if Pixel/GA not loaded
+function track(event, params){
+  try{ if(typeof gtag==='function') gtag('event', event, params||{}); }catch(e){}
+  try{
+    if(typeof fbq==='function'){
+      const metaMap={sign_up:'CompleteRegistration', purchase:'Purchase', generate_lead:'Lead'};
+      const metaEvent=metaMap[event];
+      if(metaEvent) fbq('track', metaEvent, params||{});
+    }
+  }catch(e){}
+}
 // ── BATCH2: inline SVG icon set (replaces structural emojis) ──
 const ICONS={
   lock:'<path d="M5 11h14v9H5z"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
@@ -992,6 +1043,7 @@ window.doSignup=async function(){
   const btn=document.getElementById('su-btn');btn.innerHTML='<span class="loader"></span>Creating...';btn.disabled=true;
   try{
     const c=await createUserWithEmailAndPassword(auth,email,pass);
+    track('sign_up',{method:'email',role:selRole});
     let referredBy=null;
     if(refCode){
       const rq=query(collection(db,'users'),where('referralCode','==',refCode));
@@ -1347,6 +1399,7 @@ window.doBook=async function(){
         // BATCH: no auto link — creator shares the meeting link via chat before the session
         const sessionPIN = String(Math.floor(1000+Math.random()*9000));
 const bookingRef = await addDoc(collection(db,'bookings'),{fanId:CU.uid,fanName:CUD?.name||'Fan',fanEmail:CU.email,creatorId:curCreator.id,creatorName:curCreator.name,sessionName:s.name,sessionDuration:s.duration,bookingDate:selDate,slot:selSlot,price:s.price,serviceCharge:sc,total,status:'confirmed',sessionStatus:'pending',sessionPIN,paymentId:response.razorpay_payment_id,zoomLink:'',refundStatus:'none',createdAt:serverTimestamp()});
+        track('purchase',{currency:'INR',value:total,transaction_id:response.razorpay_payment_id,item_name:s.name});
         if(CUD?.referredBy){try{await updateDoc(doc(db,'users',CUD.referredBy),{credits:increment(100)});}catch(e){}}
         try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:CUD?.name||'there',fan_email:CU.email,creator_name:curCreator.name,session_name:s.name,booking_date:formatDate(selDate),slot_time:selSlot,duration:s.duration,amount:'Rs '+total.toLocaleString('en-IN'),zoom_link:'Your creator will share the meeting link in chat before the session. Session PIN: '+sessionPIN,payment_id:response.razorpay_payment_id});}catch(e){}
         document.getElementById('bsummary').innerHTML=`
@@ -1998,6 +2051,7 @@ window.sendContactForm=async function(){
       sent_date:new Date().toLocaleString('en-IN'),
       reply_to:email
     });
+    track('generate_lead',{form:'contact'});
     ok.style.display='block';
     document.getElementById('ct-name').value='';
     document.getElementById('ct-email').value='';
