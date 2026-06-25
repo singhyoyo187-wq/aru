@@ -1,0 +1,17 @@
+{
+  "name": "SessionWala",
+  "short_name": "SessionWala",
+  "description": "Book 1-on-1 live video sessions with India's verified creators",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
