@@ -611,6 +611,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <footer>
     <p>© 2026 SessionWala · Delhi, India · support@sessionwala.com</p>
     <div class="footer-links">
+      <a onclick="showPage('for-creators')" style="color:var(--brand);font-weight:600">For Creators</a>
       <a onclick="showPage('terms')">Terms and Conditions</a>
       <a onclick="showPage('privacy')">Privacy Policy</a>
       <a onclick="if(window.showPage)window.showPage('contact')" style="cursor:pointer">Contact Us</a>
@@ -855,6 +856,58 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <ul><li>Access your personal data</li><li>Request correction of inaccurate data</li><li>Request deletion of your account</li><li>Opt out of marketing emails</li></ul>
     <h2>7. Contact</h2>
     <p>support@sessionwala.com</p>
+  </div>
+</div>
+<div class="page" id="page-for-creators">
+  <div class="policy-page" style="max-width:720px">
+    <div onclick="gotoHome()" class="back-btn" style="padding:0 0 1.5rem"><span class="ic" style="font-size:14px"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span> Back</div>
+    <h1 style="font-size:clamp(28px,5vw,42px);line-height:1.15">Turn your followers into <span style="color:var(--brand)">income</span></h1>
+    <p style="font-size:16px;color:var(--muted);margin:12px 0 28px">SessionWala lets you earn from paid 1-on-1 video sessions with your fans — fitness consults, skincare routines, diet plans, career advice. Your knowledge, your price, your schedule.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem">
+        <div style="font-size:24px;font-weight:800;color:var(--brand)">₹500–₹5,000</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">per session — you set the price</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem">
+        <div style="font-size:24px;font-weight:800;color:var(--brand)">0% commission</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">for your first month on the platform</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem">
+        <div style="font-size:24px;font-weight:800;color:var(--brand)">You choose when</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">add slots only when you're free</div>
+      </div>
+    </div>
+
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Apply in 2 minutes</strong> — sign up as a creator with your Instagram or YouTube handle. We verify every creator personally.</li>
+      <li><strong>Set your sessions</strong> — name your offering (e.g. "30-min diet consult"), set your price, add available time slots.</li>
+      <li><strong>Fans book & pay upfront</strong> — secure Razorpay payments. No chasing anyone for money.</li>
+      <li><strong>Do the session</strong> — connect on video at the booked time. Share your meeting link in the built-in chat.</li>
+      <li><strong>Get paid</strong> — request payout from your dashboard, money reaches your bank.</li>
+    </ul>
+
+    <h2>Quick earnings math</h2>
+    <p style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;font-size:14px">Just <strong>2 sessions a day at ₹1,000</strong> = ₹2,000/day = <strong style="color:var(--brand)">₹60,000/month</strong> — from time you choose, knowledge you already have.</p>
+
+    <h2>Why creators pick SessionWala</h2>
+    <ul>
+      <li><strong>Built for Indian creators</strong> — INR payments, UPI-friendly, GST-clear pricing.</li>
+      <li><strong>Your brand stays yours</strong> — we don't own your audience. Fans book you, not us.</li>
+      <li><strong>No tech headache</strong> — no website, payment gateway, or scheduling tool needed. It's all here.</li>
+      <li><strong>Verified marketplace</strong> — every creator is manually verified, so fans trust the platform and pay confidently.</li>
+    </ul>
+
+    <h2>Who is this for?</h2>
+    <p>Fitness trainers, yoga instructors, dieticians, skincare & beauty creators, makeup artists, wellness coaches, and any creator whose followers keep asking for personal advice in DMs. If you're answering for free in DMs — you should be earning for it here.</p>
+
+    <div style="text-align:center;margin:36px 0 12px">
+      <button class="btn-primary" style="font-size:16px;padding:14px 32px" onclick="showPage('signup')">Apply as a Creator — Free</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px">2-minute application · Personal verification · No joining fee</p>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted)">Questions? Message us at support@sessionwala.com or <a onclick="showPage('contact')" style="color:var(--brand);cursor:pointer">contact us here</a>.</p>
   </div>
 </div>
 <script type="module">
@@ -2319,6 +2372,7 @@ const PAGE_META={
   dashboard:{path:'/dashboard',title:'My Dashboard — SessionWala',desc:'Manage your bookings, sessions and profile on SessionWala.'},
   profile:{path:'/creator',title:'Creator Profile — SessionWala',desc:'Book a 1-on-1 live video session with this verified creator on SessionWala.'},
   contact:{path:'/contact',title:'Contact & Support — SessionWala',desc:'Get help with bookings, payments and creator applications on SessionWala.'},
+  'for-creators':{path:'/for-creators',title:'Earn from 1-on-1 Sessions — Join SessionWala as a Creator',desc:'Turn your Instagram or YouTube following into income. Paid 1-on-1 video sessions, you set the price, 0% commission first month. Apply free in 2 minutes.'},
   terms:{path:'/terms',title:'Terms & Conditions — SessionWala',desc:'SessionWala terms and conditions.'},
   privacy:{path:'/privacy',title:'Privacy Policy — SessionWala',desc:'SessionWala privacy policy.'},
   admin:{path:'/admin',title:'Admin — SessionWala',desc:''},
@@ -2401,7 +2455,7 @@ window.loadAdminData=async function(){
       <tbody>${pending.map(u=>`<tr>
         <td><div class="user-row-info"><div class="user-mini-av">${avatarInitial(u.name)}</div><div><div style="font-weight:500">${u.name}</div><div style="font-size:11px;color:var(--muted)">${u.email}</div></div></div></td>
         <td>${nicheLabel(u.niche)}</td>
-        <td style="color:var(--muted)">${u.instagram||'—'}</td>
+        <td>${u.instagram?`<a href="https://instagram.com/${(u.instagram||'').replace('@','')}" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none;font-weight:600" title="Open Instagram to verify — DM them to confirm identity before approving">${u.instagram} ↗</a>`:'—'}${u.youtube?`<br><a href="https://youtube.com/${u.youtube.charAt(0)==='@'?u.youtube:'@'+(u.youtube||'').replace('@','')}" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none;font-size:12px" title="Open YouTube channel to verify">YouTube ↗</a>`:''}</td>
         <td style="font-size:12px;color:var(--muted)">${u.createdAt?.toDate?u.createdAt.toDate().toLocaleDateString('en-IN'):'—'}</td>
         <td><button class="action-btn btn-approve" onclick="approveCreator('${u.id}','${u.name}','${u.email}')">Approve</button><button class="action-btn btn-reject" onclick="rejectCreator('${u.id}','${u.name}')">Reject</button></td>
       </tr>`).join('')}</tbody></table></div>`:'<div class="empty"><div class="ei">✅</div><p>No pending applications</p></div>';
@@ -2577,6 +2631,7 @@ window.adminSearch=function(tabId,val){
   });
 };
 window.approveCreator=async function(uid,name,email){
+  if(!confirm('Have you verified '+name+"'s identity on Instagram/YouTube? (DM them or check their profile)\n\nOK = Yes, verified & approve\nCancel = Not yet"))return;
   try{
     await updateDoc(doc(db,'users',uid),{status:'approved',isPublic:true,verified:true,live:false});
     try{await emailjsSafe.send('service_klryyoj','template_wk0ksta',{fan_name:name,fan_email:email,creator_name:'SessionWala Team',session_name:'Creator application approved',booking_date:new Date().toLocaleDateString('en-IN'),slot_time:'Login to your dashboard',duration:'You can now set up your profile and start accepting sessions',amount:'0',zoom_link:'Visit https://sessionwala.com to get started'});}catch(eml){console.log('Email error',eml);}
